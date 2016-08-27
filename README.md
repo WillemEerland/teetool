@@ -6,7 +6,7 @@ conda create -n teetool-env python=2.7 pytest mayavi
 source activate teetool-env
 
 # run tests
-py.test
+py.test test
 
 # run example
 python /example/*.py [choose a file here]
