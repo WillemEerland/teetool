@@ -1,3 +1,5 @@
+[![Travis CI](https://travis-ci.com/WillemEerland/teetool.svg?token=vgGUTGsaoutqpevkkMq4&branch=master)]
+
 # teetool
 a package to support with the statistical analysis of trajectory data
 
