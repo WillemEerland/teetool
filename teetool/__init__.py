@@ -1,5 +1,3 @@
+__all__ = ['helpers', 'model', 'world']
 
-from . import helpers
-from . import model
-
-from .world import World
+from teetool.world import World

@@ -8,7 +8,7 @@ import pytest as pt
 import sys
 
 # add library path
-sys.path.append('../teetool')
+#sys.path.append('../teetool')
 
 import teetool as tt
 import toy

@@ -5,10 +5,6 @@
 import numpy as np
 import sys
 
-# add library path
-sys.path.append('../teetool')
-sys.path.append('../test')
-
 import teetool as tt
 import test
 

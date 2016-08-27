@@ -1,7 +1,5 @@
 # models the trajectory data
 
-
-
 # import support files here
 import numpy as np
 from numpy.linalg import det, inv
