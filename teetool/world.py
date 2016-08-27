@@ -5,7 +5,7 @@ import model
 
 # import support files here
 import numpy as np
-import mayavi.mlab as mlab
+#import mayavi.mlab as mlab
 
 class World(object):
 	"""
@@ -125,6 +125,7 @@ class World(object):
 		visualise trajectories using mayavi
 		"""
 
+		"""
 		nclusters = len(self.clusters)  # number of clusters
 		colours = helpers.getDistinctColours(nclusters)  # colours
 
@@ -138,6 +139,7 @@ class World(object):
 				mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i], tube_radius=.1)
 
 		mlab.show()
+		"""
 
 		return True
 
@@ -146,6 +148,7 @@ class World(object):
 		<description>
 		"""
 
+		"""
 		# TODO allow inputs
 
 		x, y, z = np.ogrid[-60:60:20j, -10:240:20j, -60:60:20j]
@@ -170,3 +173,6 @@ class World(object):
 		mlab.pipeline.volume(mlab.pipeline.scalar_field(s), vmin=.2, vmax=.8)
 		mlab.outline()
 		mlab.show()
+		"""
+
+		return True
