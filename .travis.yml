@@ -17,6 +17,7 @@ install:
   - source activate teetool-env
   # where are we?
   - pwd
+  - ls
 
 script:
   # Your test script goes here
