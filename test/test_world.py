@@ -11,8 +11,9 @@ import sys
 sys.path.append('../teetool')
 
 import teetool as tt
+import toy
 
-def test_initialisation():
+def test_init():
     """
     <description>
     """
@@ -50,7 +51,7 @@ def test_initialisation():
         world_5 = tt.World(name_5, D_5)
 
 
-def test_adding_a_cluster():
+def test_addCluster():
     """
     <description>
     """
@@ -60,22 +61,13 @@ def test_adding_a_cluster():
     # build world
     world_1 = tt.World(name="test", dimension=D)
 
-    # build a correct cluster
-    N = 30  # number of trajectories
-    M = 50  # number of data-points
-
-    x = np.linspace(0, 1, M)
-    Y = np.zeros((M, D))
-
-    correct_cluster_data = []
-    for n in range(N):
-        correct_traj_data = (x, Y)
-        correct_cluster_data.append(correct_traj_data)
-
+    # build a valid cluster
     correct_cluster_name = "correct data"
 
     # normal operation
-    world_1.addCluster(correct_cluster_data, correct_cluster_name)
+    for ntype in [1, 2]:
+        correct_cluster_data = toy.get_trajectories(ntype, D, N=5)
+        world_1.addCluster(correct_cluster_data, correct_cluster_name)
 
     #
     wrong_cluster_name = 5
@@ -93,3 +85,20 @@ def test_adding_a_cluster():
     wrong_cluster_data.append(wrong_trajectory_data)
     with pt.raises(TypeError) as testException:
         world_1.addCluster(wrong_cluster_data, correct_cluster_name)
+
+def test_model():
+    """
+    tests the modelling functionality
+    """
+
+    # build world
+    world_1 = tt.World(name="model test",dimension=3)
+
+    # add trajectories
+    for ntype in [1, 2]:
+        correct_cluster_name = "toy {}".format(ntype)
+        correct_cluster_data = toy.get_trajectories(ntype, D=3, N=20)
+        world_1.addCluster(correct_cluster_data, correct_cluster_name)
+
+    # model all trajectories
+    world_1.model()

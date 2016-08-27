@@ -3,67 +3,38 @@
 """
 
 import numpy as np
-import mayavi.mlab as mlab
+import sys
 
-# remove random effect
-np.random.seed(seed=10)
+# add library path
+sys.path.append('../teetool')
+sys.path.append('../test')
 
-# PARAMETERS
-N = 50  # number of trajectories
-M = 100  # number of data-points per trajectory
-D = 3  # number of dimensions
+import teetool as tt
+import test
 
-# generate toy trajectories
+# parameters
+ntraj = 50
+ndim = 3
 
-x = np.linspace(-50, 50, num=M)
+# build world
+new_world = tt.World(name="Example 3D", dimension=ndim)
 
-# [first set of trajectories] -------------------------------------------
+# add trajectories
+for ntype in [1,2]:
+    cluster_name = "toy {}".format(ntype)
+    cluster_data = test.toy.get_trajectories(ntype, D=ndim, N=ntraj)
+    new_world.addCluster(cluster_data, cluster_name)
 
-toy_trajectories_1 = []
+# print overview
+new_world.overview()
 
-for i in range(N):
-    y1 = x + 5*np.random.rand(1) - 2.5
-    y2 = 0.05*(x**2) + 20*np.random.rand(1) + 80
-    y3 = x + 5*np.random.rand(1) - 2.5
-    #
-    Y = np.array([y1, y2, y3]).transpose()
-    #
-    this_trajectory = (x, Y)
-    #
-    toy_trajectories_1.append(this_trajectory)
+# model all trajectories
+new_world.model()
 
-# [second set of trajectories] ----------------------------------------------
+# print overview
+new_world.overview()
 
-toy_trajectories_2 = []
+# visualise trajectories using mayavi
+new_world.show_trajectories()
 
-for i in range(N):
-    y1 = x + 5*np.random.rand(1) - 2.5
-    y2 = -x + 20*np.random.rand(1) + 50
-    y3 = x + 5*np.random.rand(1) - 2.5
-
-    Y = np.array([y1, y2, y3]).transpose()
-
-    this_trajectory = (x, Y)
-
-    toy_trajectories_2.append(this_trajectory)
-
-# (optional) visualise trajectories using mayavi
-
-black = (0, 0, 0)
-white = (1, 1, 1)
-red = (1, 0, 0)
-blue = (0, 0, 1)
-
-mlab.figure()
-
-for this_trajectory in toy_trajectories_1:
-    (x, Y) = this_trajectory
-    mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=red, tube_radius=.1)
-
-for this_trajectory in toy_trajectories_2:
-    (x, Y) = this_trajectory
-    mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=blue, tube_radius=.1)
-
-mlab.show()
-
-# add trajectories to world
+new_world.show_model()
