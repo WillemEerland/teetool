@@ -18,6 +18,7 @@ install:
   # where are we?
   - pwd
   - ls
+  - ls test
 
 script:
   # Your test script goes here
