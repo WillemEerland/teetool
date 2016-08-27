@@ -17,4 +17,4 @@ install:
   - source activate teetool-env
   - python setup.py install
 script:
-  - py.test
+  - py.test -v
