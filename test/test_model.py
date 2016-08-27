@@ -11,7 +11,7 @@ import sys
 #sys.path.append('../teetool')
 
 import teetool as tt
-import toy
+from test import toy
 
 def test_init():
     """

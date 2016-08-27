@@ -234,7 +234,7 @@ class Model(object):
         """
 
         if ( len(cc) != len(cA) ):
-			raise ValueError("expected size to match")
+            raise ValueError("expected size to match")
 
         M = len(cc)
 
