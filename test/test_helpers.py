@@ -3,12 +3,7 @@
 """
 
 import numpy as np
-import os
 import pytest as pt
-import sys
-
-# add library path
-#sys.path.append('../teetool')
 
 import teetool as tt
 

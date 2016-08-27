@@ -16,13 +16,13 @@ class Model(object):
         cluster_data is a list of (x, Y)
 
         settings for "model_type" = "resampling":
-        "mpoints": number of points to resample
+        "mgaus": number of Gaussians to create
         """
 
         # (input checked in World)
 
         # extract settings
-        M = settings["mpoints"]
+        M = settings["mgaus"]
 
         # write global settings
         self.D = self._getDimension(cluster_data)
@@ -238,16 +238,18 @@ class Model(object):
 
         M = len(cc)
 
-        py = 0
+        """
+        should be zero, but this causes log infinity
+        TODO: filter these results
+        """
+
+        py = 10**-30
 
         for m in range(M):
             c = cc[m]
             A = cA[m]
             py += self._gauss(y, c, A) # addition of each Gaussian
 
-        if (py == 0):
-            pyL = np.nan
-        else:
-            pyL = np.log(py) - np.log(M) # division by number of Gaussians
+        pyL = np.log(py) - np.log(M) # division by number of Gaussians
 
         return pyL

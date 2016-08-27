@@ -3,15 +3,10 @@
 """
 
 import numpy as np
-import os
 import pytest as pt
-import sys
-
-# add library path
-#sys.path.append('..')
 
 import teetool as tt
-from test import toy
+from teetool import helpers
 
 def test_init():
     """
@@ -66,7 +61,7 @@ def test_addCluster():
 
     # normal operation
     for ntype in [1, 2]:
-        correct_cluster_data = toy.get_trajectories(ntype, D, N=5)
+        correct_cluster_data = helpers.get_trajectories(ntype, D, N=5)
         world_1.addCluster(correct_cluster_data, correct_cluster_name)
 
     #
@@ -97,8 +92,13 @@ def test_model():
     # add trajectories
     for ntype in [1, 2]:
         correct_cluster_name = "toy {0}".format(ntype)
-        correct_cluster_data = toy.get_trajectories(ntype, D=3, N=20)
+        correct_cluster_data = helpers.get_trajectories(ntype, D=3, N=20)
         world_1.addCluster(correct_cluster_data, correct_cluster_name)
 
     # model all trajectories
-    world_1.model()
+
+    settings = {}
+    settings["model_type"] = "resample"
+    settings["mgaus"] = 10
+
+    world_1.model(settings)

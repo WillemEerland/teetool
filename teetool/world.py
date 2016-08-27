@@ -3,9 +3,7 @@
 from teetool import helpers
 from teetool import model
 
-# import support files here
 import numpy as np
-#import mayavi.mlab as mlab
 
 class World(object):
     """
@@ -101,15 +99,13 @@ class World(object):
 
         return True
 
-    def model(self):
+    def model(self, settings):
         """
-        <description>
+        creates a model with these settings
+        model_type: [resample]
+        mgaus: number of Gaussians (e.g. 50-100)
         """
 
-        # TODO allow custom input
-        settings = {}
-        settings["model_type"] = "resample"
-        settings["mpoints"] = 100
 
         for (i, this_cluster) in enumerate(self.clusters):
 
@@ -120,38 +116,17 @@ class World(object):
             this_cluster["model"] = new_model
             self.clusters[i] = this_cluster
 
-    def show_trajectories(self):
+    def getClusters(self):
         """
-        visualise trajectories using mayavi
-        """
-
-        """
-        nclusters = len(self.clusters)  # number of clusters
-        colours = helpers.getDistinctColours(nclusters)  # colours
-
-        mlab.figure()
-
-        for (i, this_cluster) in enumerate(self.clusters):
-            # this cluster
-            cluster_data = this_cluster["data"]
-            for (x, Y) in cluster_data:
-                # this trajectory
-                mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i], tube_radius=.1)
-
-        mlab.show()
+        returns the clusters
         """
 
-        return True
+        return self.clusters
 
-    def show_model(self):
+    def getIntersection(self, x, y, z):
         """
         <description>
         """
-
-        """
-        # TODO allow inputs
-
-        x, y, z = np.ogrid[-60:60:20j, -10:240:20j, -60:60:20j]
 
         s_models = []
 
@@ -161,18 +136,12 @@ class World(object):
             # store
             s_models.append(s)
 
-        # TODO HARDCODE TEST
-        s = s_models[0] + s_models[1]
+        s = s_models[0]
+
+        for i in range(1,len(s_models)):
+            s = s + s_models[i]
 
         # normalise
         s = (s - np.min(s)) / (np.max(s) - np.min(s))
 
-        # mayavi
-        src = mlab.pipeline.scalar_field(s)
-        mlab.pipeline.iso_surface(src, contours=[s.min()+0.3*s.ptp(), ], opacity=0.2)
-        mlab.pipeline.volume(mlab.pipeline.scalar_field(s), vmin=.2, vmax=.8)
-        mlab.outline()
-        mlab.show()
-        """
-
-        return True
+        return s

@@ -3,15 +3,10 @@
 """
 
 import numpy as np
-import os
 import pytest as pt
-import sys
-
-# add library path
-#sys.path.append('../teetool')
 
 import teetool as tt
-from test import toy
+from teetool import helpers
 
 def test_init():
     """
@@ -21,8 +16,8 @@ def test_init():
     ngaus = 100 # number of Gaussian output
     ndim = 3 # number of dimensions
 
-    cluster_data = toy.get_trajectories(ntype=1, D=ndim)
-    valid_settings = {"model_type": "resampling", "mpoints": ngaus}
+    cluster_data = helpers.get_trajectories(ntype=1, D=ndim)
+    valid_settings = {"model_type": "resampling", "mgaus": ngaus}
 
     # normal operation
     new_model = tt.model.Model(cluster_data, valid_settings)
@@ -33,11 +28,11 @@ def test_init():
 
     # CHECK dimension
     for d in (2,3):
-        cluster_data_d = toy.get_trajectories(ntype=1, D=d, N=10)
+        cluster_data_d = helpers.get_trajectories(ntype=1, D=d, N=10)
         assert (new_model._getDimension(cluster_data_d) == d)
 
     # normalise data
-    cluster_data = toy.get_trajectories(ntype=1, D=ndim)
+    cluster_data = helpers.get_trajectories(ntype=1, D=ndim)
     norm_cluster_data = new_model._normalise_data(cluster_data)
 
     # CHECK if trajectories are normalised
@@ -71,8 +66,8 @@ def test_eval():
     ngaus = 100 # number of Gaussian output
     ndim = 3 # number of dimensions
 
-    cluster_data = toy.get_trajectories(ntype=1, D=ndim)
-    valid_settings = {"model_type": "resampling", "mpoints": ngaus}
+    cluster_data = helpers.get_trajectories(ntype=1, D=ndim)
+    valid_settings = {"model_type": "resampling", "mgaus": ngaus}
 
     # normal operation
     new_model = tt.model.Model(cluster_data, valid_settings)
