@@ -8,6 +8,7 @@ import pytest as pt
 import teetool as tt
 from teetool import helpers
 
+
 def test_init():
     """
     <description>
@@ -80,6 +81,7 @@ def test_addCluster():
     wrong_cluster_data.append(wrong_trajectory_data)
     with pt.raises(TypeError) as testException:
         world_1.addCluster(wrong_cluster_data, correct_cluster_name)
+
 
 def test_model():
     """

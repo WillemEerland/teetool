@@ -1,13 +1,13 @@
 # functions to visualise the information
-# (trajectories / probability) in 3 dimensions
+# (trajectories / probability) in 2 dimensions
 
-import mayavi.mlab as mlab
 import numpy as np
+import matplotlib.pyplot as plt
 
 from teetool import helpers
 
 
-class Visual_3d(object):
+class Visual_2d(object):
     """
     <description>
     """
@@ -18,7 +18,8 @@ class Visual_3d(object):
         """
 
         # start figure
-        self.mfig = mlab.figure()
+        self._fig = plt.figure()
+        self._ax = self._fig.gca()
         self._world = thisWorld
 
     def plotTrajectories(self, list_clusters):
@@ -31,15 +32,14 @@ class Visual_3d(object):
         for (i, icluster) in enumerate(list_clusters):
             this_cluster = self._world.getCluster(icluster)
             for (x, Y) in this_cluster["data"]:
-                mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
-                            tube_radius=.2)
+                self._ax.plot(Y[:, 0], Y[:, 1], color=colours[i])
 
     def plotLogProbability(self, list_clusters):
         """
         plots log-probability
         """
 
-        [xx, yy, zz] = self._world.getGrid()
+        [xx, yy] = self._world.getGrid()
 
         s = np.zeros_like(xx)
 
@@ -51,25 +51,19 @@ class Visual_3d(object):
         # normalise
         s = (s - np.min(s)) / (np.max(s) - np.min(s))
 
-        # mayavi
-        src = mlab.pipeline.scalar_field(xx, yy, zz, s)
-        # mlab.pipeline.iso_surface(src,
-        # contours=[s.min()+0.3*s.ptp(), ], opacity=0.2)
-        mlab.pipeline.volume(src, vmin=.2, vmax=.8)
+        # plot contours
+        self._ax.contourf(xx, yy, s, 20)
 
     def plotOutline(self):
         """
         adds an outline
         """
 
-        outline = self._world.getOutline()
-
-        mlab.outline(extent=outline)
+        return True
 
     def show(self):
         """
         shows the image [waits for user input]
         """
 
-        # show figure
-        mlab.show()
+        plt.show()

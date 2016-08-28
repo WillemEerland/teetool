@@ -1,9 +1,12 @@
-# "main" source file for trajectory analysis in this package. Clusters of trajectories are added here, modelled accordingly (whatever settings desired), and visualised in whatever is desired (single / multiple clusters)
+#  "main" source file for trajectory analysis in this package.
+# Clusters of trajectories are added here, modelled accordingly
+# (whatever settings desired), and visualised in whatever is
+# desired (single / multiple clusters)
 
-from teetool import helpers
 from teetool import model
 
 import numpy as np
+
 
 class World(object):
     """
@@ -31,17 +34,19 @@ class World(object):
 
         # validate dimension
         if type(dimension) is not int:
-            raise TypeError("expected integer, not {0}".format(type(dimension)))
+            raise TypeError(
+                "expected integer, not {0}".format(type(dimension)))
 
         if (dimension != 2) and (dimension != 3):
-            raise ValueError("expected dimensionality 2 or 3, not {0}".format(dimension))
+            raise ValueError(
+                "expected dimensionality 2 or 3, not {0}".format(dimension))
 
         # set values
         self._name = name
         self._D = dimension
 
         # initial parameters
-        self._clusters = [] # list holding clusters
+        self._clusters = []  # list holding clusters
         # these parameters define the grid
         self._outline = self._getDefaultOutline(dimension)
         self._resolution = self._getDefaultResolution(dimension)
@@ -65,7 +70,8 @@ class World(object):
             else:
                 has_logp = "-"
 
-            print("{0} [{1}] [{2}] [{3}]".format(i, this_cluster["name"], has_model, has_logp))
+            print("{0} [{1}] [{2}] [{3}]".format(
+                        i, this_cluster["name"], has_model, has_logp))
 
         return True
 
@@ -80,23 +86,27 @@ class World(object):
 
         # validate cluster_name
         if type(cluster_name) is not str:
-            raise TypeError("expected string, not {0}".format(type(cluster_name)))
+            raise TypeError(
+                "expected string, not {0}".format(type(cluster_name)))
 
         # validate cluster_data
         if type(cluster_data) is not list:
-            raise TypeError("expected list, not {0}".format(type(cluster_data)))
+            raise TypeError(
+                "expected list, not {0}".format(type(cluster_data)))
 
         # validate trajectory_data
         for (i, trajectory_data) in enumerate(cluster_data):
             # check type
             if type(trajectory_data) is not tuple:
-                raise TypeError("expected tuple, item {0} is a {1}".format(i,type(trajectory_data)))
+                raise TypeError(
+                    "expected tuple, item {0} is a {1}".format(
+                        i, type(trajectory_data)))
             # check values x [M x 1], Y [M x D]
             (x, Y) = trajectory_data
             (M, D) = Y.shape
             if (D != self._D):
                 raise ValueError("dimension not correct")
-            if (M != np.size(x,0)):
+            if (M != np.size(x, 0)):
                 raise ValueError("number of data-points do not match")
 
         # add new cluster [ holds "name" and "data" ]
@@ -104,13 +114,10 @@ class World(object):
 
         new_cluster["name"] = cluster_name
         new_cluster["data"] = cluster_data
-        #new_cluster["model"] = None  # initialise empty model
-        #new_cluster["logp"] = None  # no log-probability generated
 
         self._clusters.append(new_cluster)
 
-        # extend outline, if required
-        self._check_outline(cluster_data)
+        self._check_outline(cluster_data)  # extend outline, if required
 
     def getCluster(self, icluster):
         """
@@ -140,7 +147,8 @@ class World(object):
 
         nclusters = len(self._clusters)
         if ((icluster < 0) or (icluster >= nclusters)):
-            raise ValueError("{0} not in range [0,{1}]".format(icluster,nclusters))
+            raise ValueError(
+                "{0} not in range [0,{1}]".format(icluster, nclusters))
 
         # extract
         this_cluster = self._clusters[icluster]
@@ -152,7 +160,6 @@ class World(object):
         this_cluster["model"] = new_model
         self._clusters[icluster] = this_cluster
 
-
     def buildLogProbality(self, icluster):
         """
         builds a log-probability grid
@@ -163,18 +170,18 @@ class World(object):
 
         nclusters = len(self._clusters)
         if ((icluster < 0) or (icluster >= nclusters)):
-            raise ValueError("{0} not in range [0,{1}]".format(icluster,nclusters))
+            raise ValueError(
+                "{0} not in range [0,{1}]".format(icluster, nclusters))
 
         # extract
         this_cluster = self._clusters[icluster]
-
-        # this grid
 
         if (self._D == 2):
             # 2d
             [xx, yy] = self.getGrid()
             temp = this_cluster["model"].eval(xx, yy)
-        else:
+
+        if (self._D == 3):
             # 3d
             [xx, yy, zz] = self.getGrid()
             temp = this_cluster["model"].eval(xx, yy, zz)
@@ -184,10 +191,6 @@ class World(object):
         # overwrite
         self._clusters[icluster] = this_cluster
 
-        # normalise
-        #s = (s - np.min(s)) / (np.max(s) - np.min(s))
-
-
     def _getDefaultOutline(self, dimensionality):
         """
         returns default outline based on dimensionality
@@ -195,8 +198,8 @@ class World(object):
         defaultOutline = []
 
         for d in range(dimensionality):
-            defaultOutline.append(np.inf) # min
-            defaultOutline.append(-np.inf) # max
+            defaultOutline.append(np.inf)  # min
+            defaultOutline.append(-np.inf)  # max
 
         return defaultOutline
 
@@ -207,7 +210,7 @@ class World(object):
         defaultResolution = []
 
         for d in range(dimensionality):
-            defaultResolution.append(20) # default resolution
+            defaultResolution.append(20)  # default resolution
 
         return defaultResolution
 
@@ -224,28 +227,30 @@ class World(object):
         # new resolution
         if (self._D) == 2:
             self._resolution = [xstep, ystep]
-        elif (self._D == 3):
+
+        if (self._D == 3):
             self._resolution = [xstep, ystep, zstep]
-    
+
     def getGrid(self):
         """
         returns the grid used calculate the log-likelihood on
         """
-
-        #self._outline
-        #self._resolution
 
         [xmin, xmax, ymin, ymax] = self._outline[0:4]
         [xstep, ystep] = self._resolution[0:2]
 
         if (self._D == 2):
             # 2d
-            res = np.mgrid[xmin:xmax:np.complex(0,xstep), ymin:ymax:np.complex(0,ystep)]
-        else:
+            res = np.mgrid[xmin:xmax:np.complex(0, xstep),
+                           ymin:ymax:np.complex(0, ystep)]
+
+        if (self._D == 3):
             # 3d
             [zmin, zmax] = self._outline[4:6]
             zstep = self._resolution[2]
-            res = np.mgrid[xmin:xmax:np.complex(0,xstep), ymin:ymax:np.complex(0,ystep), zmin:zmax:np.complex(0,zstep)]
+            res = np.mgrid[xmin:xmax:np.complex(0, xstep),
+                           ymin:ymax:np.complex(0, ystep),
+                           zmin:zmax:np.complex(0, zstep)]
 
         return res
 
@@ -263,7 +268,7 @@ class World(object):
         for (x, Y) in cluster_data:
 
             for d in range(self._D):
-                x = Y[:,d]
+                x = Y[:, d]
                 xmin = x.min()
                 xmax = x.max()
                 if (self._outline[d*2] > xmin):

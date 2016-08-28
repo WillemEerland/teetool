@@ -9,7 +9,8 @@ from pathos.helpers import cpu_count
 
 class Model(object):
     """
-    This class provides the interface to the probabilistic modelling of trajectories
+    This class provides the interface to the probabilistic
+    modelling of trajectories
 
     <description>
     """
@@ -28,8 +29,8 @@ class Model(object):
         M = settings["mgaus"]
 
         # write global settings
-        self.D = self._getDimension(cluster_data)
-        self.M = M
+        self._D = self._getDimension(cluster_data)
+        self._M = M
 
         # Fit x on a [0, 1] domain
         norm_cluster_data = self._normalise_data(cluster_data)
@@ -44,36 +45,54 @@ class Model(object):
         self._cc = cc
         self._cA = cA
 
-    def eval(self, x, y, z):
+    def eval(self, xx, yy, zz=None):
         """
-        evaluates values in this grid [3D] and returns values
+        evaluates values in this grid [2d/3d] and returns values
 
         example grid:
-        x, y, z = np.ogrid[-60:60:20j, -10:240:20j, -60:60:20j]
+        xx, yy, zz = np.mgrid[-60:60:20j, -10:240:20j, -60:60:20j]
         """
 
-        nx = np.size(x, 0)
-        ny = np.size(y, 1)
-        nz = np.size(z, 2)
+        # check values
+        if not (xx.shape == yy.shape):
+            raise ValueError("dimensions should equal (use np.mgrid)")
 
-        ntotal = nx*ny*nz
+        nx = np.size(xx, 0)
+        ny = np.size(yy, 1)
+        if (self._D == 3):
+            nz = np.size(zz, 2)
 
         # create two lists;
         # - index, idx
         # - position, pos
         list_idx = []
         list_pos = []
-        for ix in range(nx):
-            for iy in range(ny):
-                for iz in range(nz):
-                    x1 = x[ix,0,0]
-                    y1 = y[0,iy,0]
-                    z1 = z[0,0,iz]
 
-                    pos = np.mat([[x1],[y1],[z1]])
+        if (self._D == 2):
+            # 2d
+            for ix in range(nx):
+                for iy in range(ny):
+                    x1 = xx[ix, 0]
+                    y1 = yy[0, iy]
 
-                    list_idx.append([ix, iy, iz])
+                    pos = np.mat([[x1], [y1]])
+
+                    list_idx.append([ix, iy])
                     list_pos.append(pos)
+
+        if (self._D == 3):
+            # 3d
+            for ix in range(nx):
+                for iy in range(ny):
+                    for iz in range(nz):
+                        x1 = xx[ix, 0, 0]
+                        y1 = yy[0, iy, 0]
+                        z1 = zz[0, 0, iz]
+
+                        pos = np.mat([[x1], [y1], [z1]])
+
+                        list_idx.append([ix, iy, iz])
+                        list_pos.append(pos)
 
         # parallel processing
         ncores = cpu_count()
@@ -83,11 +102,19 @@ class Model(object):
         list_val = p.map(self._gauss_logLc, list_pos)
 
         # fill values here
-        s = np.zeros(shape=(nx,ny,nz))
+        if (self._D == 2):
+            s = np.zeros(shape=(nx, ny))
 
-        for (i, idx) in enumerate(list_idx):
-            # copy value in matrix
-            s[idx[0], idx[1], idx[2]] = list_val[i]
+            for (i, idx) in enumerate(list_idx):
+                # copy value in matrix
+                s[idx[0], idx[1]] = list_val[i]
+
+        if (self._D == 3):
+            s = np.zeros(shape=(nx, ny, nz))
+
+            for (i, idx) in enumerate(list_idx):
+                # copy value in matrix
+                s[idx[0], idx[1], idx[2]] = list_val[i]
 
         return s
 
@@ -110,12 +137,12 @@ class Model(object):
         <description>
         """
 
-        D = self.D
+        D = self._D
 
         # predict these values
         xp = np.linspace(0, 1, M)
 
-        yc = [] # list to put trajectories
+        yc = []  # list to put trajectories
 
         for (x, Y) in cluster_data:
 
@@ -123,20 +150,20 @@ class Model(object):
             yp = np.empty(shape=(M, D))
 
             for d in range(D):
-                yd = Y[:,d]
-                yp[:,d] = np.interp(xp, x, yd)
+                yd = Y[:, d]
+                yp[:, d] = np.interp(xp, x, yd)
 
             # single column
-            yp1 = np.reshape(yp, (-1,1), order='F')
+            yp1 = np.reshape(yp, (-1, 1), order='F')
 
             yc.append(yp1)
 
         # compute values
 
-        N = len(yc) # number of trajectories
+        N = len(yc)  # number of trajectories
 
         # obtain average [mu]
-        mu_y = np.zeros(shape=(D*M,1))
+        mu_y = np.zeros(shape=(D*M, 1))
 
         for yn in yc:
             mu_y += yn
@@ -144,10 +171,10 @@ class Model(object):
         mu_y = (mu_y / N)
 
         # obtain standard deviation [sig]
-        sig_y = np.zeros(shape=(D*M,D*M))
+        sig_y = np.zeros(shape=(D*M, D*M))
 
         for yn in yc:
-            sig_y += ( (yn - mu_y) * (yn - mu_y).transpose() )
+            sig_y += ((yn - mu_y) * (yn - mu_y).transpose())
 
         sig_y = (sig_y / N)
 
@@ -190,7 +217,7 @@ class Model(object):
         return Gaussian Mixture Model (GMM) in cells
         """
 
-        M = self.M
+        M = self._M
 
         cc = []
         cA = []
@@ -209,21 +236,21 @@ class Model(object):
         """
         # mu_y [DM x 1]
         # sig_y [DM x DM]
-        D = self.D
-        M = self.M
+        D = self._D
+        M = self._M
 
         # check range
-        if ( (npoint < 0) or (npoint >= M) ):
+        if ((npoint < 0) or (npoint >= M)):
             raise ValueError("{0}, not in [0, {1}]".format(npoint, M))
 
-        c = np.empty(shape=(D,1))
-        A = np.empty(shape=(D,D))
+        c = np.empty(shape=(D, 1))
+        A = np.empty(shape=(D, D))
 
         # select position
         for d_row in range(D):
-            c[d_row,0] = mu_y[(npoint+d_row*M),0]
+            c[d_row, 0] = mu_y[(npoint+d_row*M), 0]
             for d_col in range(D):
-                A[d_row,d_col] = sig_y[(npoint+d_row*M), (npoint+d_col*M)]
+                A[d_row, d_col] = sig_y[(npoint+d_row*M), (npoint+d_col*M)]
 
         return (c, A)
 
@@ -231,10 +258,10 @@ class Model(object):
         """
         returns value Gaussian
         """
-        D = self.D
+        D = self._D
 
-        p1 = 1 / np.sqrt( ((2*np.pi)**D)*det(A)  )
-        p2 = np.exp( -1/2*(y-c).transpose()*inv(A)*(y-c) )
+        p1 = 1 / np.sqrt(((2*np.pi)**D)*det(A))
+        p2 = np.exp(-1/2*(y-c).transpose()*inv(A)*(y-c))
 
         return (p1*p2)
 
@@ -246,7 +273,7 @@ class Model(object):
         cc = self._cc
         cA = self._cA
 
-        if ( len(cc) != len(cA) ):
+        if (len(cc) != len(cA)):
             raise ValueError("expected size to match")
 
         M = len(cc)
@@ -261,8 +288,8 @@ class Model(object):
         for m in range(M):
             c = cc[m]
             A = cA[m]
-            py += self._gauss(y, c, A) # addition of each Gaussian
+            py += self._gauss(y, c, A)  # addition of each Gaussian
 
-        pyL = np.log(py) - np.log(M) # division by number of Gaussians
+        pyL = np.log(py) - np.log(M)  # division by number of Gaussians
 
         return pyL

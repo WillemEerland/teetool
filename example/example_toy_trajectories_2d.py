@@ -4,14 +4,14 @@
 
 import teetool as tt  # core
 from teetool import helpers  # generate sample trajectories
-from teetool import visual_3d  # plot results in Mayavi
+from teetool import visual_2d  # plot results in Mayavi
 
 # parameters
 ntraj = 50
-ndim = 3
+ndim = 2
 
 # build world
-new_world = tt.World(name="Example 3D", dimension=ndim)
+new_world = tt.World(name="Example 2D", dimension=ndim)
 
 # add trajectories
 for ntype in [1, 2]:
@@ -42,22 +42,18 @@ new_world.overview()  # overview
 
 for i in [0, 1]:
     # visuals by mayavi
-    visual = visual_3d.Visual_3d(new_world)
+    visual = visual_2d.Visual_2d(new_world)
     # visualise trajectories
     visual.plotTrajectories([i])
     # visualise intersection
     visual.plotLogProbability([i])
-    # visualise outline
-    visual.plotOutline()
 
 # visuals by mayavi
-visual = visual_3d.Visual_3d(new_world)
+visual = visual_2d.Visual_2d(new_world)
 # visualise trajectories
 visual.plotTrajectories([0, 1])
 # visualise intersection
 visual.plotLogProbability([0, 1])
-# visualise outline
-visual.plotOutline()
 
 # show [ requires user input ]
 visual.show()
