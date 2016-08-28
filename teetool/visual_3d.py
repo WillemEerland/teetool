@@ -10,80 +10,64 @@ class Visual_3d(object):
     <description>
     """
 
-    def __init__(self):
+    def __init__(self, thisWorld):
         """
         <description>
         """
 
         # start figure
         self.mfig = mlab.figure()
+        self._world = thisWorld
 
-        # initial outline
-        self._outline = [np.inf, -np.inf, np.inf, -np.inf, np.inf, -np.inf]
-
-
-    def add_trajectories(self, thisWorld):
+    def plotTrajectories(self, list_clusters):
         """
         <description>
         """
 
-        clusters = thisWorld.getClusters()
+        colours = helpers.getDistinctColours(len(list_clusters))
 
-        nclusters = len(clusters)  # number of clusters
-        colours = helpers.getDistinctColours(nclusters)  # colours
-
-        for (i, this_cluster) in enumerate(clusters):
-            # this cluster
-            cluster_data = this_cluster["data"]
-            for (x, Y) in cluster_data:
-                # this trajectory
-                y0 = Y[:, 0]
-                y1 = Y[:, 1]
-                y2 = Y[:, 2]
-                mlab.plot3d(y0, y1, y2, color=colours[i], tube_radius=.1)
-                # outline
-                self._check_outline([y0, y1, y2])
+        for (i, icluster) in enumerate(list_clusters):
+            this_cluster = self._world.getCluster(icluster)
+            for (x, Y) in this_cluster["data"]:
+                mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i], tube_radius=.2)
 
 
-        return True
-
-
-    def add_intersection(self, thisWorld, x, y, z):
+    def plotLogProbability(self, list_clusters):
         """
-        <description>
+        plots log-probability
         """
 
-        # outline
-        self._check_outline([x, y, z])
+        [xx, yy, zz] = self._world.getGrid()
 
-        s = thisWorld.getIntersection(x, y, z)
+        s = np.zeros_like(xx)
+
+        for icluster in list_clusters:
+            this_cluster = self._world.getCluster(icluster)
+            if ("logp" in this_cluster):
+                s += this_cluster["logp"]
+
+        # normalise
+        s = (s - np.min(s)) / (np.max(s) - np.min(s))
 
         # mayavi
-        src = mlab.pipeline.scalar_field(x, y, z, s)
+        src = mlab.pipeline.scalar_field(xx, yy, zz, s)
         # mlab.pipeline.iso_surface(src, contours=[s.min()+0.3*s.ptp(), ], opacity=0.2)
         mlab.pipeline.volume(src, vmin=.2, vmax=.8)
 
-    def show(self):
+    def plotOutline(self):
         """
-        <description>
+        adds an outline
         """
 
-        # add outline TODO add extent=[xmin, xmax, ymin, ymax, zmin, zmax]
-        mlab.outline(extent=[-60, 60, -10, 240, -60, 60])
+        outline = self._world.getOutline()
+
+        mlab.outline(extent=outline)
+
+
+    def show(self):
+        """
+        shows the image [waits for user input]
+        """
 
         # show figure
         mlab.show()
-
-    def _check_outline(self, xyz):
-        """
-        calculate maximum outline from list and store
-        """
-
-        for d in range(3):
-            x = xyz[d]
-            xmin = x.min()
-            xmax = x.max()
-            if (self._outline[d*2] > xmin):
-                self._outline[d*2] = xmin
-            if (self._outline[d*2+1] > xmax):
-                self._outline[d*2+1] = xmax

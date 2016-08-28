@@ -18,14 +18,14 @@ def test_init():
     name_1 = "Hello world!"
     D_1 = 2
     world_1 = tt.World(name=name_1, dimension=D_1)
-    assert (world_1.name == name_1)
-    assert (world_1.D == D_1)
+    assert (world_1._name == name_1)
+    assert (world_1._D == D_1)
 
     # test 2
     # default values
     world_2 = tt.World()
-    assert (world_2.name == "")
-    assert (world_2.D == 3)
+    assert (world_2._name == "")
+    assert (world_2._D == 3)
 
     # test 3
     # bad name
@@ -87,7 +87,7 @@ def test_model():
     """
 
     # build world
-    world_1 = tt.World(name="model test",dimension=3)
+    world_1 = tt.World(name="model test", dimension=3)
 
     # add trajectories
     for ntype in [1, 2]:
@@ -101,4 +101,4 @@ def test_model():
     settings["model_type"] = "resample"
     settings["mgaus"] = 10
 
-    world_1.model(settings)
+    world_1.buildModel(0, settings)

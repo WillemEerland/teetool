@@ -37,24 +37,35 @@ class World(object):
             raise ValueError("expected dimensionality 2 or 3, not {0}".format(dimension))
 
         # set values
-        self.name = name
-        self.D = dimension
+        self._name = name
+        self._D = dimension
 
         # initial parameters
-        self.clusters = [] # list holding clusters
+        self._clusters = [] # list holding clusters
+        # these parameters define the grid
+        self._outline = self._getDefaultOutline(dimension)
+        self._resolution = self._getDefaultResolution(dimension)
 
     def overview(self):
         """
         prints overview in console
         """
 
-        print("*** overview [{0}] ***".format(self.name))
+        print("*** overview [{0}] ***".format(self._name))
 
-        for (i, this_cluster) in enumerate(self.clusters):
-            has_model = "*"
-            if (this_cluster["model"] == None):
+        for (i, this_cluster) in enumerate(self._clusters):
+
+            if ("model" in this_cluster):
+                has_model = "*"
+            else:
                 has_model = "-"
-            print("{0} [{1}] [{2}]".format(i, this_cluster["name"], has_model))
+
+            if ("logp" in this_cluster):
+                has_logp = "*"
+            else:
+                has_logp = "-"
+
+            print("{0} [{1}] [{2}] [{3}]".format(i, this_cluster["name"], has_model, has_logp))
 
         return True
 
@@ -83,7 +94,7 @@ class World(object):
             # check values x [M x 1], Y [M x D]
             (x, Y) = trajectory_data
             (M, D) = Y.shape
-            if (D != self.D):
+            if (D != self._D):
                 raise ValueError("dimension not correct")
             if (M != np.size(x,0)):
                 raise ValueError("number of data-points do not match")
@@ -93,55 +104,169 @@ class World(object):
 
         new_cluster["name"] = cluster_name
         new_cluster["data"] = cluster_data
-        new_cluster["model"] = None # initialise empty model
+        #new_cluster["model"] = None  # initialise empty model
+        #new_cluster["logp"] = None  # no log-probability generated
 
-        self.clusters.append(new_cluster)
+        self._clusters.append(new_cluster)
 
-        return True
+        # extend outline, if required
+        self._check_outline(cluster_data)
 
-    def model(self, settings):
+    def getCluster(self, icluster):
         """
-        creates a model with these settings
-        model_type: [resample]
-        mgaus: number of Gaussians (e.g. 50-100)
+        returns a single cluster
         """
 
+        # TODO checks, and optional to provide name
 
-        for (i, this_cluster) in enumerate(self.clusters):
-
-            # build a new model
-            new_model = model.Model(this_cluster["data"], settings)
-
-            # overwrite value
-            this_cluster["model"] = new_model
-            self.clusters[i] = this_cluster
+        return self._clusters[icluster]
 
     def getClusters(self):
         """
         returns the clusters
         """
 
-        return self.clusters
+        return self._clusters
 
-    def getIntersection(self, x, y, z):
+    def buildModel(self, icluster, settings):
         """
-        <description>
+        creates a model with these settings
+        model_type: [resample]
+        mgaus: number of Gaussians (e.g. 50-100)
         """
 
-        s_models = []
+        if type(icluster) is not int:
+            raise TypeError("expected integer, not {0}".format(type(icluster)))
 
-        for (i, this_cluster) in enumerate(self.clusters):
-            # evaluate model on grid
-            s = this_cluster["model"].eval(x, y, z)
-            # store
-            s_models.append(s)
+        nclusters = len(self._clusters)
+        if ((icluster < 0) or (icluster >= nclusters)):
+            raise ValueError("{0} not in range [0,{1}]".format(icluster,nclusters))
 
-        s = s_models[0]
+        # extract
+        this_cluster = self._clusters[icluster]
 
-        for i in range(1,len(s_models)):
-            s = s + s_models[i]
+        # build a new model
+        new_model = model.Model(this_cluster["data"], settings)
+
+        # overwrite
+        this_cluster["model"] = new_model
+        self._clusters[icluster] = this_cluster
+
+
+    def buildLogProbality(self, icluster):
+        """
+        builds a log-probability grid
+        """
+
+        if type(icluster) is not int:
+            raise TypeError("expected integer, not {0}".format(type(icluster)))
+
+        nclusters = len(self._clusters)
+        if ((icluster < 0) or (icluster >= nclusters)):
+            raise ValueError("{0} not in range [0,{1}]".format(icluster,nclusters))
+
+        # extract
+        this_cluster = self._clusters[icluster]
+
+        # this grid
+
+        if (self._D == 2):
+            # 2d
+            [xx, yy] = self.getGrid()
+            temp = this_cluster["model"].eval(xx, yy)
+        else:
+            # 3d
+            [xx, yy, zz] = self.getGrid()
+            temp = this_cluster["model"].eval(xx, yy, zz)
+
+        this_cluster["logp"] = temp
+
+        # overwrite
+        self._clusters[icluster] = this_cluster
 
         # normalise
-        s = (s - np.min(s)) / (np.max(s) - np.min(s))
+        #s = (s - np.min(s)) / (np.max(s) - np.min(s))
 
-        return s
+
+    def _getDefaultOutline(self, dimensionality):
+        """
+        returns default outline based on dimensionality
+        """
+        defaultOutline = []
+
+        for d in range(dimensionality):
+            defaultOutline.append(np.inf) # min
+            defaultOutline.append(-np.inf) # max
+
+        return defaultOutline
+
+    def _getDefaultResolution(self, dimensionality):
+        """
+        returns default outline based on dimensionality
+        """
+        defaultResolution = []
+
+        for d in range(dimensionality):
+            defaultResolution.append(20) # default resolution
+
+        return defaultResolution
+
+    def setResolution(self, xstep, ystep, zstep=None):
+        """
+        sets the resolution
+        WARNING: removes any existing loglikelihood calculations
+        """
+
+        # remove existing likelihood calculations
+        for i in len(self._clusters):
+            self._clusters[i].pop("logp", None)
+
+        # new resolution
+        if (self._D) == 2:
+            self._resolution = [xstep, ystep]
+        elif (self._D == 3):
+            self._resolution = [xstep, ystep, zstep]
+    
+    def getGrid(self):
+        """
+        returns the grid used calculate the log-likelihood on
+        """
+
+        #self._outline
+        #self._resolution
+
+        [xmin, xmax, ymin, ymax] = self._outline[0:4]
+        [xstep, ystep] = self._resolution[0:2]
+
+        if (self._D == 2):
+            # 2d
+            res = np.mgrid[xmin:xmax:np.complex(0,xstep), ymin:ymax:np.complex(0,ystep)]
+        else:
+            # 3d
+            [zmin, zmax] = self._outline[4:6]
+            zstep = self._resolution[2]
+            res = np.mgrid[xmin:xmax:np.complex(0,xstep), ymin:ymax:np.complex(0,ystep), zmin:zmax:np.complex(0,zstep)]
+
+        return res
+
+    def getOutline(self):
+        """
+        returns outline of all data
+        """
+        return self._outline
+
+    def _check_outline(self, cluster_data):
+        """
+        calculate maximum outline from list and store
+        """
+
+        for (x, Y) in cluster_data:
+
+            for d in range(self._D):
+                x = Y[:,d]
+                xmin = x.min()
+                xmax = x.max()
+                if (self._outline[d*2] > xmin):
+                    self._outline[d*2] = xmin
+                if (self._outline[d*2+1] < xmax):
+                    self._outline[d*2+1] = xmax

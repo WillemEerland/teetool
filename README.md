@@ -9,8 +9,10 @@ conda create -n teetool-env python=2.7 pytest mayavi
 
 source activate teetool-env
 
+pip install pathos
+
 # run tests
-py.test test
+py.test
 
 # run example
 

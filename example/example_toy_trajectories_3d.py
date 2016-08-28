@@ -21,29 +21,48 @@ for ntype in [1,2]:
     cluster_data = helpers.get_trajectories(ntype, D=ndim, N=ntraj)
     new_world.addCluster(cluster_data, cluster_name)
 
-# model all trajectories
 
+# overview
+new_world.overview()
+
+
+# model all trajectories
 settings = {}
 settings["model_type"] = "resample"
 settings["mgaus"] = 100
 
-new_world.model(settings)
+new_world.buildModel(0, settings)
+new_world.overview()  # overview
+new_world.buildModel(1, settings)
+new_world.overview()  # overview
 
-# print overview
-new_world.overview()
+new_world.buildLogProbality(0)
+new_world.overview()  # overview
+new_world.buildLogProbality(1)
+new_world.overview()  # overview
 
 """
 this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
 """
 
-visual = visual_3d.Visual_3d()
+for i in [0, 1]:
+    # visuals by mayavi
+    visual = visual_3d.Visual_3d(new_world)
+    # visualise trajectories
+    visual.plotTrajectories([i])
+    # visualise intersection
+    visual.plotLogProbability([i])
+    # visualise outline
+    visual.plotOutline()
 
-# visualise trajectories using mayavi
-visual.add_trajectories(new_world)
+# visuals by mayavi
+visual = visual_3d.Visual_3d(new_world)
+# visualise trajectories
+visual.plotTrajectories([0, 1])
+# visualise intersection
+visual.plotLogProbability([0, 1])
+# visualise outline
+visual.plotOutline()
 
-# visualise intersection (runs simulation)
-x, y, z = np.mgrid[-60:60:20j, -10:240:40j, -60:60:20j]
-visual.add_intersection(new_world, x, y, z)
-
-# show
+# show [ requires user input ]
 visual.show()
