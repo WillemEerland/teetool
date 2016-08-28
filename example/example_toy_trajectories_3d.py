@@ -21,14 +21,11 @@ for ntype in [1,2]:
     cluster_data = helpers.get_trajectories(ntype, D=ndim, N=ntraj)
     new_world.addCluster(cluster_data, cluster_name)
 
-# print overview
-new_world.overview()
-
 # model all trajectories
 
 settings = {}
 settings["model_type"] = "resample"
-settings["mgaus"] = 50
+settings["mgaus"] = 100
 
 new_world.model(settings)
 
@@ -39,9 +36,14 @@ new_world.overview()
 this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
 """
 
+visual = tt.Visual_3d()
+
 # visualise trajectories using mayavi
-#visual_3d.show_trajectories(new_world)
+visual.add_trajectories(new_world)
 
-x, y, z = np.ogrid[-60:60:30j, -10:240:30j, -60:60:30j]
+# visualise intersection (runs simulation)
+#x, y, z = np.mgrid[-60:60:20j, -10:240:40j, -60:60:20j]
+#visual.add_intersection(new_world, x, y, z)
 
-visual_3d.show_intersection(new_world, x, y, z)
+# show
+visual.show()

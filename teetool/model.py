@@ -1,8 +1,11 @@
 # models the trajectory data
 
-# import support files here
 import numpy as np
 from numpy.linalg import det, inv
+
+import pathos.multiprocessing as mp
+from pathos.helpers import cpu_count
+
 
 class Model(object):
     """
@@ -31,22 +34,13 @@ class Model(object):
         # Fit x on a [0, 1] domain
         norm_cluster_data = self._normalise_data(cluster_data)
 
-        """
-        this part is specific for resampling
-        """
-
+        # this part is specific for resampling
         (mu_y, sig_y) = self._model_by_resampling(norm_cluster_data, M)
 
-        """
-        convert to cells
-        """
-
+        # convert to cells
         (cc, cA) = self._getGMMCells(mu_y, sig_y)
 
-        """
-        store values
-        """
-
+        # store values
         self._cc = cc
         self._cA = cA
 
@@ -64,10 +58,11 @@ class Model(object):
 
         ntotal = nx*ny*nz
 
-        # fill values here
-        s = np.zeros(shape=(nx,ny,nz))
-
-        # TODO: parallel processing
+        # create two lists;
+        # - index, idx
+        # - position, pos
+        list_idx = []
+        list_pos = []
         for ix in range(nx):
             for iy in range(ny):
                 for iz in range(nz):
@@ -75,9 +70,24 @@ class Model(object):
                     y1 = y[0,iy,0]
                     z1 = z[0,0,iz]
 
-                    xyz_loc = np.mat([[x1],[y1],[z1]])
+                    pos = np.mat([[x1],[y1],[z1]])
 
-                    s[ix,iy,iz] = temp = self._gauss_logLc(xyz_loc, self._cc, self._cA)
+                    list_idx.append([ix, iy, iz])
+                    list_pos.append(pos)
+
+        # parallel processing
+        ncores = cpu_count()
+        p = mp.ProcessingPool(ncores)
+
+        # output
+        list_val = p.map(self._gauss_logLc, list_pos)
+
+        # fill values here
+        s = np.zeros(shape=(nx,ny,nz))
+
+        for (i, idx) in enumerate(list_idx):
+            # copy value in matrix
+            s[idx[0], idx[1], idx[2]] = list_val[i]
 
         return s
 
@@ -228,10 +238,13 @@ class Model(object):
 
         return (p1*p2)
 
-    def _gauss_logLc(self, y, cc, cA):
+    def _gauss_logLc(self, y):
         """
         returns the log likelihood of a position based on model (in cells)
         """
+
+        cc = self._cc
+        cA = self._cA
 
         if ( len(cc) != len(cA) ):
             raise ValueError("expected size to match")

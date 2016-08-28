@@ -1,1 +1,5 @@
+# essential
 numpy
+
+# for multi-threading
+pathos
