@@ -36,14 +36,14 @@ new_world.overview()
 this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
 """
 
-visual = tt.Visual_3d()
+visual = visual_3d.Visual_3d()
 
 # visualise trajectories using mayavi
 visual.add_trajectories(new_world)
 
 # visualise intersection (runs simulation)
-#x, y, z = np.mgrid[-60:60:20j, -10:240:40j, -60:60:20j]
-#visual.add_intersection(new_world, x, y, z)
+x, y, z = np.mgrid[-60:60:20j, -10:240:40j, -60:60:20j]
+visual.add_intersection(new_world, x, y, z)
 
 # show
 visual.show()
