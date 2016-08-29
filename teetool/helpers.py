@@ -23,7 +23,7 @@ def getDistinctColours(ncolours):
 
     return list(RGB_tuples)
 
-def get_trajectories(ntype=1, D=3, N=50):
+def get_trajectories(ntype=0, D=3, N=50):
     """
     ntype: different output
     d: number of dimensions (2d or 3d)
@@ -43,7 +43,7 @@ def get_trajectories(ntype=1, D=3, N=50):
 
     for i in range(N):
 
-        if (ntype == 1):
+        if (ntype == 0):
             # [first set of trajectories]
             y1 = x + 5*np.random.rand(1) - 2.5
             y2 = 0.05*(x**2) + 20*np.random.rand(1) + 80
@@ -57,7 +57,8 @@ def get_trajectories(ntype=1, D=3, N=50):
         # 2d / 3d
         if (D == 2):
             Y = np.array([y1, y2]).transpose()
-        else:
+
+        if (D == 3):
             Y = np.array([y1, y2, y3]).transpose()
 
         toy_trajectories.append( (x, Y) )

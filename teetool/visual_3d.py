@@ -2,9 +2,10 @@
 # (trajectories / probability) in 3 dimensions
 
 import mayavi.mlab as mlab
+
 import numpy as np
 
-from teetool import helpers
+import teetool as tt
 
 
 class Visual_3d(object):
@@ -26,7 +27,7 @@ class Visual_3d(object):
         <description>
         """
 
-        colours = helpers.getDistinctColours(len(list_clusters))
+        colours = tt.helpers.getDistinctColours(len(list_clusters))
 
         for (i, icluster) in enumerate(list_clusters):
             this_cluster = self._world.getCluster(icluster)

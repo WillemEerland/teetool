@@ -1,5 +1,8 @@
-# essential
-numpy
+# calculations
+numpy >= 1.9.3
+
+# 2D plotting
+matplotlib >= 1.5.2
 
 # for multi-threading
-pathos
+pathos >= 1.5.2

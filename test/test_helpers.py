@@ -26,3 +26,19 @@ def test_ncolours():
     for ncolours in [1,10]:
         colours = tt.helpers.getDistinctColours(ncolours)
         assert (len(colours) == ncolours)
+
+def test_toy_trajectories():
+    """
+    tests generation of toy trajectories
+    """
+
+    ntraj = 50
+
+    for d in [2, 3]:
+
+        traj = tt.helpers.get_trajectories(ntype=0, D=d, N=ntraj)
+
+        assert (len(traj) == ntraj)
+
+        for (x, Y) in traj:
+            assert (np.size(Y,1) == d)

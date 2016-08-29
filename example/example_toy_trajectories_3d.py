@@ -14,7 +14,7 @@ ndim = 3
 new_world = tt.World(name="Example 3D", dimension=ndim)
 
 # add trajectories
-for ntype in [1, 2]:
+for ntype in [0, 1]:
     cluster_name = "toy {0}".format(ntype)
     cluster_data = helpers.get_trajectories(ntype, D=ndim, N=ntraj)
     new_world.addCluster(cluster_data, cluster_name)
@@ -31,6 +31,8 @@ new_world.buildModel(0, settings)
 new_world.overview()  # overview
 new_world.buildModel(1, settings)
 new_world.overview()  # overview
+
+new_world.setResolution(10, 10, 10)
 
 new_world.buildLogProbality(0)
 new_world.overview()  # overview

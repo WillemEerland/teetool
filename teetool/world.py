@@ -221,7 +221,7 @@ class World(object):
         """
 
         # remove existing likelihood calculations
-        for i in len(self._clusters):
+        for i in range(len(self._clusters)):
             self._clusters[i].pop("logp", None)
 
         # new resolution

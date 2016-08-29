@@ -6,7 +6,6 @@ import numpy as np
 import pytest as pt
 
 import teetool as tt
-from teetool import helpers
 
 
 def test_init():
@@ -62,7 +61,7 @@ def test_addCluster():
 
     # normal operation
     for ntype in [1, 2]:
-        correct_cluster_data = helpers.get_trajectories(ntype, D, N=5)
+        correct_cluster_data = tt.helpers.get_trajectories(ntype, D, N=5)
         world_1.addCluster(correct_cluster_data, correct_cluster_name)
 
     #
@@ -92,15 +91,18 @@ def test_model():
     world_1 = tt.World(name="model test", dimension=3)
 
     # add trajectories
-    for ntype in [1, 2]:
+    for ntype in [0, 1]:
         correct_cluster_name = "toy {0}".format(ntype)
-        correct_cluster_data = helpers.get_trajectories(ntype, D=3, N=20)
+        correct_cluster_data = tt.helpers.get_trajectories(ntype, D=3, N=20)
         world_1.addCluster(correct_cluster_data, correct_cluster_name)
 
     # model all trajectories
-
     settings = {}
     settings["model_type"] = "resample"
     settings["mgaus"] = 10
 
+    # build a model
     world_1.buildModel(0, settings)
+
+    # build log-likelihood
+    world_1.buildLogProbality(0)

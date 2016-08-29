@@ -6,8 +6,6 @@ import numpy as np
 import pytest as pt
 
 import teetool as tt
-from teetool import helpers
-
 
 def test_init():
     """
@@ -17,7 +15,7 @@ def test_init():
     ngaus = 100  # number of Gaussian output
     ndim = 3  # number of dimensions
 
-    cluster_data = helpers.get_trajectories(ntype=1, D=ndim)
+    cluster_data = tt.helpers.get_trajectories(ntype=1, D=ndim)
     valid_settings = {"model_type": "resampling", "mgaus": ngaus}
 
     # normal operation
@@ -29,11 +27,11 @@ def test_init():
 
     # CHECK dimension
     for d in (2, 3):
-        cluster_data_d = helpers.get_trajectories(ntype=1, D=d, N=10)
+        cluster_data_d = tt.helpers.get_trajectories(ntype=1, D=d, N=10)
         assert (new_model._getDimension(cluster_data_d) == d)
 
     # normalise data
-    cluster_data = helpers.get_trajectories(ntype=1, D=ndim)
+    cluster_data = tt.helpers.get_trajectories(ntype=1, D=ndim)
     norm_cluster_data = new_model._normalise_data(cluster_data)
 
     # CHECK if trajectories are normalised
@@ -70,7 +68,7 @@ def test_eval():
 
     # 2d / 3d
     for ndim in (2, 3):
-        cluster_data = helpers.get_trajectories(ntype=1, D=ndim)
+        cluster_data = tt.helpers.get_trajectories(ntype=1, D=ndim)
         valid_settings = {"model_type": "resampling", "mgaus": ngaus}
         # normal operation
         new_model = tt.model.Model(cluster_data, valid_settings)
