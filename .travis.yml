@@ -1,36 +1,17 @@
 language: python
-
 python:
   - "2.7"
 
-sudo: false
+sudo: true
 
 before_install:
-  - deactivate
-  - wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
+  - sudo apt-get install python-vtk
 
 install:
-  - conda create -q -y -n teetool-env python=2.7 --file requirements_conda.txt
-  - source activate teetool-env
-  - pip install --requirement requirements_pip.txt
+  - pip install -r requirements.txt
 
-before_script:
-  - conda list
-  - python setup.py install
-  - export PYTHONPATH="$TRAVIS_BUILD_DIR:$PYTHONPATH"
-  - pip install pytest
 script:
-  - echo $PATH
-  - python --version
-  - which py.test
-  - which python
-  - echo $PWD
-  - ls
-  - ls test
-  - py.test test/test_model.py
-  - py.test . -v
+  - py.test -v
 
 notifications:
   email:
