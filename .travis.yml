@@ -11,6 +11,7 @@ install:
   - conda info -a
   - conda create -q -n teetool-env python=$TRAVIS_PYTHON_VERSION --file requirements_conda.txt
   - source activate teetool-env
+  - which pip
   - pip install --requirement requirements_pip.txt
   - python setup.py install
 
