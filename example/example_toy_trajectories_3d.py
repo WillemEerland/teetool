@@ -3,7 +3,6 @@
 """
 
 import teetool as tt  # core
-
 from teetool import visual_3d
 
 

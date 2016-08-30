@@ -66,3 +66,10 @@ class Visual_2d(object):
         """
 
         plt.show()
+
+    def close(self):
+        """
+        closes the figure
+        """
+
+        plt.close()

@@ -3,6 +3,7 @@
 """
 
 import teetool as tt  # core
+from teetool import visual_2d
 
 # parameters
 ntraj = 50
@@ -35,19 +36,16 @@ new_world.overview()  # overview
 new_world.buildLogProbality(1)
 new_world.overview()  # overview
 
-
-#  this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
-
 for i in [0, 1]:
     # visuals by mayavi
-    visual = tt.visual_2d.Visual_2d(new_world)
+    visual = visual_2d.Visual_2d(new_world)
     # visualise trajectories
     visual.plotTrajectories([i])
     # visualise intersection
     visual.plotLogProbability([i])
 
 # visuals by mayavi
-visual = tt.visual_2d.Visual_2d(new_world)
+visual = visual_2d.Visual_2d(new_world)
 # visualise trajectories
 visual.plotTrajectories([0, 1])
 # visualise intersection

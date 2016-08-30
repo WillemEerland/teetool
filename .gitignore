@@ -90,3 +90,6 @@ ENV/
 
 # linux backup files
 *~
+
+# osx
+.DS_Store
