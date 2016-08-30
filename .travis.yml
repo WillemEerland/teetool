@@ -19,6 +19,7 @@ install:
 before_script:
   - conda list
   - python setup.py install
+  - export PYTHONPATH="$TRAVIS_BUILD_DIR:$PYTHONPATH"
 
 script:
   - py.test
