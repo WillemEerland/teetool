@@ -4,8 +4,11 @@
 a package to support with the statistical analysis of trajectory data
 
 # setup the environment via Anaconda
+
 conda create -q -y -n teetool-env python=2.7 --file requirements_conda.txt
+
 source activate teetool-env
+
 pip install --requirement requirements_pip.txt
 
 # build
