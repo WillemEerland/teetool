@@ -8,7 +8,7 @@ import sys
 
 import teetool as tt
 
-if ((sys.version_info[0] != 2) and (sys.version_info[1] != 7)):
+if not ((sys.version_info[0] == 2) and (sys.version_info[1] == 7)):
     # Mayavi not availabe
 
     def test_no_import():
