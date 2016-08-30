@@ -12,7 +12,7 @@ before_install:
   - export PATH="$HOME/miniconda/bin:$PATH"
 
 install:
-  - conda create -q -y -n teetool-env python=$TRAVIS_PYTHON_VERSION --file requirements_conda.txt
+  - conda create -q -y -n teetool-env python=2.7 --file requirements_conda.txt
   - source activate teetool-env
   - pip install --requirement requirements_pip.txt
 
@@ -22,6 +22,10 @@ before_script:
   - export PYTHONPATH="$TRAVIS_BUILD_DIR:$PYTHONPATH"
 
 script:
+  - echo $PATH
+  - python --version
+  - which py.test
+  - which python
   - py.test
 
 notifications:

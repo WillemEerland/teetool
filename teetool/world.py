@@ -153,7 +153,7 @@ class World(object):
         this_cluster = self._clusters[icluster]
 
         # build a new model
-        new_model = tt.Model(this_cluster["data"], settings)
+        new_model = tt.model.Model(this_cluster["data"], settings)
 
         # overwrite
         this_cluster["model"] = new_model
