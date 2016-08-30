@@ -20,7 +20,7 @@ before_script:
   - conda list
   - python setup.py install
   - export PYTHONPATH="$TRAVIS_BUILD_DIR:$PYTHONPATH"
-
+  - pip install pytest
 script:
   - echo $PATH
   - python --version
