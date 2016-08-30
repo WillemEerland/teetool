@@ -16,4 +16,5 @@ install:
 
 script:
   # Your test script goes here
+  - source activate teetool-env
   - py.test
