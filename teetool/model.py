@@ -2,7 +2,6 @@
 
 import numpy as np
 from numpy.linalg import det, inv
-
 import pathos.multiprocessing as mp
 from pathos.helpers import cpu_count
 

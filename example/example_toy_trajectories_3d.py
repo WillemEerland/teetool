@@ -4,6 +4,8 @@
 
 import teetool as tt  # core
 
+from teetool import visual_3d
+
 
 # parameters
 ntraj = 50
@@ -43,7 +45,7 @@ new_world.overview()  # overview
 
 for i in [0, 1]:
     # visuals by mayavi
-    visual = tt.visual_3d.Visual_3d(new_world)
+    visual = visual_3d.Visual_3d(new_world)
     # visualise trajectories
     visual.plotTrajectories([i])
     # visualise intersection
@@ -52,7 +54,7 @@ for i in [0, 1]:
     visual.plotOutline()
 
 # visuals by mayavi
-visual = tt.visual_3d.Visual_3d(new_world)
+visual = visual_3d.Visual_3d(new_world)
 # visualise trajectories
 visual.plotTrajectories([0, 1])
 # visualise intersection

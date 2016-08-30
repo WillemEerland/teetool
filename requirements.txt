@@ -1,0 +1,5 @@
+numpy
+pytest
+pytest-cov
+matplotlib
+pathos

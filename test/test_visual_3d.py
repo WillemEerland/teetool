@@ -36,13 +36,15 @@ def test_visual():
     world_1.buildModel(0, settings)
     world_1.buildLogProbality(0)
 
+    """
     #  this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
     for i in [0]:
         # visuals by mayavi
-        visual = tt.visual_3d.Visual_3d(world_1, offscreen=True)
+        visual = tt.Visual_3d(world_1, offscreen=True)
         # visualise trajectories
         visual.plotTrajectories([i])
         # visualise intersection
         visual.plotLogProbability([i])
         # visualise outline
         visual.plotOutline()
+    """
