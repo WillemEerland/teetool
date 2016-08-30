@@ -3,8 +3,6 @@
 """
 
 import teetool as tt  # core
-from teetool import helpers  # generate sample trajectories
-from teetool import visual_2d  # plot results in Mayavi
 
 # parameters
 ntraj = 50
@@ -16,7 +14,7 @@ new_world = tt.World(name="Example 2D", dimension=ndim)
 # add trajectories
 for ntype in [0, 1]:
     cluster_name = "toy {0}".format(ntype)
-    cluster_data = helpers.get_trajectories(ntype, D=ndim, N=ntraj)
+    cluster_data = tt.helpers.get_trajectories(ntype, D=ndim, N=ntraj)
     new_world.addCluster(cluster_data, cluster_name)
 
 # overview
@@ -42,14 +40,14 @@ new_world.overview()  # overview
 
 for i in [0, 1]:
     # visuals by mayavi
-    visual = visual_2d.Visual_2d(new_world)
+    visual = tt.visual_2d.Visual_2d(new_world)
     # visualise trajectories
     visual.plotTrajectories([i])
     # visualise intersection
     visual.plotLogProbability([i])
 
 # visuals by mayavi
-visual = visual_2d.Visual_2d(new_world)
+visual = tt.visual_2d.Visual_2d(new_world)
 # visualise trajectories
 visual.plotTrajectories([0, 1])
 # visualise intersection

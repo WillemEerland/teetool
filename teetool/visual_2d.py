@@ -3,8 +3,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-
-from teetool import helpers
+import teetool as tt
 
 
 class Visual_2d(object):
@@ -27,7 +26,7 @@ class Visual_2d(object):
         <description>
         """
 
-        colours = helpers.getDistinctColours(len(list_clusters))
+        colours = tt.helpers.getDistinctColours(len(list_clusters))
 
         for (i, icluster) in enumerate(list_clusters):
             this_cluster = self._world.getCluster(icluster)

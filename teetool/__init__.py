@@ -1,5 +1,8 @@
-__all__ = ['helpers', 'model', 'world', 'visual_3d', 'visual_2d']
+__all__ = ['world', 'model', 'helpers', 'visual_2d', 'visual_3d']
 
 from teetool.world import World
-from teetool import helpers
+from teetool.model import Model
 from teetool import model
+from teetool import helpers
+from teetool import visual_2d
+from teetool import visual_3d

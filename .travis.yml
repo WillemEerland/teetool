@@ -12,11 +12,9 @@ before_install:
   - export PATH="$HOME/miniconda/bin:$PATH"
 
 install:
-  - conda create -q -y -n teetool-env python=$TRAVIS_PYTHON_VERSION pytest numpy mayavi matplotlib
+  - conda create -q -y -n teetool-env python=$TRAVIS_PYTHON_VERSION --file requirements_conda.txt
   - source activate teetool-env
-  - which pip
-  - pip install pathos
-  - python setup.py install
+  - pip install --requirement requirements_pip.txt
 
 before_script:
   - conda list

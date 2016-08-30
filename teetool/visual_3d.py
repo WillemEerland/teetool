@@ -2,9 +2,7 @@
 # (trajectories / probability) in 3 dimensions
 
 import mayavi.mlab as mlab
-
 import numpy as np
-
 import teetool as tt
 
 
@@ -13,7 +11,7 @@ class Visual_3d(object):
     <description>
     """
 
-    def __init__(self, thisWorld):
+    def __init__(self, thisWorld, offscreen=False):
         """
         <description>
         """
@@ -21,6 +19,9 @@ class Visual_3d(object):
         # start figure
         self.mfig = mlab.figure()
         self._world = thisWorld
+
+        if (offscreen):
+            mlab.options.offscreen = True
 
     def plotTrajectories(self, list_clusters):
         """

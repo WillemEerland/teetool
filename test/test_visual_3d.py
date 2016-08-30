@@ -4,25 +4,13 @@
 
 import numpy as np
 import pytest as pt
-import sys
-
 import teetool as tt
 
-# Mayavi should be installed for Python version 2.7
-
-def test_yes_import():
-    """
-    should import when installed
-    """
-    # Python 2.7
-    from teetool import visual_3d
 
 def test_visual():
     """
     can produce figures
     """
-
-    from teetool import visual_3d
 
     # build world
     world_1 = tt.World(name="Example 3D", dimension=3)
@@ -51,7 +39,7 @@ def test_visual():
     #  this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
     for i in [0]:
         # visuals by mayavi
-        visual = visual_3d.Visual_3d(world_1)
+        visual = tt.visual_3d.Visual_3d(world_1, offscreen=True)
         # visualise trajectories
         visual.plotTrajectories([i])
         # visualise intersection

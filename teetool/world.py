@@ -3,9 +3,8 @@
 # (whatever settings desired), and visualised in whatever is
 # desired (single / multiple clusters)
 
-from teetool import model
-
 import numpy as np
+import teetool as tt
 
 
 class World(object):
@@ -154,7 +153,7 @@ class World(object):
         this_cluster = self._clusters[icluster]
 
         # build a new model
-        new_model = model.Model(this_cluster["data"], settings)
+        new_model = tt.Model(this_cluster["data"], settings)
 
         # overwrite
         this_cluster["model"] = new_model
