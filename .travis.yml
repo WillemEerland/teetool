@@ -29,6 +29,7 @@ script:
   - echo $PWD
   - ls
   - ls test
+  - py.test test/test_model.py
   - py.test . -v
 
 notifications:
