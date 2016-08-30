@@ -1,5 +1,5 @@
 
-OSX -- 2D --
+OSX // 2D //
 
 conda create -n teetool-2d python=2.7 pytest pytest-cov matplotlib
 
@@ -13,7 +13,7 @@ python setup.py install
 
 python example/example_toy_trajectories_2d.py
 
-OSX -- 3D --
+OSX // 3D //
 
 conda create -n teetool-3d python=2.7 pytest pytest-cov mayavi
 
