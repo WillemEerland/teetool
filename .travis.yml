@@ -26,7 +26,8 @@ script:
   - python --version
   - which py.test
   - which python
-  - py.test
+  - echo $PWD
+  - py.test -v
 
 notifications:
   email:
