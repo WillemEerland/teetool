@@ -78,4 +78,4 @@ class Visual_3d(object):
         closes figure(s)
         """
 
-        mlab.close(True)
+        mlab.close(all=True)

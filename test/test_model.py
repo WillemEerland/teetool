@@ -74,8 +74,8 @@ def test_eval():
         new_model = tt.model.Model(cluster_data, valid_settings)
 
         if (ndim == 2):
-            xx, yy = np.mgrid[-10:10:3j, -10:10:3j]
-            s = new_model.eval(xx, yy)
+            xx, yy2 = np.mgrid[-10:10:3j, -10:10:3j]
+            s = new_model.eval(xx, yy2)
         if (ndim == 3):
             xx, yy, zz = np.mgrid[-10:10:3j, -10:10:3j, -10:10:3j]
             s = new_model.eval(xx, yy, zz)
@@ -97,3 +97,6 @@ def test_eval():
         pL = new_model._gauss(y, c, A)
 
         assert (pL.shape == (1, 1))
+
+    with pt.raises(ValueError) as testException:
+        _ = new_model.eval(xx, yy2)

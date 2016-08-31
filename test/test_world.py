@@ -21,6 +21,8 @@ def test_init():
     assert (world_1._name == name_1)
     assert (world_1._D == D_1)
 
+    assert (world_1.overview() == True)
+
     # test 2
     # default values
     world_2 = tt.World()
@@ -46,6 +48,8 @@ def test_init():
         world_5 = tt.World(name_5, D_5)
 
 
+
+
 def test_addCluster():
     """
     <description>
@@ -63,6 +67,11 @@ def test_addCluster():
     for ntype in [1, 2]:
         correct_cluster_data = tt.helpers.get_trajectories(ntype, D, N=5)
         world_1.addCluster(correct_cluster_data, correct_cluster_name)
+
+    #
+    these_clusters = world_1.getClusters()
+
+    assert (len(these_clusters) == 2)
 
     #
     wrong_cluster_name = 5
@@ -104,5 +113,21 @@ def test_model():
     # build a model
     world_1.buildModel(0, settings)
 
+    with pt.raises(TypeError) as testException:
+        world_1.buildModel("Hello World!", settings)
+
+    with pt.raises(ValueError) as testException:
+        world_1.buildModel(-1, settings)
+
     # build log-likelihood
     world_1.buildLogProbality(0)
+
+    with pt.raises(TypeError) as testException:
+        world_1.buildLogProbality("Hello World!")
+
+    with pt.raises(ValueError) as testException:
+        world_1.buildLogProbality(-1)
+
+    assert (world_1.overview() == True)
+
+    world_1.setResolution(10,10,10)

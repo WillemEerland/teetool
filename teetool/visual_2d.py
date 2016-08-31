@@ -58,6 +58,8 @@ class Visual_2d(object):
         adds an outline
         """
 
+        # TODO draw a box
+
         return True
 
     def show(self):

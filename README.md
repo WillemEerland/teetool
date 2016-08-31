@@ -35,7 +35,7 @@ python setup.py install
 
 # run tests
 
-py.test -v --cov-report html --cov=teetool test/
+(cd test ; py.test -v --cov-report html --cov=teetool)
 
 # run examples
 

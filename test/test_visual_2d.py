@@ -40,7 +40,7 @@ def test_visual_2d():
         world_1.buildLogProbality(i)
 
     for i in [0, 1]:
-        # visuals by mayavi
+        # visuals by
         visual = tt.visual_2d.Visual_2d(world_1)
         # visualise trajectories
         visual.plotTrajectories([i])
@@ -49,7 +49,7 @@ def test_visual_2d():
         # close
         visual.close()
 
-    # visuals by mayavi
+    # visuals by
     visual = tt.visual_2d.Visual_2d(world_1)
     # visualise trajectories
     visual.plotTrajectories([0, 1])
@@ -57,3 +57,5 @@ def test_visual_2d():
     visual.plotLogProbability([0, 1])
     # close
     visual.close()
+
+    assert (visual.plotOutline() == True)
