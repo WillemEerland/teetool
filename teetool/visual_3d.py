@@ -17,7 +17,7 @@ class Visual_3d(object):
         """
 
         # start figure
-        self.mfig = mlab.figure()
+        self._mfig = mlab.figure()
         self._world = thisWorld
 
         if (offscreen):
@@ -75,3 +75,10 @@ class Visual_3d(object):
 
         # show figure
         mlab.show()
+
+    def close(self):
+        """
+        closes figure(s)
+        """
+
+        mlab.close(True)

@@ -3,26 +3,45 @@
 # teetool
 a package to support with the statistical analysis of trajectory data
 
-# setup the environment via Anaconda
+# setup the environment in Linux
 
-"conda create -q -y -n teetool-env python=2.7 --file requirements_conda.txt"
+conda create -n teetool-env python=2.7 pytest pytest-cov mayavi
 
-"source activate teetool-env"
+source activate teetool-env
 
-"pip install --requirement requirements_pip.txt"
+pip install pathos matplotlib
 
-# build
-"python setup.py install" or "pip install ."
+python setup.py install
+
+# setup the environment in OSX [2D]
+
+conda create -n teetool-env python=2.7 pytest pytest-cov matplotlib
+
+source activate teetool-env
+
+pip install pathos
+
+python setup.py install
+
+# setup the environment in OSX [3D]
+
+conda create -n teetool-env python=2.7 pytest pytest-cov mayavi
+
+source activate teetool-env
+
+pip install pathos
+
+python setup.py install
 
 # run tests
 
-"py.test"
-
-
+py.test -v --cov-report html --cov=teetool test/
 
 # run examples
-python /example/example_toy_trajectories_2d.py
-python /example/example_toy_trajectories_3d.py
+
+python example/example_toy_trajectories_2d.py
+
+python example/example_toy_trajectories_3d.py
 
 [![Input](https://www.southampton.ac.uk/~wje1n13/teetool/1_input.png)]
 

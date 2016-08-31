@@ -3,8 +3,8 @@
 """
 
 import pytest as pt
-import teetool as tt
 pt.importorskip("teetool.visual_2d")
+import teetool as tt
 
 
 def test_visual_2d():
@@ -46,6 +46,8 @@ def test_visual_2d():
         visual.plotTrajectories([i])
         # visualise intersection
         visual.plotLogProbability([i])
+        # close
+        visual.close()
 
     # visuals by mayavi
     visual = tt.visual_2d.Visual_2d(world_1)
@@ -53,3 +55,5 @@ def test_visual_2d():
     visual.plotTrajectories([0, 1])
     # visualise intersection
     visual.plotLogProbability([0, 1])
+    # close
+    visual.close()

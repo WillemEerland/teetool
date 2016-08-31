@@ -49,6 +49,8 @@ def test_visual_3d():
         visual.plotLogProbability([i])
         # visualise outline
         visual.plotOutline()
+        # close
+        visual.close()
 
     # visuals by mayavi
     visual = visual_3d.Visual_3d(world_1, offscreen=True)
@@ -58,3 +60,5 @@ def test_visual_3d():
     visual.plotLogProbability([0, 1])
     # visualise outline
     visual.plotOutline()
+    # close
+    visual.close()
