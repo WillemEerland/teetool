@@ -11,7 +11,7 @@ class Visual_3d(object):
     <description>
     """
 
-    def __init__(self, thisWorld, offscreen=False):
+    def __init__(self, thisWorld):
         """
         <description>
         """
@@ -19,9 +19,6 @@ class Visual_3d(object):
         # start figure
         self._mfig = mlab.figure()
         self._world = thisWorld
-
-        if (offscreen):
-            mlab.options.offscreen = True
 
     def plotTrajectories(self, list_clusters):
         """

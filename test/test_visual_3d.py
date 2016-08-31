@@ -42,7 +42,7 @@ def test_visual_3d():
     #  this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
     for i in [0, 1]:
         # visuals by mayavi
-        visual = visual_3d.Visual_3d(world_1, offscreen=True)
+        visual = visual_3d.Visual_3d(world_1)
         # visualise trajectories
         visual.plotTrajectories([i])
         # visualise intersection
@@ -53,7 +53,7 @@ def test_visual_3d():
         visual.close()
 
     # visuals by mayavi
-    visual = visual_3d.Visual_3d(world_1, offscreen=True)
+    visual = visual_3d.Visual_3d(world_1)
     # visualise trajectories
     visual.plotTrajectories([0, 1])
     # visualise intersection
