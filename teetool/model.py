@@ -1,9 +1,13 @@
 # models the trajectory data
 
+from __future__ import print_function
 import numpy as np
 from numpy.linalg import det, inv
 import pathos.multiprocessing as mp
 from pathos.helpers import cpu_count
+import time, sys
+
+#from progressbar import ProgressBar
 
 
 class Model(object):
@@ -98,7 +102,18 @@ class Model(object):
         p = mp.ProcessingPool(ncores)
 
         # output
-        list_val = p.map(self._gauss_logLc, list_pos)
+        results = p.amap(self._gauss_logLc, list_pos)
+
+        while not results.ready():
+            # obtain intermediate results
+            print(".", end="")
+            sys.stdout.flush()
+            time.sleep(3)
+
+        print("") # new line
+
+        # extract results
+        list_val = results.get()
 
         # fill values here
         if (self._D == 2):

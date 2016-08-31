@@ -12,6 +12,9 @@ ndim = 2
 # build world
 new_world = tt.World(name="Example 2D", dimension=ndim)
 
+# modify default resolution
+new_world.setResolution(xstep=50, ystep=50)
+
 # add trajectories
 for ntype in [0, 1]:
     cluster_name = "toy {0}".format(ntype)

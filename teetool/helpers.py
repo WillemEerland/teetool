@@ -47,7 +47,7 @@ def get_trajectories(ntype=0, D=3, N=50):
             # [first set of trajectories]
             y1 = x + 5*np.random.rand(1) - 2.5
             y2 = 0.05*(x**2) + 20*np.random.rand(1) + 80
-            y3 = x + 3*np.random.rand(1) + 2.5
+            y3 = .3*x + 5*np.random.rand(1) - 7
         else:
             # [second set of trajectories]
             y1 = x + 5*np.random.rand(1) - 2.5

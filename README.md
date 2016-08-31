@@ -41,10 +41,16 @@ py.test -v --cov-report html --cov=teetool test/
 
 python example/example_toy_trajectories_2d.py
 
+[![2d toy 0](https://www.southampton.ac.uk/~wje1n13/teetool/2d_toy0.png)]
+
+[![2d toy 1](https://www.southampton.ac.uk/~wje1n13/teetool/2d_toy1.png)]
+
+[![2d inter](https://www.southampton.ac.uk/~wje1n13/teetool/2d_toy0_toy1.png)]
+
 python example/example_toy_trajectories_3d.py
 
-[![Input](https://www.southampton.ac.uk/~wje1n13/teetool/1_input.png)]
+[![3d toy 0](https://www.southampton.ac.uk/~wje1n13/teetool/3d_toy0.png)]
 
-[![Output](https://www.southampton.ac.uk/~wje1n13/teetool/2_result.png)]
+[![3d toy 1](https://www.southampton.ac.uk/~wje1n13/teetool/3d_toy1.png)]
 
-
+[![3d inter](https://www.southampton.ac.uk/~wje1n13/teetool/3d_toy0_toy1.png)]
