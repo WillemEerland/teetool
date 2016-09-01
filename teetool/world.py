@@ -22,8 +22,10 @@ class World(object):
      -
     """
 
-    def __init__(self, name="", dimension=3):
+    def __init__(self, name="", ndim=3):
         """
+        name: name of World
+        ndim: dimension of world (2d or 3d)
         <description>
         """
 
@@ -32,23 +34,23 @@ class World(object):
             raise TypeError("expected string, not {0}".format(type(name)))
 
         # validate dimension
-        if type(dimension) is not int:
+        if type(ndim) is not int:
             raise TypeError(
-                "expected integer, not {0}".format(type(dimension)))
+                "expected integer, not {0}".format(type(ndim)))
 
-        if (dimension != 2) and (dimension != 3):
+        if (ndim != 2) and (ndim != 3):
             raise ValueError(
-                "expected dimensionality 2 or 3, not {0}".format(dimension))
+                "expected dimensionality 2 or 3, not {0}".format(ndim))
 
         # set values
         self._name = name
-        self._D = dimension
+        self._D = ndim
 
         # initial parameters
         self._clusters = []  # list holding clusters
         # these parameters define the grid
-        self._outline = self._getDefaultOutline(dimension)
-        self._resolution = self._getDefaultResolution(dimension)
+        self._outline = self._getDefaultOutline(ndim)
+        self._resolution = self._getDefaultResolution(ndim)
 
     def overview(self):
         """
@@ -190,25 +192,25 @@ class World(object):
         # overwrite
         self._clusters[icluster] = this_cluster
 
-    def _getDefaultOutline(self, dimensionality):
+    def _getDefaultOutline(self, ndim):
         """
         returns default outline based on dimensionality
         """
         defaultOutline = []
 
-        for d in range(dimensionality):
+        for d in range(ndim):
             defaultOutline.append(np.inf)  # min
             defaultOutline.append(-np.inf)  # max
 
         return defaultOutline
 
-    def _getDefaultResolution(self, dimensionality):
+    def _getDefaultResolution(self, ndim):
         """
         returns default outline based on dimensionality
         """
         defaultResolution = []
 
-        for d in range(dimensionality):
+        for d in range(ndim):
             defaultResolution.append(20)  # default resolution
 
         return defaultResolution

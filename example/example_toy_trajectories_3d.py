@@ -11,7 +11,7 @@ ntraj = 50
 ndim = 3
 
 # build world
-new_world = tt.World(name="Example 3D", dimension=ndim)
+new_world = tt.World(name="Example 3D", ndim=ndim)
 
 # modify default resolution
 new_world.setResolution(xstep=25, ystep=35, zstep=25)
@@ -19,7 +19,7 @@ new_world.setResolution(xstep=25, ystep=35, zstep=25)
 # add trajectories
 for ntype in [0, 1]:
     cluster_name = "toy {0}".format(ntype)
-    cluster_data = tt.helpers.get_trajectories(ntype, D=ndim, N=ntraj)
+    cluster_data = tt.helpers.get_trajectories(ntype, ndim, ntraj)
     new_world.addCluster(cluster_data, cluster_name)
 
 # overview
@@ -28,7 +28,7 @@ new_world.overview()
 # model all trajectories
 settings = {}
 settings["model_type"] = "resample"
-settings["mgaus"] = 100
+settings["ngaus"] = 100
 
 new_world.buildModel(0, settings)
 new_world.overview()  # overview

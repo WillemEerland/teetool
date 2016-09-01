@@ -13,32 +13,32 @@ def test_ncolours():
     """
 
     #
-    ncolours = "hello World!"
+    mcolours = "hello World!"
     with pt.raises(TypeError) as testException:
-        _ = tt.helpers.getDistinctColours(ncolours)
+        _ = tt.helpers.getDistinctColours(mcolours)
 
     #
-    ncolours = -1
+    mcolours = -1
     with pt.raises(ValueError) as testException:
-        _ = tt.helpers.getDistinctColours(ncolours)
+        _ = tt.helpers.getDistinctColours(mcolours)
 
     #
-    for ncolours in [1,10]:
-        colours = tt.helpers.getDistinctColours(ncolours)
-        assert (len(colours) == ncolours)
+    for mcolours in [1,10]:
+        colours = tt.helpers.getDistinctColours(mcolours)
+        assert (len(colours) == mcolours)
 
 def test_toy_trajectories():
     """
     tests generation of toy trajectories
     """
 
-    ntraj = 50
+    mtraj = 50
 
     for d in [2, 3]:
 
-        traj = tt.helpers.get_trajectories(ntype=0, D=d, N=ntraj)
+        traj = tt.helpers.get_trajectories(0, d, mtraj)
 
-        assert (len(traj) == ntraj)
+        assert (len(traj) == mtraj)
 
         for (x, Y) in traj:
             assert (np.size(Y,1) == d)

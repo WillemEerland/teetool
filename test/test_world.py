@@ -17,7 +17,7 @@ def test_init():
     # set values
     name_1 = "Hello world!"
     D_1 = 2
-    world_1 = tt.World(name=name_1, dimension=D_1)
+    world_1 = tt.World(name=name_1, ndim=D_1)
     assert (world_1._name == name_1)
     assert (world_1._D == D_1)
 
@@ -55,17 +55,17 @@ def test_addCluster():
     <description>
     """
 
-    D = 3  # dimensionality
+    mdim = 3  # dimensionality
 
     # build world
-    world_1 = tt.World(name="test", dimension=D)
+    world_1 = tt.World(name="test", ndim=mdim)
 
     # build a valid cluster
     correct_cluster_name = "correct data"
 
     # normal operation
-    for ntype in [1, 2]:
-        correct_cluster_data = tt.helpers.get_trajectories(ntype, D, N=5)
+    for mtype in [0, 1]:
+        correct_cluster_data = tt.helpers.get_trajectories(mtype, ndim=mdim, ntraj=5)
         world_1.addCluster(correct_cluster_data, correct_cluster_name)
 
     #
@@ -97,18 +97,18 @@ def test_model():
     """
 
     # build world
-    world_1 = tt.World(name="model test", dimension=3)
+    world_1 = tt.World(name="model test", ndim=3)
 
     # add trajectories
     for ntype in [0, 1]:
         correct_cluster_name = "toy {0}".format(ntype)
-        correct_cluster_data = tt.helpers.get_trajectories(ntype, D=3, N=20)
+        correct_cluster_data = tt.helpers.get_trajectories(ntype, ndim=3, ntraj=20)
         world_1.addCluster(correct_cluster_data, correct_cluster_name)
 
     # model all trajectories
     settings = {}
-    settings["model_type"] = "resample"
-    settings["mgaus"] = 10
+    settings["model_type"] = "resampling"
+    settings["ngaus"] = 10
 
     # build a model
     world_1.buildModel(0, settings)

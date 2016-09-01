@@ -33,9 +33,10 @@ class Visual_2d(object):
             for (x, Y) in this_cluster["data"]:
                 self._ax.plot(Y[:, 0], Y[:, 1], color=colours[i])
 
-    def plotLogProbability(self, list_clusters):
+    def plotLogProbability(self, list_clusters, ncontours=20):
         """
         plots log-probability
+        ncontours: number of contours drawn
         """
 
         [xx, yy] = self._world.getGrid()
@@ -51,7 +52,7 @@ class Visual_2d(object):
         s = (s - np.min(s)) / (np.max(s) - np.min(s))
 
         # plot contours
-        self._ax.contourf(xx, yy, s, 20)
+        self._ax.contourf(xx, yy, s, ncontours)
 
     def plotOutline(self):
         """
