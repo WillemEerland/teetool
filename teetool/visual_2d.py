@@ -17,9 +17,19 @@ class Visual_2d(object):
         """
 
         # start figure
-        self._fig = plt.figure()
+        self._fig = plt.figure(facecolor="white")
         self._ax = self._fig.gca()
+
+        self._ax.set_axis_bgcolor('grey')
+
+        [xmin, xmax, ymin, ymax] = thisWorld.getOutline()
+        self._ax.set_xlim([xmin, xmax])
+        self._ax.set_ylim([ymin, ymax])
+
         self._world = thisWorld
+        self._plotTitle()
+
+        self._labels = []
 
     def plotTrajectories(self, list_clusters):
         """
@@ -31,7 +41,44 @@ class Visual_2d(object):
         for (i, icluster) in enumerate(list_clusters):
             this_cluster = self._world.getCluster(icluster)
             for (x, Y) in this_cluster["data"]:
-                self._ax.plot(Y[:, 0], Y[:, 1], color=colours[i])
+                a_line, = self._ax.plot(Y[:, 0],
+                                       Y[:, 1],
+                                       color="black",
+                                       linestyle="-")
+
+        self._labels.append((a_line, "data"))
+
+    def plotSamples(self, list_clusters):
+        """
+        <description>
+        """
+
+        colours = tt.helpers.getDistinctColours(len(list_clusters))
+
+        for (i, icluster) in enumerate(list_clusters):
+            these_samples = self._world.getSamples(icluster)
+            for (x, Y) in these_samples:
+                a_line, = self._ax.plot(Y[:, 0],
+                                       Y[:, 1],
+                                       color="red",
+                                       linestyle=":")
+
+        self._labels.append((a_line, "samples"))
+
+    def plotLegend(self):
+        """
+        <description>
+        """
+
+        list_lines = []
+        list_label = []
+
+        for (a_line, a_label) in self._labels:
+            list_lines.append(a_line)
+            list_label.append(a_label)
+
+        plt.legend(handles=list_lines, labels=list_label)
+
 
     def plotLogProbability(self, list_clusters, ncontours=20):
         """
@@ -52,7 +99,7 @@ class Visual_2d(object):
         s = (s - np.min(s)) / (np.max(s) - np.min(s))
 
         # plot contours
-        self._ax.contourf(xx, yy, s, ncontours)
+        self._ax.contourf(xx, yy, s, ncontours, cmap="viridis")
 
     def plotOutline(self):
         """
@@ -63,10 +110,23 @@ class Visual_2d(object):
 
         return True
 
+    def _plotTitle(self):
+        """
+        adds a title
+        """
+
+        # add title
+        world_name = self._world.getName()
+        if not (world_name == None):
+            plt.title(world_name)
+
+
     def show(self):
         """
         shows the image [waits for user input]
         """
+
+
 
         plt.show()
 

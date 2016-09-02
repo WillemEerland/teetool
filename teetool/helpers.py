@@ -41,7 +41,7 @@ def find_nearest(target_array, target_values):
 
     return idx
 
-def get_trajectories(ntype=0, ndim=3, ntraj=50, npoints=100):
+def get_trajectories(ntype=0, ndim=3, ntraj=50, npoints=100, noise_std=.5):
     """
     ntype: different output
     ndim: number of dimensions (2d or 3d)
@@ -62,14 +62,14 @@ def get_trajectories(ntype=0, ndim=3, ntraj=50, npoints=100):
 
         if (ntype == 0):
             # [first set of trajectories]
-            y1 = x + 5*np.random.rand(1) - 2.5
-            y2 = 0.05*(x**2) + 20*np.random.rand(1) + 80
-            y3 = .3*x + 5*np.random.rand(1) - 7
+            y1 = x + 2*np.random.randn(1) - 2.5
+            y2 = 0.05*(x**2) + 10*np.random.randn(1) + 90
+            y3 = 0.03*(x**2) + 3*np.random.randn(1) + 2.5
         else:
             # [second set of trajectories]
-            y1 = x + 5*np.random.rand(1) - 2.5
-            y2 = -x + 20*np.random.rand(1) + 50
-            y3 = -0.03*(x**2) + 3*np.random.rand(1) + 2.5
+            y1 = x + 2*np.random.randn(1) - 2.5
+            y2 = -x + 5*np.random.randn(1) + 40
+            y3 = -0.03*(x**2) + 3*np.random.randn(1) + 2.5
 
         # 2d / 3d
         if (ndim == 2):
@@ -77,6 +77,10 @@ def get_trajectories(ntype=0, ndim=3, ntraj=50, npoints=100):
 
         if (ndim == 3):
             Y = np.array([y1, y2, y3]).transpose()
+
+        # add noise
+        (nrows, ncols) = Y.shape
+        Y += noise_std*np.random.randn(nrows, ncols)
 
         toy_trajectories.append( (x, Y) )
 

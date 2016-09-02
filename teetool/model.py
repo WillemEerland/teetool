@@ -80,8 +80,44 @@ class Model(object):
         (cc, cA) = self._getGMMCells(mu_y, sig_y, settings["ngaus"])
 
         # store values
+        self._mu_y = mu_y
+        self._sig_y = sig_y
+        #
         self._cc = cc
         self._cA = cA
+
+    def getSamples(self, nsamples):
+        """
+        return nsamples
+        """
+
+        ndim = self._ndim
+
+        mu_y = self._mu_y
+        sig_y = self._sig_y
+
+        npoints = np.size(mu_y, axis=0) / ndim
+
+        [U, S_diag, V] = svd(sig_y)
+
+        S = np.diag(S_diag)
+
+        var_y = np.mat(np.real(U*np.sqrt(S)))
+
+        xp = np.linspace(0, 1, npoints)
+
+        cluster_data = []
+
+        np.random.seed(seed=10) # always same results
+
+        for n in range(nsamples):
+            vecRandom = np.random.normal(size=(mu_y.shape))
+            yp = mu_y + var_y * vecRandom
+            Yp = np.reshape(yp, (-1, ndim), order='F')
+            cluster_data.append((xp, Yp))
+
+        return cluster_data
+
 
     def eval(self, xx, yy, zz=None):
         """
@@ -197,14 +233,14 @@ class Model(object):
 
         yc = []  # list to put trajectories
 
-        for (x, Y) in cluster_data:
+        for (xn, Yn) in cluster_data:
 
             # array to fill
             yp = np.empty(shape=(ngaus, mdim))
 
             for d in range(mdim):
-                yd = Y[:, d]
-                yp[:, d] = np.interp(xp, x, yd)
+                ynd = Yn[:, d]
+                yp[:, d] = np.interp(xp, xn, ynd)
 
             # single column
             yp1 = np.reshape(yp, (-1, 1), order='F')
@@ -213,7 +249,7 @@ class Model(object):
 
         # compute values
 
-        mtraj = len(yc)  # number of trajectories
+        ntraj = len(yc)  # number of trajectories
 
         # obtain average [mu]
         mu_y = np.zeros(shape=(mdim*ngaus, 1))
@@ -221,7 +257,7 @@ class Model(object):
         for yn in yc:
             mu_y += yn
 
-        mu_y = (mu_y / mtraj)
+        mu_y = (mu_y / ntraj)
 
         # obtain standard deviation [sig]
         sig_y = np.zeros(shape=(mdim*ngaus, mdim*ngaus))
@@ -229,7 +265,7 @@ class Model(object):
         for yn in yc:
             sig_y += ((yn - mu_y) * (yn - mu_y).transpose())
 
-        sig_y = (sig_y / mtraj)
+        sig_y = (sig_y / ntraj)
 
         return (mu_y, sig_y)
 
@@ -268,12 +304,12 @@ class Model(object):
         mu_w = np.mat(mu_w / ntraj)
 
         # obtain standard deviation [sig]
-        sig_w = np.zeros(shape=(ndim*nbasis, ndim*nbasis))
+        sig_w_sum = np.zeros(shape=(ndim*nbasis, ndim*nbasis))
 
         for wn in wc:
-            sig_w += (wn - mu_w)*(wn - mu_w).transpose()
+            sig_w_sum += (wn - mu_w)*(wn - mu_w).transpose()
 
-        sig_w = np.mat(sig_w / ntraj)
+        sig_w = np.mat(sig_w_sum / ntraj)
 
         # predict these values
         xp = np.linspace(0, 1, ngaus)
@@ -293,7 +329,202 @@ class Model(object):
         <description>
         """
 
-        return self._model_by_ml(cluster_data, ngaus, type_basis, nbasis)
+        ndim = self._ndim
+        ntraj = len(cluster_data)
+
+        Mstar = 0
+        for (xn, Yn) in cluster_data:
+            Mstar += np.size(xn)
+
+        # create a basis
+        basis = self._Basis(type_basis, nbasis, ndim)
+
+        # prepare data
+        yc = []
+        Hc = []
+
+        for (xn, Yn)  in cluster_data:
+            # data
+            yn = np.reshape(Yn, newshape=(-1,1), order='F')
+            Hn = basis.get(xn)
+            # add to list
+            yc.append(yn)
+            Hc.append(Hn)
+
+        # hardcoded parameters
+        MAX_ITERATIONS = 2001  # maximum number of iterations
+        CONV_LIKELIHOOD = 1e-3  # stop convergence
+        # min_eig = 10**-6  # minimum eigenvalue (numerical trick)
+        BETA_EM_LIMIT = 1e8  # maximum accuracy
+
+        # initial variables
+        BETA_EM = 1000.
+        mu_w = np.zeros(shape=(nbasis*ndim, 1))
+        sig_w = np.mat(np.eye(nbasis*ndim))
+        sig_w_inv = inv(sig_w)
+
+        loglikelihood_previous = np.inf
+
+        for i_iter in range(MAX_ITERATIONS):
+
+            Ewc = []
+            Ewwc = []
+
+            # Expectation (54) (55)
+            for n  in range(ntraj):
+                # data
+                yn = yc[n]
+                Hn = Hc[n]
+
+                # calculate S :: (50)
+                Sn_inv = sig_w_inv + np.multiply(BETA_EM,(Hn.transpose()*Hn))
+                Sn = np.mat(inv(Sn_inv))
+
+                Ewn = (Sn *((np.multiply(BETA_EM,(Hn.transpose()*yn))) + ((sig_w_inv*mu_w))))
+
+                Ewn = np.mat(Ewn)
+
+                # BISHOP (2.62)
+                Ewnwn = Sn + Ewn*Ewn.transpose()
+
+                Ewnwn = np.mat(Ewnwn)
+
+                # store
+                Ewc.append(Ewn);
+                Ewwc.append(Ewnwn);
+
+            #  Maximization :: (56), (57)
+
+            # E [ MU ]
+            mu_w_sum = np.zeros(shape=(nbasis*ndim, 1));
+
+            for n  in range(ntraj):
+                # extract data
+                Ewn = Ewc[n]
+                # sum
+                mu_w_sum += Ewn
+
+            mu_w = np.mat(mu_w_sum / ntraj)
+
+            # E [ SIGMA ]
+            sig_w_sum = np.zeros((nbasis*ndim, nbasis*ndim));
+
+            for n  in range(ntraj):
+                # extract data
+                yn = yc[n]
+                Hn = Hc[n]
+                Ewn = Ewc[n]
+                Ewnwn = Ewwc[n]
+
+                # sum
+                SIGMA_n = Ewnwn - 2.*(mu_w*Ewn.transpose()) + mu_w*mu_w.transpose()
+                sig_w_sum += SIGMA_n
+
+            sig_w = np.mat(sig_w_sum / ntraj)
+
+            sig_w_inv = inv(sig_w)
+
+            """
+            # !! nearest SPD inverse
+            [U, S_diag, V] = svd(sig_w)
+
+
+            ln_det_Sigma = np.log(np.prod(S_diag))
+
+            # (optional) check eigenvalues
+            while np.isinf(ln_det_Sigma):
+                # adjust value
+                S_diag[S_diag < min_eig] = min_eig
+
+                # check
+                ln_det_Sigma = np.log( np.prod(S_diag) )
+
+                if np.isinf(ln_det_Sigma):
+                    # if still not good, add a little
+                    min_eig = min_eig + 10**-6
+
+            sig_w = np.mat(U * np.diag( S_diag ) * V)
+            """
+
+            # E [BETA]
+            BETA_sum_inv = 0.;
+
+            for n  in range(ntraj):
+                # extract data
+                yn = yc[n]
+                Hn = Hc[n]
+                Ewn = Ewc[n]
+                Ewnwn = Ewwc[n]
+
+                BETA_sum_inv += np.dot(yn.transpose(),yn) - 2.*(np.dot(yn.transpose(),(Hn*Ewn))) + np.trace((Hn.transpose()*Hn)*Ewnwn)
+
+            BETA_EM = np.mat((ndim*Mstar) / BETA_sum_inv)
+
+            # limit BETA_EM (how much accuracy is relevant?)
+            #if BETA_EM > BETA_EM_LIMIT:
+            # BETA_EM = BETA_EM_LIMIT
+
+            # ////  log likelihood ///////////
+
+            # // ln( p(Y|w) - likelihood
+            loglikelihood_pYw_sum = 0.;
+
+            for n  in range(ntraj):
+                # extract data
+                yn = yc[n]
+                Hn = Hc[n]
+                Ewn = Ewc[n]
+                Ewnwn = Ewwc[n]
+
+                # loglikelihood_pYw_sum = loglikelihood_pYw_sum + ((yn.')*yn - 2*(yn.')*(Hn*Ewn) + trace(((Hn.')*Hn)*Ewnwn));
+                loglikelihood_pYw_sum += np.dot(yn.transpose(),yn) - 2.*(np.dot(yn.transpose(),(Hn*Ewn))) + np.trace((Hn.transpose()*Hn)*Ewnwn)
+
+            #  loglikelihood_pYw =  + ((Mstar*D) / 2) * log(2*pi) - ((Mstar*D) / 2) * log( BETA_EM ) + (BETA_EM/2) * loglikelihood_pYw_sum;
+            loglikelihood_pYw = (Mstar*ndim / 2.) * np.log(2.*np.pi) - (Mstar*ndim / 2.) * np.log(BETA_EM) + (BETA_EM / 2.) * loglikelihood_pYw_sum
+
+            # // ln( p(w) ) - prior
+            loglikelihood_pw_sum = 0.;
+
+            for n  in range(ntraj):
+                # extract data
+                Ewn = Ewc[n]
+                Ewnwn = Ewwc[n]
+
+                # loglikelihood_pw_sum = loglikelihood_pw_sum + trace( (LAMBDA_EM)*( Ewnwn - 2*MU_EM*(Ewn.') + (MU_EM*(MU_EM.')) ) );
+                loglikelihood_pw_sum += np.trace(sig_w_inv*(Ewnwn - 2.*mu_w*Ewn.transpose() + mu_w*mu_w.transpose()))
+
+            # loglikelihood_pw = + ((N*J*D) / 2) * log(2*pi) + (N/2) * ln_det_Sigma + (1/2) * loglikelihood_pw_sum;
+            loglikelihood_pw = (ntraj*nbasis*ndim/2.)*np.log(2*np.pi) + (ntraj/2.)*np.log(det(sig_w)) + (1./2.)*loglikelihood_pw_sum
+
+            loglikelihood_pY = loglikelihood_pYw + loglikelihood_pw
+
+            # // check convergence
+            loglikelihood_diff = np.abs(loglikelihood_pY - loglikelihood_previous)
+
+            if np.isfinite(loglikelihood_pY):
+                # check
+                if (loglikelihood_diff < CONV_LIKELIHOOD):
+                    break
+            else:
+                # not a valid loglikelihood
+                print("warning: not a finite loglikelihood")
+                break
+
+            # output
+            #if (i_iter % 100 == 0):
+            #    print("{0} {1} {2}".format(i_iter, loglikelihood_pY, min_eig))
+
+            # store previous log_likelihood
+            loglikelihood_previous = loglikelihood_pY
+
+        # predict these values
+        xp = np.linspace(0, 1, ngaus)
+        Hp = basis.get(xp)
+
+        mu_y = Hp * mu_w
+        sig_y = Hp * sig_w * Hp.transpose()
+
+        return (mu_y, sig_y)
 
     def _getMinMax(self, cluster_data):
         """
@@ -385,9 +616,6 @@ class Model(object):
         cc = self._cc
         cA = self._cA
 
-        if (len(cc) != len(cA)):
-            raise ValueError("expected size to match")
-
         M = len(cc)
 
         """
@@ -396,7 +624,7 @@ class Model(object):
         """
 
         # TODO remove hardcoding -- required for plotting
-        py = 10**-30
+        py = 10**-40
 
         for m in range(M):
             c = cc[m]

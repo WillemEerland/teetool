@@ -120,6 +120,18 @@ class World(object):
 
         self._check_outline(cluster_data)  # extend outline, if required
 
+    def getName(self):
+        """
+        returns name, if any, otherwise returns None
+        """
+
+        if self._name == "":
+            return None
+        else:
+            return self._name
+
+
+
     def getCluster(self, icluster):
         """
         returns a single cluster
@@ -136,11 +148,9 @@ class World(object):
 
         return self._clusters
 
-    def buildModel(self, icluster, settings):
+    def _check_icluster(self, icluster):
         """
-        creates a model with these settings
-        model_type: [resample]
-        mgaus: number of Gaussians (e.g. 50-100)
+        check validity int icluster input
         """
 
         if type(icluster) is not int:
@@ -150,6 +160,31 @@ class World(object):
         if ((icluster < 0) or (icluster >= nclusters)):
             raise ValueError(
                 "{0} not in range [0,{1}]".format(icluster, nclusters))
+
+    def getSamples(self, icluster, nsamples=50):
+        """
+        returns samples (x, Y) list
+        """
+
+        # check validity
+        self._check_icluster(icluster)
+
+        # extract
+        this_cluster = self._clusters[icluster]
+
+        generated_samples = this_cluster["model"].getSamples(nsamples)
+
+        return generated_samples
+
+    def buildModel(self, icluster, settings):
+        """
+        creates a model with these settings
+        model_type: [resample]
+        mgaus: number of Gaussians (e.g. 50-100)
+        """
+
+        # check validity
+        self._check_icluster(icluster)
 
         # extract
         this_cluster = self._clusters[icluster]
