@@ -12,7 +12,7 @@ llsettings.append(["resampling", 100, "", "", 0])
 #llsettings.append(["ML", 100, "bernstein", 5, 0])
 #llsettings.append(["ML", 100, "rbf", 10, 0])
 
-llsettings.append(["resampling", 100, "", "", .5])
+#llsettings.append(["resampling", 100, "", "", .5])
 #llsettings.append(["ML", 100, "bernstein", 5, .5])
 #llsettings.append(["ML", 100, "rbf", 10, .5])
 
@@ -64,7 +64,7 @@ for ls in llsettings:
     new_world.overview()  # overview
 
     #  this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
-    """
+
     for i in [0, 1]:
         # visuals by mayavi
         visual = visual_3d.Visual_3d(new_world)
@@ -75,8 +75,8 @@ for ls in llsettings:
         # visualise outline
         visual.plotOutline()
         # save
-        visual.save()
-    """
+        # visual.save()
+
 
     # visuals by mayavi
     visual = visual_3d.Visual_3d(new_world)
@@ -90,4 +90,4 @@ for ls in llsettings:
     visual.save()
 
     # show [ requires user input ]
-    #visual.show()
+    visual.show()

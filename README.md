@@ -13,7 +13,7 @@ pip install pathos matplotlib
 
 python setup.py install
 
-# setup the environment in OSX [2D]
+# setup the environment in OSX [2D only]
 
 conda create -n teetool-env python=2.7 pytest pytest-cov matplotlib
 
@@ -23,7 +23,7 @@ pip install pathos
 
 python setup.py install
 
-# setup the environment in OSX [3D]
+# setup the environment in OSX [3D only]
 
 conda create -n teetool-env python=2.7 pytest pytest-cov mayavi
 
@@ -33,13 +33,13 @@ pip install pathos
 
 python setup.py install
 
-# run tests
+# run tests (including covariance)
 
 (cd test ; py.test -v --cov-report html --cov=teetool)
 
-# run examples
+# examples
 
-python example/example_toy_trajectories_2d.py
+python example/example_toy_2d.py
 
 [![2d toy 0](https://www.southampton.ac.uk/~wje1n13/teetool/2d_toy0.png)]
 
@@ -47,7 +47,7 @@ python example/example_toy_trajectories_2d.py
 
 [![2d inter](https://www.southampton.ac.uk/~wje1n13/teetool/2d_toy0_toy1.png)]
 
-python example/example_toy_trajectories_3d.py
+python example/example_toy_3d.py
 
 [![3d toy 0](https://www.southampton.ac.uk/~wje1n13/teetool/3d_toy0.png)]
 

@@ -187,6 +187,9 @@ class Model(object):
         # extract results
         list_val = results.get()
 
+        # accept x percent of the results
+        list_val = self._accept_std(list_val, 4)
+
         # fill values here
         if (self._ndim == 2):
             # 2d
@@ -205,6 +208,42 @@ class Model(object):
             return NotImplementedError()
 
         return s
+
+    def _accept_std(self, list_val, border_std):
+        """
+        returns the list, with maximum as a border
+        """
+
+        # mean
+        mu_val_sum = 0
+
+        for val in list_val:
+            mu_val_sum += val
+
+        mu_val = mu_val_sum / len(list_val)
+
+        sig_val_sum = 0
+
+        for val in list_val:
+            sig_val_sum += (val - mu_val)**2
+
+        sig_val = sig_val_sum / len(list_val)
+
+        val_lo = mu_val - border_std*sig_val
+        val_hi = mu_val + border_std*sig_val
+
+        new_list_val = []
+
+        for val in list_val:
+            if val < val_lo:
+                val = val_lo
+            if val > val_hi:
+                val = val_hi
+
+            new_list_val.append(val)
+
+        return new_list_val
+
 
     def _normalise_data(self, cluster_data):
         """
@@ -569,6 +608,15 @@ class Model(object):
         for m in range(ngaus):
             # single cell
             (c, A) = self._getMuSigma(mu_y, sig_y, m, ngaus)
+
+            # check for non-singular matrix
+            #min_eig = np.finfo(np.float).eps  # TODO fix hardcoding
+
+            #[U, S_diag, V] = svd(A)
+            #S_diag[S_diag<min_eig] = min_eig
+            #S = np.diag(S_diag)
+            #A = U * S * V.transpose()
+
             cc.append(c)
             cA.append(A)
 
@@ -624,7 +672,7 @@ class Model(object):
         """
 
         # TODO remove hardcoding -- required for plotting
-        py = 10**-40
+        py = np.finfo(np.float).eps
 
         for m in range(M):
             c = cc[m]
