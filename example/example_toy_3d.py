@@ -77,7 +77,7 @@ for ls in llsettings:
         # save
         visual.save()
     """
-    
+
     # visuals by mayavi
     visual = visual_3d.Visual_3d(new_world)
     # visualise trajectories
