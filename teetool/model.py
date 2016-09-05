@@ -260,12 +260,12 @@ class Model(object):
         mu_y = (mu_y / ntraj)
 
         # obtain standard deviation [sig]
-        sig_y = np.zeros(shape=(mdim*ngaus, mdim*ngaus))
+        sig_y_sum = np.zeros(shape=(mdim*ngaus, mdim*ngaus))
 
         for yn in yc:
-            sig_y += ((yn - mu_y) * (yn - mu_y).transpose())
+            sig_y_sum += (yn - mu_y) * (yn - mu_y).transpose()
 
-        sig_y = (sig_y / ntraj)
+        sig_y = np.mat(sig_y_sum / ntraj)
 
         return (mu_y, sig_y)
 

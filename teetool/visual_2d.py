@@ -120,6 +120,15 @@ class Visual_2d(object):
         if not (world_name == None):
             plt.title(world_name)
 
+    def save(self, saveas=None):
+        """
+        saves as file
+        """
+
+        if (saveas==None):
+            saveas = self._world.getName()
+
+        plt.savefig("output/{0}.png".format(saveas))
 
     def show(self):
         """

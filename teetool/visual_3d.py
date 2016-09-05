@@ -17,7 +17,7 @@ class Visual_3d(object):
         """
 
         # start figure
-        self._mfig = mlab.figure()
+        self._mfig = mlab.figure(size=(800,600))
         self._world = thisWorld
 
     def plotTrajectories(self, list_clusters):
@@ -64,6 +64,27 @@ class Visual_3d(object):
         outline = self._world.getOutline()
 
         mlab.outline(extent=outline)
+
+    def _plotTitle(self):
+        """
+        adds a title
+        """
+
+        # add title
+        world_name = self._world.getName()
+
+        if not (world_name == None):
+            mlab.title(world_name)
+
+    def save(self, saveas=None):
+        """
+        saves as file
+        """
+
+        if (saveas==None):
+            saveas = self._world.getName()
+
+        mlab.savefig("output/{0}.png".format(saveas), figure=self._mfig)
 
     def show(self):
         """

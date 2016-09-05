@@ -27,7 +27,7 @@ new_world.overview()
 
 # model all trajectories
 settings = {}
-settings["model_type"] = "resample"
+settings["model_type"] = "resampling"
 settings["ngaus"] = 100
 
 new_world.buildModel(0, settings)
@@ -52,6 +52,8 @@ for i in [0, 1]:
     visual.plotLogProbability([i])
     # visualise outline
     visual.plotOutline()
+    # save
+    visual.save()
 
 # visuals by mayavi
 visual = visual_3d.Visual_3d(new_world)
@@ -61,6 +63,8 @@ visual.plotTrajectories([0, 1])
 visual.plotLogProbability([0, 1])
 # visualise outline
 visual.plotOutline()
+# save
+visual.save()
 
 # show [ requires user input ]
 visual.show()
