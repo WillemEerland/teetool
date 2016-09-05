@@ -128,7 +128,7 @@ class Visual_2d(object):
         if (saveas==None):
             saveas = self._world.getName()
 
-        plt.savefig("output/{0}.png".format(saveas))
+        plt.savefig("output/2d_{0}.png".format(saveas))
 
     def show(self):
         """

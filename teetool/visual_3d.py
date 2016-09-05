@@ -84,7 +84,7 @@ class Visual_3d(object):
         if (saveas==None):
             saveas = self._world.getName()
 
-        mlab.savefig("output/{0}.png".format(saveas), figure=self._mfig)
+        mlab.savefig("output/3d_{0}.png".format(saveas), figure=self._mfig)
 
     def show(self):
         """
