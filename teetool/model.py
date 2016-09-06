@@ -3,6 +3,7 @@
 from __future__ import print_function
 import numpy as np
 from numpy.linalg import det, inv, svd, pinv
+from scipy.interpolate import griddata
 import pathos.multiprocessing as mp
 from pathos.helpers import cpu_count
 import time, sys
@@ -88,7 +89,7 @@ class Model(object):
 
     def getSamples(self, nsamples):
         """
-        return nsamples
+        return nsamples of the model
         """
 
         ndim = self._ndim
@@ -118,6 +119,220 @@ class Model(object):
 
         return cluster_data
 
+    def _getEllipse(self, c, A, sdwidth=1, npoints=10):
+        """
+        evaluates the ellipse
+        """
+
+        ndim = self._ndim
+
+        c = np.array(c)
+        A = np.mat(A)
+
+        # find the rotation matrix and radii of the axes
+        [_, s, rotation] = svd(A)
+
+        # ignore smallest eigenvalues (always ordered)
+        # s[2] = 0
+
+        radii = sdwidth * np.sqrt(s)
+
+        if ndim == 2:
+            # 2d
+            u = np.linspace(0.0, 2.0 * np.pi, npoints)
+            x = radii[0] * np.cos(u)
+            y = radii[1] * np.sin(u)
+
+            ellipse = np.empty(shape=(npoints, ndim))
+            ellipse[:,0] = x
+            ellipse[:,1] = y
+            ellipse = np.mat(ellipse)
+
+            ellipse = ellipse * rotation.transpose() + c.transpose()
+
+            return ellipse
+
+        if ndim == 3:
+            # 3d
+            # obtain sphere
+            u = np.linspace(0.0, 2.0 * np.pi, npoints)
+            v = np.linspace(0.0, np.pi, npoints)
+
+            x = radii[0] * np.outer(np.cos(u), np.sin(v))
+            y = radii[1] * np.outer(np.sin(u), np.sin(v))
+            z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+
+            x = x.reshape((-1,1), order='F')
+            y = y.reshape((-1,1), order='F')
+            z = z.reshape((-1,1), order='F')
+
+            (nrows, ncols) = x.shape
+
+            ap = np.zeros(shape=(nrows, ndim))
+
+            ap[:, 0] = x.transpose()
+            ap[:, 1] = y.transpose()
+            ap[:, 2] = z.transpose()
+
+            ap = np.mat(ap)
+
+            ap = ap * rotation.transpose() + c.transpose()
+
+            return ap
+
+
+
+    def _getSample(self, c, A, nsamples=1, std=1):
+        """
+        returns nsamples samples of the given Gaussian
+        """
+
+        [U, S_diag, V] = svd(A)
+
+        S = np.diag(S_diag)
+
+        var_y = np.mat(np.real(U*np.sqrt(S)))
+
+        ndim = self._ndim
+
+        Y = np.zeros((nsamples, ndim))
+
+        for i in range(nsamples):
+            # obtain sample
+            vecRandom = np.random.normal(size=(c.shape))
+            Yi = c + var_y * (std * vecRandom)
+
+            Y[i,:] = Yi.transpose()
+
+        return np.mat(Y)
+
+    def _getCoords(self, nsamples=20, sdwidth=5):
+        """
+        returns an array of xy(z) coordinates
+        """
+
+        ndim = self._ndim
+
+        ngaus = len(self._cc)
+
+        Y_list = []
+
+        for i in range(ngaus):
+            c = self._cc[i]
+            A = self._cA[i]
+
+            #Yi = self._getSample(c, A, nsamples)
+            Yi = self._getEllipse(c, A, sdwidth, nsamples)
+
+            Y_list.append(Yi)
+
+        Y = np.concatenate(Y_list, axis=0)
+
+        return np.mat(Y)
+
+    def _eval_tube(self, nsamples=20, sdwidth=[5]):
+        """
+        returns points and values of points along tube
+        """
+
+        Y_list = []
+        for sdwidth1 in sdwidth:
+            Y1 = self._getCoords(nsamples, sdwidth1)
+            Y_list.append(Y1)
+
+        Y = np.concatenate(Y_list, axis=0)
+
+        (npoints, _) = Y.shape
+        ndim = self._ndim
+
+        # parallel processing
+        ncores = cpu_count()
+        p = mp.ProcessingPool(ncores)
+
+        print("number of calculations: {0}".format(npoints))
+
+        # output
+        results = p.amap(self._gauss_logLc, Y)
+
+        while not results.ready():
+            # obtain intermediate results
+            print(".", end="")
+            sys.stdout.flush()
+            time.sleep(3)
+
+        print("") # new line
+
+        # extract results
+        list_val = results.get()
+        s = np.array(list_val)
+        s = np.squeeze(s)
+
+        return (Y, s)
+
+    def _eval_grid(self, xx, yy, zz=None):
+        """
+        evaluates on a grid, aiming at the desired number of points
+        """
+
+        nx = np.size(xx, 0)
+        ny = np.size(yy, 1)
+        if (self._ndim == 3):
+            nz = np.size(zz, 2)
+
+        # create two lists;
+        # - position, pos
+        Y_list = []
+
+        if (self._ndim == 2):
+            # 2d
+            for ix in range(nx):
+                for iy in range(ny):
+                    x1 = xx[ix, 0]
+                    y1 = yy[0, iy]
+                    pos = np.mat([x1, y1])
+                    Y_list.append(pos)
+        elif (self._ndim == 3):
+            # 3d
+            for ix in range(nx):
+                for iy in range(ny):
+                    for iz in range(nz):
+                        x1 = xx[ix, 0, 0]
+                        y1 = yy[0, iy, 0]
+                        z1 = zz[0, 0, iz]
+                        pos = np.mat([x1, y1, z1])
+                        Y_list.append(pos)
+        else:
+            raise NotImplementedError()
+
+        Y = np.concatenate(Y_list, axis=0)
+
+        (npoints, _) = Y.shape
+        ndim = self._ndim
+
+        # parallel processing
+        ncores = cpu_count()
+        p = mp.ProcessingPool(ncores)
+
+        print("number of calculations: {0}".format(npoints))
+
+        # output
+        results = p.amap(self._gauss_logLc, Y)
+
+        while not results.ready():
+            # obtain intermediate results
+            print(".", end="")
+            sys.stdout.flush()
+            time.sleep(3)
+
+        print("") # new line
+
+        # extract results
+        list_val = results.get()
+        s = np.array(list_val)
+        s = np.squeeze(s)
+
+        return (Y, s)
+
 
     def eval(self, xx, yy, zz=None):
         """
@@ -131,118 +346,20 @@ class Model(object):
         if not (xx.shape == yy.shape):
             raise ValueError("dimensions should equal (use np.mgrid)")
 
-        nx = np.size(xx, 0)
-        ny = np.size(yy, 1)
-        if (self._ndim == 3):
-            nz = np.size(zz, 2)
+        # choose how to evaluate tube / grid
+        #(Y, s) = self._eval_tube(nsamples=5, sdwidth=[2])
+        (Y, s) = self._eval_grid(xx, yy, zz)
 
-        # create two lists;
-        # - index, idx
-        # - position, pos
-        list_idx = []
-        list_pos = []
+        s_min = np.min(s)
 
         if (self._ndim == 2):
-            # 2d
-            for ix in range(nx):
-                for iy in range(ny):
-                    x1 = xx[ix, 0]
-                    y1 = yy[0, iy]
-
-                    pos = np.mat([[x1], [y1]])
-
-                    list_idx.append([ix, iy])
-                    list_pos.append(pos)
+            ss = griddata(Y, s, (xx, yy), method='linear', fill_value=s_min)
         elif (self._ndim == 3):
-            # 3d
-            for ix in range(nx):
-                for iy in range(ny):
-                    for iz in range(nz):
-                        x1 = xx[ix, 0, 0]
-                        y1 = yy[0, iy, 0]
-                        z1 = zz[0, 0, iz]
-
-                        pos = np.mat([[x1], [y1], [z1]])
-
-                        list_idx.append([ix, iy, iz])
-                        list_pos.append(pos)
+            ss = griddata(Y, s, (xx, yy, zz), method='linear', fill_value=s_min)
         else:
-            raise NotImplementedError()
+            raise NotImplementedError("not available")
 
-        # parallel processing
-        ncores = cpu_count()
-        p = mp.ProcessingPool(ncores)
-
-        # output
-        results = p.amap(self._gauss_logLc, list_pos)
-
-        while not results.ready():
-            # obtain intermediate results
-            print(".", end="")
-            sys.stdout.flush()
-            time.sleep(3)
-
-        print("") # new line
-
-        # extract results
-        list_val = results.get()
-
-        # accept x percent of the results
-        list_val = self._accept_std(list_val, 4)
-
-        # fill values here
-        if (self._ndim == 2):
-            # 2d
-            s = np.zeros(shape=(nx, ny))
-
-            for (i, idx) in enumerate(list_idx):
-                # copy value in matrix
-                s[idx[0], idx[1]] = list_val[i]
-        elif (self._ndim == 3):
-            # 3d
-            s = np.zeros(shape=(nx, ny, nz))
-            for (i, idx) in enumerate(list_idx):
-                # copy value in matrix
-                s[idx[0], idx[1], idx[2]] = list_val[i]
-        else:
-            return NotImplementedError()
-
-        return s
-
-    def _accept_std(self, list_val, border_std):
-        """
-        returns the list, with maximum as a border
-        """
-
-        # mean
-        mu_val_sum = 0
-
-        for val in list_val:
-            mu_val_sum += val
-
-        mu_val = mu_val_sum / len(list_val)
-
-        sig_val_sum = 0
-
-        for val in list_val:
-            sig_val_sum += (val - mu_val)**2
-
-        sig_val = sig_val_sum / len(list_val)
-
-        val_lo = mu_val - border_std*sig_val
-        val_hi = mu_val + border_std*sig_val
-
-        new_list_val = []
-
-        for val in list_val:
-            if val < val_lo:
-                val = val_lo
-            if val > val_hi:
-                val = val_hi
-
-            new_list_val.append(val)
-
-        return new_list_val
+        return ss
 
 
     def _normalise_data(self, cluster_data):
@@ -651,6 +768,10 @@ class Model(object):
         """
         D = self._ndim
 
+        y = np.mat(y)
+        c = np.mat(c)
+        A = np.mat(A)
+
         p1 = 1 / np.sqrt(((2*np.pi)**D)*det(A))
         p2 = np.exp(-1/2*(y-c).transpose()*inv(A)*(y-c))
 
@@ -660,6 +781,16 @@ class Model(object):
         """
         returns the log likelihood of a position based on model (in cells)
         """
+
+        ndim = self._ndim
+
+        y = y.reshape((ndim, 1), order='F')
+
+        y = np.array(y)
+
+        # check dimension y
+        if not y.shape == (ndim, 1):
+            raise ValueError("dimension is {0}, not {1}".format(y.shape, (ndim, 1)))
 
         cc = self._cc
         cA = self._cA
@@ -680,6 +811,8 @@ class Model(object):
             py += self._gauss(y, c, A)  # addition of each Gaussian
 
         pyL = np.log(py) - np.log(M)  # division by number of Gaussians
+
+        pyL = np.squeeze(pyL)
 
         return pyL
 

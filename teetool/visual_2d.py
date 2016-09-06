@@ -79,14 +79,13 @@ class Visual_2d(object):
 
         plt.legend(handles=list_lines, labels=list_label)
 
-
-    def plotLogProbability(self, list_clusters, ncontours=20):
+    def plotLogProbability(self, list_clusters, ncontours=20, z=None):
         """
         plots log-probability
         ncontours: number of contours drawn
         """
 
-        [xx, yy] = self._world.getGrid()
+        [xx, yy] = self._world.getGrid(ndim=2)
 
         s = np.zeros_like(xx)
 

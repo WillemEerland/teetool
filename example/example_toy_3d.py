@@ -36,7 +36,7 @@ for ls in llsettings:
     new_world = tt.World(name=world_name, ndim=3)
 
     # modify default resolution
-    new_world.setResolution(xstep=25, ystep=35, zstep=25)
+    new_world.setResolution(xstep=25, ystep=25, zstep=15)
 
     # add trajectories
     for ntype in [0, 1]:
@@ -87,7 +87,7 @@ for ls in llsettings:
     # visualise outline
     visual.plotOutline()
     # save
-    visual.save()
+    #visual.save()
 
     # show [ requires user input ]
     visual.show()

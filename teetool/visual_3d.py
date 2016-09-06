@@ -33,12 +33,12 @@ class Visual_3d(object):
                 mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
                             tube_radius=None)
 
-    def plotLogProbability(self, list_clusters):
+    def plotLogProbability(self, list_clusters, pmin=0.5, pmax=1.0):
         """
         plots log-probability
         """
 
-        [xx, yy, zz] = self._world.getGrid()
+        [xx, yy, zz] = self._world.getGrid(ndim=3)
 
         s = np.zeros_like(xx)
 
@@ -50,13 +50,10 @@ class Visual_3d(object):
         # normalise
         s = (s - np.min(s)) / (np.max(s) - np.min(s))
 
-        #logp90 = np.log(.90)
-        #logp99 = np.log(.99)
-
         # mayavi
         src = mlab.pipeline.scalar_field(xx, yy, zz, s)
-        #mlab.pipeline.iso_surface(src, contours=[s.min()+0.8*s.ptp(), ], opacity=0.2)
-        mlab.pipeline.volume(src, vmin=0.8, vmax=1.0)
+        mlab.pipeline.iso_surface(src, contours=[.8, .7, .6], opacity=0.2)
+        mlab.pipeline.volume(src, vmin=pmin, vmax=pmax)
 
     def plotOutline(self):
         """

@@ -212,15 +212,19 @@ class World(object):
         # extract
         this_cluster = self._clusters[icluster]
 
+
         if (self._D == 2):
             # 2d
-            [xx, yy] = self.getGrid()
+            [xx, yy] = self.getGrid(ndim=2)
             temp = this_cluster["model"].eval(xx, yy)
 
         if (self._D == 3):
             # 3d
-            [xx, yy, zz] = self.getGrid()
+            [xx, yy, zz] = self.getGrid(ndim=3)
             temp = this_cluster["model"].eval(xx, yy, zz)
+
+
+        #(Y, s) = this_cluster["model"]._eval_random()
 
         this_cluster["logp"] = temp
 
@@ -267,7 +271,7 @@ class World(object):
         if (self._D == 3):
             self._resolution = [xstep, ystep, zstep]
 
-    def getGrid(self):
+    def getGrid(self, ndim):
         """
         returns the grid used calculate the log-likelihood on
         """
@@ -275,12 +279,12 @@ class World(object):
         [xmin, xmax, ymin, ymax] = self._outline[0:4]
         [xstep, ystep] = self._resolution[0:2]
 
-        if (self._D == 2):
+        if (ndim == 2):
             # 2d
             res = np.mgrid[xmin:xmax:np.complex(0, xstep),
                            ymin:ymax:np.complex(0, ystep)]
 
-        if (self._D == 3):
+        if (ndim == 3):
             # 3d
             [zmin, zmax] = self._outline[4:6]
             zstep = self._resolution[2]

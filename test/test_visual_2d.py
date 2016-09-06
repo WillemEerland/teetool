@@ -30,7 +30,7 @@ def test_visual_2d():
         world_1.addCluster(correct_cluster_data, correct_cluster_name)
 
     # test grid
-    [xx, yy] = world_1.getGrid()
+    [xx, yy] = world_1.getGrid(ndim=mdim)
     assert (xx.shape == yy.shape)
 
     # model all trajectories

@@ -8,6 +8,7 @@ from teetool import visual_2d
 llsettings = []
 
 llsettings.append(["resampling", 100, "", "", 0])
+"""
 llsettings.append(["ML", 100, "bernstein", 5, 0])
 llsettings.append(["ML", 100, "rbf", 10, 0])
 
@@ -17,6 +18,7 @@ llsettings.append(["ML", 100, "rbf", 10, .5])
 
 llsettings.append(["EM", 100, "bernstein", 5, .5])
 llsettings.append(["EM", 100, "rbf", 10, .5])
+"""
 
 for ls in llsettings:
 
@@ -52,7 +54,7 @@ for ls in llsettings:
     new_world.buildModel(1, settings)
 
     # modify default resolution
-    new_world.setResolution(xstep=25, ystep=25)
+    new_world.setResolution(xstep=100, ystep=100)
 
     # build the log-probability for the set grid (resolution)
     new_world.buildLogProbality(0)
@@ -61,7 +63,11 @@ for ls in llsettings:
     # output an overview
     new_world.overview()
 
-    # visuals by mayavi
+    # visuals by matplotlib
+    visual = visual_2d.Visual_2d(new_world)
+    visual.plotTrajectories([0])
+    visual.plotLogProbability([0])
+    #
     visual = visual_2d.Visual_2d(new_world)
     # visualise trajectories
     visual.plotTrajectories([0, 1])
@@ -72,7 +78,7 @@ for ls in llsettings:
     # visualise intersection
     visual.plotLogProbability([0, 1])
     # save image
-    visual.save()
+    #visual.save()
 
 # show [ wait for user input ]
 visual.show()
