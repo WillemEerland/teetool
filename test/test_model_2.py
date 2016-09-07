@@ -22,13 +22,15 @@ def test_eval():
         new_model = tt.model.Model(cluster_data, valid_settings)
 
         if (mdim == 2):
-            xx, yy2 = np.mgrid[-10:10:2j, -10:10:2j]
-            s = new_model.eval(xx, yy2)
+            xx, yy = np.mgrid[-10:10:2j, -10:10:2j]
+            (Y, s) = new_model.eval(xx, yy)
         if (mdim == 3):
             xx, yy, zz = np.mgrid[-10:10:2j, -10:10:2j, -10:10:2j]
-            s = new_model.eval(xx, yy, zz)
+            (Y, s) = new_model.eval(xx, yy, zz)
 
-        assert(s.shape == xx.shape)
+        assert(np.size(s, axis=0) == np.size(Y, axis=0))
+
+        assert(np.size(Y, axis=1) == mdim)
 
         # test subfunctions
 
@@ -37,14 +39,14 @@ def test_eval():
 
         pL = new_model._gauss_logLc(y)
 
-        assert (pL.shape == (1, 1))
+        assert (np.isfinite(pL))
 
         c = np.zeros((mdim, 1))
         A = np.eye(mdim)
 
         pL = new_model._gauss(y, c, A)
 
-        assert (pL.shape == (1, 1))
+        assert (np.isfinite(pL))
 
     #
     for d in [2, 3]:
