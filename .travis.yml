@@ -24,4 +24,4 @@ install:
 
 # Run test
 script:
-  - (cd test ; py.test -v)
+  - py.test -v -s
