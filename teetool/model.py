@@ -3,10 +3,12 @@
 from __future__ import print_function
 import numpy as np
 from numpy.linalg import det, inv, svd, pinv
+from scipy.linalg import block_diag
 from scipy.interpolate import griddata
 import pathos.multiprocessing as mp
 from pathos.helpers import cpu_count
 import time, sys
+
 import teetool as tt
 
 
@@ -863,7 +865,7 @@ class Model(object):
             for d in range(mdim):
                 BASIS_list.append(BASIS_1d)
 
-            BASIS = tt.helpers.block_diag(*BASIS_list)
+            BASIS = block_diag(*BASIS_list)
 
             return np.mat(BASIS)
 
