@@ -35,7 +35,7 @@ class Visual_3d(object):
                 mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
                             tube_radius=None)
 
-    def plotLogProbability(self, list_clusters, pmin=0.8, pmax=1.0):
+    def plotLogProbability(self, list_clusters, pmin=0.8, pmax=1.0, bSum=True):
         """
         plots log-probability
         """
@@ -54,8 +54,12 @@ class Visual_3d(object):
                 ss1 = griddata(Y, s, (xx, yy, zz),
                                method='linear',
                                fill_value=s_min)
-                # sum
-                ss += ss1
+                if bSum:
+                    # sum
+                    ss += ss1
+                else:
+                    # sub
+                    ss -= ss1
 
         # normalise
         ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
