@@ -21,8 +21,6 @@ def test_init():
     assert (world_1._name == name_1)
     assert (world_1._D == D_1)
 
-    assert (world_1.overview() == True)
-
     # test 2
     # default values
     world_2 = tt.World()
@@ -127,7 +125,5 @@ def test_model():
 
     with pt.raises(ValueError) as testException:
         world_1.buildLogProbality(-1)
-
-    assert (world_1.overview() == True)
 
     world_1.setResolution(10,10,10)

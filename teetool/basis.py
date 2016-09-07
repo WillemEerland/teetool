@@ -127,9 +127,7 @@ class Basis(object):
         gaus_width = 1. / nbasis
 
         for i, gaus_loc in enumerate(gaus_loc_vec):
-            val = self._funcRbf(x_sca, gaus_loc, gaus_width)
-            #print([x_sca, gaus_loc, gaus_width, val])
-            gaus[i] = val
+            gaus[i] = self._funcRbf(x_sca, gaus_loc, gaus_width)
 
         return np.mat(gaus)
 

@@ -35,7 +35,55 @@ class Visual_3d(object):
                 mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
                             tube_radius=None)
 
-    def plotLogProbability(self, list_clusters, pmin=0.8, pmax=1.0, bSum=True):
+    def plotDifference(self, icluster1, icluster2):
+        """
+        plots difference
+        """
+
+        [xx, yy, zz] = self._world.getGrid(ndim=3,
+                                           resolution=[40, 40, 40])
+
+        ss = np.zeros_like(xx)
+
+        # add
+        this_cluster = self._world.getCluster(icluster1)
+        if ("logp" in this_cluster):
+            (Y, s) = this_cluster["logp"]
+            s_min = np.min(s)
+            # interpolate result
+            ss1 = griddata(Y, s, (xx, yy, zz),
+                           method='linear',
+                           fill_value=s_min)
+
+            ss += np.exp(ss1)
+
+        # subtract
+        this_cluster = self._world.getCluster(icluster2)
+        if ("logp" in this_cluster):
+            (Y, s) = this_cluster["logp"]
+            s_min = np.min(s)
+            # interpolate result
+            ss1 = griddata(Y, s, (xx, yy, zz),
+                           method='linear',
+                           fill_value=s_min)
+
+            ss -= np.exp(ss1)
+
+        # normalise
+        ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
+
+        # mayavi
+        src = mlab.pipeline.scalar_field(xx, yy, zz, ss_norm)
+
+        # plot a volume
+        # mlab.pipeline.volume(src, vmin=pmin, vmax=pmax)
+        # slice it
+        mlab.pipeline.image_plane_widget(src,
+                                         plane_orientation='z_axes',
+                                         slice_index=10,
+                                         )
+
+    def plotLogProbability(self, list_clusters):
         """
         plots log-probability
         """
@@ -54,12 +102,8 @@ class Visual_3d(object):
                 ss1 = griddata(Y, s, (xx, yy, zz),
                                method='linear',
                                fill_value=s_min)
-                if bSum:
-                    # sum
-                    ss += ss1
-                else:
-                    # subtract
-                    ss -= ss1
+                # sum
+                ss += ss1
 
         # normalise
         ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
@@ -68,7 +112,7 @@ class Visual_3d(object):
         src = mlab.pipeline.scalar_field(xx, yy, zz, ss_norm)
 
         # plot a volume
-        mlab.pipeline.volume(src, vmin=pmin, vmax=pmax)
+        # mlab.pipeline.volume(src, vmin=pmin, vmax=pmax)
         # slice it
         mlab.pipeline.image_plane_widget(src,
                                          plane_orientation='z_axes',

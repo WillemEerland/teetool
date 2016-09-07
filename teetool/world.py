@@ -74,8 +74,6 @@ class World(object):
             print("{0} [{1}] [{2}] [{3}]".format(
                         i, this_cluster["name"], has_model, has_logp))
 
-        return True
-
     def addCluster(self, cluster_data, cluster_name=""):
         """
         <description>
@@ -109,6 +107,9 @@ class World(object):
                 raise ValueError("dimension not correct")
             if (M != np.size(x, 0)):
                 raise ValueError("number of data-points do not match")
+            # check if all finite
+            if not np.isfinite(x).all():
+                raise ValueError("x holds non-finite values")
 
         # add new cluster [ holds "name" and "data" ]
         new_cluster = {}

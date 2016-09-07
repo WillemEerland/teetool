@@ -736,10 +736,14 @@ class Model(object):
             # single cell
             (c, A) = self._getMuSigma(mu_y, sig_y, m, ngaus)
 
+            # check for singularity
+            A = tt.helpers.nearest_spd(A)
+
             cc.append(c)
             cA.append(A)
 
         return (cc, cA)
+
 
     def _getMuSigma(self, mu_y, sig_y, npoint, ngaus):
         """
