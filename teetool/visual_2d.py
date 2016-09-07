@@ -81,14 +81,14 @@ class Visual_2d(object):
 
         plt.legend(handles=list_lines, labels=list_label)
 
-    def plotLogProbability(self, list_clusters, ncontours=20, z=None):
+    def plotLogProbability(self, list_clusters, pmin=0, pmax=1):
         """
         plots log-probability
         ncontours: number of contours drawn
         """
 
         [xx, yy] = self._world.getGrid(ndim=2,
-                                       resolution=[50,50])
+                                       resolution=[100, 100])
 
         ss = np.zeros_like(xx)
 
@@ -108,7 +108,8 @@ class Visual_2d(object):
         ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
 
         # plot contours
-        self._ax.contourf(xx, yy, ss_norm, ncontours, cmap="viridis")
+        self._ax.pcolor(xx, yy, ss_norm, cmap="viridis", vmin=pmin, vmax=pmax)
+        #self._ax.contourf(xx, yy, ss_norm, ncontours, cmap="viridis")
 
     def plotOutline(self):
         """
@@ -129,13 +130,15 @@ class Visual_2d(object):
         if not (world_name == None):
             plt.title(world_name)
 
-    def save(self, saveas=None):
+    def save(self, add=None):
         """
         saves as file
         """
 
-        if (saveas==None):
+        if (add==None):
             saveas = self._world.getName()
+        else:
+            saveas = "{0}_{1}".format(self._world.getName(), add)
 
         plt.savefig("output/2d_{0}.png".format(saveas))
 
@@ -153,4 +156,4 @@ class Visual_2d(object):
         closes the figure
         """
 
-        plt.close()
+        plt.close("all")

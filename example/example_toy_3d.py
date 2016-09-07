@@ -74,9 +74,6 @@ for ls in llsettings:
         visual.plotLogProbability([i])
         # visualise outline
         visual.plotOutline()
-        # save
-        # visual.save()
-
 
     # visuals by mayavi
     visual = visual_3d.Visual_3d(new_world)
@@ -85,14 +82,6 @@ for ls in llsettings:
     # visualise intersection
     visual.plotLogProbability([0, 1], pmin=.8, pmax=.95)
     # visualise outline
-    visual.plotOutline()
-
-    visual = visual_3d.Visual_3d(new_world)
-    visual.plotLogProbability([0, 1], pmin=.8, pmax=.95)
-    visual.plotOutline()
-
-    visual = visual_3d.Visual_3d(new_world)
-    visual.plotLogProbability([0, 1], pmin=.7, pmax=.90)
     visual.plotOutline()
 
     # show [ requires user input ]

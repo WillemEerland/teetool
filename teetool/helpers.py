@@ -68,7 +68,7 @@ def get_trajectories(ntype=0, ndim=3, ntraj=50, npoints=100, noise_std=.5):
         else:
             # [second set of trajectories]
             y1 = x + 2*np.random.randn(1) - 2.5
-            y2 = -x + 5*np.random.randn(1) + 40
+            y2 = -x + 5*np.random.randn(1) + 45
             y3 = -0.03*(x**2) + 3*np.random.randn(1) + 2.5
 
         # 2d / 3d

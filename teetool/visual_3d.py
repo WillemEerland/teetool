@@ -85,13 +85,15 @@ class Visual_3d(object):
         if not (world_name == None):
             mlab.title(world_name)
 
-    def save(self, saveas=None):
+    def save(self, add=None):
         """
         saves as file
         """
 
-        if (saveas==None):
+        if (add==None):
             saveas = self._world.getName()
+        else:
+            saveas = "{0}_{1}".format(self._world.getName(), add)
 
         mlab.savefig("output/3d_{0}.png".format(saveas), figure=self._mfig)
 

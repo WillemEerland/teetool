@@ -3,19 +3,17 @@
 """
 
 import teetool as tt  # core
-from teetool import visual_2d
+#from teetool import visual_2d
 
 llsettings = []
 
 llsettings.append(["resampling", 100, "", "", 0])
-"""
-llsettings.append(["ML", 100, "bernstein", 5, 0])
-llsettings.append(["ML", 100, "rbf", 10, 0])
-
 llsettings.append(["resampling", 100, "", "", .5])
+
 llsettings.append(["ML", 100, "bernstein", 5, .5])
 llsettings.append(["ML", 100, "rbf", 10, .5])
 
+"""
 llsettings.append(["EM", 100, "bernstein", 5, .5])
 llsettings.append(["EM", 100, "rbf", 10, .5])
 """
@@ -54,7 +52,7 @@ for ls in llsettings:
     new_world.buildModel(1, settings)
 
     # modify default resolution
-    new_world.setResolution(xstep=10, ystep=10)
+    new_world.setResolution(xstep=50, ystep=50)
 
     # build the log-probability for the set grid (resolution)
     new_world.buildLogProbality(0)
@@ -64,21 +62,20 @@ for ls in llsettings:
     new_world.overview()
 
     # visuals by matplotlib
-    visual = visual_2d.Visual_2d(new_world)
-    visual.plotTrajectories([0])
-    visual.plotLogProbability([0])
-    #
-    visual = visual_2d.Visual_2d(new_world)
-    # visualise trajectories
+    for ntype in [0, 1]:
+        visual = tt.visual_2d.Visual_2d(new_world)
+        visual.plotTrajectories([ntype])
+        visual.plotSamples([ntype])
+        visual.plotLogProbability([ntype], pmin=.9, pmax=1)
+        visual.plotLegend()
+        visual.save(ntype)
+        visual.close()
+
+    visual = tt.visual_2d.Visual_2d(new_world)
     visual.plotTrajectories([0, 1])
-    # visualise samples
-    visual.plotSamples([0, 1])
-    # legend
-    visual.plotLegend()
-    # visualise intersection
-    visual.plotLogProbability([0, 1])
-    # save image
-    #visual.save()
+    visual.plotLogProbability([0, 1], pmin=.9, pmax=1.0)
+    visual.save('i')
+    visual.close()
 
 # show [ wait for user input ]
-visual.show()
+#visual.show()
