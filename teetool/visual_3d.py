@@ -62,8 +62,14 @@ class Visual_3d(object):
 
         # mayavi
         src = mlab.pipeline.scalar_field(xx, yy, zz, ss_norm)
-        # mlab.pipeline.iso_surface(src, contours=[.8, .7, .6], opacity=0.2)
+
+        # plot a volume
         mlab.pipeline.volume(src, vmin=pmin, vmax=pmax)
+        # slice it
+        mlab.pipeline.image_plane_widget(src,
+                                         plane_orientation='z_axes',
+                                         slice_index=10,
+                                         )
 
     def plotOutline(self):
         """

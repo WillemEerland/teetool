@@ -65,22 +65,24 @@ for ls in llsettings:
 
     #  this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
 
+    visual = visual_3d.Visual_3d(new_world)
+    # visualise trajectories
+    visual.plotTrajectories([0, 1])
+    # visualise outline
+    visual.plotOutline()
+
     for i in [0, 1]:
         # visuals by mayavi
         visual = visual_3d.Visual_3d(new_world)
-        # visualise trajectories
-        visual.plotTrajectories([i])
         # visualise intersection
-        visual.plotLogProbability([i])
+        visual.plotLogProbability([i], pmin=.95, pmax=1)
         # visualise outline
         visual.plotOutline()
 
     # visuals by mayavi
     visual = visual_3d.Visual_3d(new_world)
-    # visualise trajectories
-    #visual.plotTrajectories([0, 1])
     # visualise intersection
-    visual.plotLogProbability([0, 1], pmin=.8, pmax=.95)
+    visual.plotLogProbability([0, 1], pmin=.95, pmax=1)
     # visualise outline
     visual.plotOutline()
 
