@@ -54,7 +54,7 @@ for ls in llsettings:
     new_world.buildModel(1, settings)
 
     # modify default resolution
-    new_world.setResolution(xstep=100, ystep=100)
+    new_world.setResolution(xstep=10, ystep=10)
 
     # build the log-probability for the set grid (resolution)
     new_world.buildLogProbality(0)

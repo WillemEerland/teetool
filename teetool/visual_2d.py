@@ -2,7 +2,9 @@
 # (trajectories / probability) in 2 dimensions
 
 import numpy as np
+from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
+
 import teetool as tt
 
 
@@ -85,20 +87,28 @@ class Visual_2d(object):
         ncontours: number of contours drawn
         """
 
-        [xx, yy] = self._world.getGrid(ndim=2)
+        [xx, yy] = self._world.getGrid(ndim=2,
+                                       resolution=[50,50])
 
-        s = np.zeros_like(xx)
+        ss = np.zeros_like(xx)
 
         for icluster in list_clusters:
             this_cluster = self._world.getCluster(icluster)
             if ("logp" in this_cluster):
-                s += this_cluster["logp"]
+                (Y, s) = this_cluster["logp"]
+                s_min = np.min(s)
+                # interpolate result
+                ss1 = griddata(Y, s, (xx, yy),
+                               method='linear',
+                               fill_value=s_min)
+                # sum
+                ss += ss1
 
         # normalise
-        s = (s - np.min(s)) / (np.max(s) - np.min(s))
+        ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
 
         # plot contours
-        self._ax.contourf(xx, yy, s, ncontours, cmap="viridis")
+        self._ax.contourf(xx, yy, ss_norm, ncontours, cmap="viridis")
 
     def plotOutline(self):
         """

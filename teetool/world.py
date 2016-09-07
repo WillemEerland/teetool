@@ -271,13 +271,16 @@ class World(object):
         if (self._D == 3):
             self._resolution = [xstep, ystep, zstep]
 
-    def getGrid(self, ndim):
+    def getGrid(self, ndim, resolution=None):
         """
         returns the grid used calculate the log-likelihood on
         """
 
+        if resolution is None:
+            resolution = self._resolution
+
         [xmin, xmax, ymin, ymax] = self._outline[0:4]
-        [xstep, ystep] = self._resolution[0:2]
+        [xstep, ystep] = resolution[0:2]
 
         if (ndim == 2):
             # 2d
@@ -287,7 +290,7 @@ class World(object):
         if (ndim == 3):
             # 3d
             [zmin, zmax] = self._outline[4:6]
-            zstep = self._resolution[2]
+            zstep = resolution[2]
             res = np.mgrid[xmin:xmax:np.complex(0, xstep),
                            ymin:ymax:np.complex(0, ystep),
                            zmin:zmax:np.complex(0, zstep)]

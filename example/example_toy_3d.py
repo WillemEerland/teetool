@@ -36,7 +36,7 @@ for ls in llsettings:
     new_world = tt.World(name=world_name, ndim=3)
 
     # modify default resolution
-    new_world.setResolution(xstep=25, ystep=25, zstep=15)
+    new_world.setResolution(xstep=20, ystep=20, zstep=20)
 
     # add trajectories
     for ntype in [0, 1]:
@@ -81,13 +81,19 @@ for ls in llsettings:
     # visuals by mayavi
     visual = visual_3d.Visual_3d(new_world)
     # visualise trajectories
-    visual.plotTrajectories([0, 1])
+    #visual.plotTrajectories([0, 1])
     # visualise intersection
-    visual.plotLogProbability([0, 1])
+    visual.plotLogProbability([0, 1], pmin=.8, pmax=.95)
     # visualise outline
     visual.plotOutline()
-    # save
-    #visual.save()
+
+    visual = visual_3d.Visual_3d(new_world)
+    visual.plotLogProbability([0, 1], pmin=.8, pmax=.95)
+    visual.plotOutline()
+
+    visual = visual_3d.Visual_3d(new_world)
+    visual.plotLogProbability([0, 1], pmin=.7, pmax=.90)
+    visual.plotOutline()
 
     # show [ requires user input ]
     visual.show()
