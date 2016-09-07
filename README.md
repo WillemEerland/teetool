@@ -19,15 +19,13 @@ python setup.py install
 
 (cd test ; py.test -v --cov-report html --cov=teetool)
 
-# examples
-
-python example/example_toy_2d.py
+# example/example_toy_2d.py
 
 ![2d intersection](https://www.southampton.ac.uk/~wje1n13/teetool/2d_intersection.png)
 
 shows log-probability of intersecting clusters
 
-python example/example_toy_3d.py
+# example/example_toy_3d.py
 
 ![3d toy 0](https://www.southampton.ac.uk/~wje1n13/teetool/3d_input.png)
 
