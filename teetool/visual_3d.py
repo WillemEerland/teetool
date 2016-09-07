@@ -58,7 +58,7 @@ class Visual_3d(object):
                     # sum
                     ss += ss1
                 else:
-                    # sub
+                    # subtract
                     ss -= ss1
 
         # normalise
