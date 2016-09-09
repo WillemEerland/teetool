@@ -9,7 +9,7 @@ purely spatial, ignores temporal effects
 
 conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy
 
-source activate teetool-env
+source activate teetool
 
 pip install pathos matplotlib
 
