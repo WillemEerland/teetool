@@ -38,3 +38,12 @@ shows log-probability of a single cluster
 ![3d inter](https://www.southampton.ac.uk/~wje1n13/teetool/3d_intersection.png)
 
 shows log-probability of two clusters intersecting
+
+# notebook/
+
+* requires jupyter notebook
+conda install jupyter
+
+jupyter notebook
+
+* find notebook/ in browser
