@@ -24,7 +24,7 @@ class Visual_2d(object):
 
         self._ax.set_axis_bgcolor('grey')
 
-        [xmin, xmax, ymin, ymax] = thisWorld.getOutline()
+        [xmin, xmax, ymin, ymax] = thisWorld.getExpandedOutline()
         self._ax.set_xlim([xmin, xmax])
         self._ax.set_ylim([ymin, ymax])
 

@@ -35,13 +35,13 @@ class Visual_3d(object):
                 mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
                             tube_radius=None)
 
-    def plotDifference(self, icluster1, icluster2):
+    def plotLogDifference(self, icluster1, icluster2):
         """
         plots difference
         """
 
         [xx, yy, zz] = self._world.getGrid(ndim=3,
-                                           resolution=[40, 40, 40])
+                                           resolution=[50, 50, 50])
 
         ss = np.zeros_like(xx)
 
@@ -55,7 +55,7 @@ class Visual_3d(object):
                            method='linear',
                            fill_value=s_min)
 
-            ss += np.exp(ss1)
+            ss += ss1
 
         # subtract
         this_cluster = self._world.getCluster(icluster2)
@@ -67,7 +67,7 @@ class Visual_3d(object):
                            method='linear',
                            fill_value=s_min)
 
-            ss -= np.exp(ss1)
+            ss -= ss1
 
         # normalise
         ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
@@ -89,7 +89,7 @@ class Visual_3d(object):
         """
 
         [xx, yy, zz] = self._world.getGrid(ndim=3,
-                                           resolution=[40, 40, 40])
+                                           resolution=[50, 50, 50])
 
         ss = np.zeros_like(xx)
 
@@ -111,22 +111,24 @@ class Visual_3d(object):
         # mayavi
         src = mlab.pipeline.scalar_field(xx, yy, zz, ss_norm)
 
+        # show peak areas
+        #mlab.pipeline.iso_surface(src, contours=[0.5*s.ptp(), ], opacity=0.1)
         # plot a volume
-        # mlab.pipeline.volume(src, vmin=pmin, vmax=pmax)
+        #mlab.pipeline.volume(src, vmin=pmin, vmax=pmax)
         # slice it
         mlab.pipeline.image_plane_widget(src,
                                          plane_orientation='z_axes',
                                          slice_index=10,
-                                         )
+                                         opacity=0.5)
 
     def plotOutline(self):
         """
         adds an outline
         """
 
-        outline = self._world.getOutline()
+        plot_outline = self._world.getExpandedOutline()
 
-        mlab.outline(extent=outline)
+        mlab.outline(extent=plot_outline)
 
     def _plotTitle(self):
         """

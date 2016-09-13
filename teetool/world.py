@@ -49,8 +49,11 @@ class World(object):
         # initial parameters
         self._clusters = []  # list holding clusters
         # these parameters define the grid
-        self._outline = self._getDefaultOutline(ndim)
+        self._real_outline = self._getDefaultOutline(ndim)
         self._resolution = self._getDefaultResolution(ndim)
+
+        # default value
+        self.fraction_to_expand = 0.1
 
     def overview(self):
         """
@@ -119,7 +122,7 @@ class World(object):
 
         self._clusters.append(new_cluster)
 
-        self._check_outline(cluster_data)  # extend outline, if required
+        self._check_real_outline(cluster_data)  # extend outline, if required
 
     def getName(self):
         """
@@ -280,31 +283,70 @@ class World(object):
         if resolution is None:
             resolution = self._resolution
 
-        [xmin, xmax, ymin, ymax] = self._outline[0:4]
-        [xstep, ystep] = resolution[0:2]
+        #outline = self.getRealOutline()
+        outline = self.getExpandedOutline()
+
+        #print(outline1)
+        #print(outline)
 
         if (ndim == 2):
+            # 2d
+            [xmin, xmax, ymin, ymax] = outline[0:4]
+            [xstep, ystep] = resolution[0:2]
             # 2d
             res = np.mgrid[xmin:xmax:np.complex(0, xstep),
                            ymin:ymax:np.complex(0, ystep)]
 
         if (ndim == 3):
             # 3d
-            [zmin, zmax] = self._outline[4:6]
-            zstep = resolution[2]
+            [xmin, xmax, ymin, ymax, zmin, zmax] = outline[0:6]
+            [xstep, ystep, zstep] = resolution[0:3]
+            # 3d
             res = np.mgrid[xmin:xmax:np.complex(0, xstep),
                            ymin:ymax:np.complex(0, ystep),
                            zmin:zmax:np.complex(0, zstep)]
 
         return res
 
-    def getOutline(self):
+    def getRealOutline(self):
         """
-        returns outline of all data
+        returns real outline of data
         """
-        return self._outline
+        return self._real_outline
 
-    def _check_outline(self, cluster_data):
+    def getExpandedOutline(self):
+        """
+        returns expanded outline of data (via fraction_to_expand)
+        """
+
+        real_outline = self.getRealOutline()
+
+        ndim = self._D
+
+        # init
+        if (self._D == 2):
+            expanded_outline = [0, 0, 0, 0]
+        if (self._D == 3):
+            expanded_outline = [0, 0, 0, 0, 0, 0]
+
+        for d in range(ndim):
+            pos1 = d*2
+            pos2 = d*2 + 2
+            [xmin, xmax] = real_outline[pos1:pos2]
+            xdif = xmax - xmin
+
+            expanded_outline[pos1] = real_outline[pos1] - self.fraction_to_expand*xdif
+            expanded_outline[pos1+1] = real_outline[pos1+1] + self.fraction_to_expand*xdif
+
+        if (self._D == 3):
+            expanded_outline[4] = 0 # set minimum altitude to zero
+
+        # convert to numpy array
+        expanded_outline = np.array(expanded_outline)
+
+        return expanded_outline
+
+    def _check_real_outline(self, cluster_data):
         """
         calculate maximum outline from list and store
         """
@@ -315,7 +357,7 @@ class World(object):
                 x = Y[:, d]
                 xmin = x.min()
                 xmax = x.max()
-                if (self._outline[d*2] > xmin):
-                    self._outline[d*2] = xmin
-                if (self._outline[d*2+1] < xmax):
-                    self._outline[d*2+1] = xmax
+                if (self._real_outline[d*2] > xmin):
+                    self._real_outline[d*2] = xmin
+                if (self._real_outline[d*2+1] < xmax):
+                    self._real_outline[d*2+1] = xmax

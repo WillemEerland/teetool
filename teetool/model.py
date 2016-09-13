@@ -351,8 +351,11 @@ class Model(object):
             raise ValueError("dimensions should equal (use np.mgrid)")
 
         # choose how to evaluate tube / grid
-        #(Y, s) = self._eval_tube(nsamples=5, sdwidth=[2])
-        (Y, s) = self._eval_grid(xx, yy, zz)
+        (Y1, s1) = self._eval_tube(nsamples=5, sdwidth=[2, 3])
+        (Y2, s2) = self._eval_grid(xx, yy, zz)
+
+        Y = np.concatenate((Y1, Y2), axis=0)
+        s = np.concatenate((s1, s2), axis=0)
 
         # keep finite values
         mask = np.isfinite(s)
