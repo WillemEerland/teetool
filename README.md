@@ -1,4 +1,4 @@
-[![Travis CI](https://travis-ci.com/WillemEerland/teetool.svg?token=vgGUTGsaoutqpevkkMq4&branch=master)]
+[![Travis CI](https://travis-ci.org/WillemEerland/teetool.svg?branch=master)]
 
 # teetool
 a package to support with the statistical analysis of trajectory data -- helpful at determining the probability of clusters (collection) of trajectories colliding
@@ -39,11 +39,12 @@ shows log-probability of a single cluster
 
 shows log-probability of two clusters intersecting
 
-# notebook/
+# jupyter notebook
 
 * requires jupyter notebook
+
 conda install jupyter
 
 jupyter notebook
 
-* find notebook/ in browser
+* find notebook/ in browser and run files in order
