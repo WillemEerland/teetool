@@ -83,6 +83,39 @@ class Visual_3d(object):
                                          slice_index=10,
                                          )
 
+    def plotLogIsoSurface(self, list_clusters, pcontours=[.1, .2], popacity=0.3):
+        """
+        plots log-probability
+        """
+
+        [xx, yy, zz] = self._world.getGrid(ndim=3,
+                                resolution=[40, 40, 40])
+
+        # ss = np.zeros_like(xx)
+        nclusters = len(list_clusters)
+        lcolours = tt.helpers.getDistinctColours(nclusters)
+
+        for (i, icluster) in enumerate(list_clusters):
+            this_cluster = self._world.getCluster(icluster)
+            if ("logp" in this_cluster):
+                (Y, s) = this_cluster["logp"]
+                # interpolate result
+                ss = griddata(Y, s, (xx, yy, zz),
+                            method='linear',
+                            fill_value=np.min(s))
+
+                # normalise
+                ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
+
+                # mayavi
+                src = mlab.pipeline.scalar_field(xx, yy, zz, ss_norm)
+
+                # plot an iso surface
+                mlab.pipeline.iso_surface(src,
+                                          contours=pcontours,
+                                          opacity=popacity,
+                                          color=lcolours[i])
+
     def plotLogProbability(self, list_clusters):
         """
         plots log-probability
