@@ -116,13 +116,13 @@ class Visual_3d(object):
                                           opacity=popacity,
                                           color=lcolours[i])
 
-    def plotLogProbability(self, list_clusters):
+    def plotLogProbability(self, list_clusters, pmin=0.0, pmax=1.0):
         """
         plots log-probability
         """
 
         [xx, yy, zz] = self._world.getGrid(ndim=3,
-                                           resolution=[50, 50, 50])
+                                           resolution=[30, 30, 30])
 
         ss = np.zeros_like(xx)
 
@@ -152,7 +152,9 @@ class Visual_3d(object):
         mlab.pipeline.image_plane_widget(src,
                                          plane_orientation='z_axes',
                                          slice_index=10,
-                                         opacity=0.5)
+                                         opacity=0.5,
+                                         vmin=pmin,
+                                         vmax=pmax)
 
     def plotOutline(self):
         """
