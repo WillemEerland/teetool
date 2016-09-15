@@ -200,6 +200,37 @@ class World(object):
         this_cluster["model"] = new_model
         self._clusters[icluster] = this_cluster
 
+    def buildTube(self, icluster, sdwidth=1):
+        """
+        builds points for tube
+        """
+
+        if type(icluster) is not int:
+            raise TypeError("expected integer, not {0}".format(type(icluster)))
+
+        nclusters = len(self._clusters)
+        if ((icluster < 0) or (icluster >= nclusters)):
+            raise ValueError(
+                "{0} not in range [0,{1}]".format(icluster, nclusters))
+
+        # extract
+        this_cluster = self._clusters[icluster]
+
+        if (self._D == 2):
+            # 2d
+            [xx, yy] = self.getGrid(ndim=2)
+            (Y, s) = this_cluster["model"].evalInside(sdwidth, xx, yy)
+
+        if (self._D == 3):
+            # 3d
+            [xx, yy, zz] = self.getGrid(ndim=3)
+            (Y, s) = this_cluster["model"].evalInside(sdwidth, xx, yy, zz)
+
+        this_cluster["tube"] = (Y, s)
+
+        # overwrite
+        self._clusters[icluster] = this_cluster
+
     def buildLogProbality(self, icluster):
         """
         builds a log-probability grid
@@ -215,7 +246,6 @@ class World(object):
 
         # extract
         this_cluster = self._clusters[icluster]
-
 
         if (self._D == 2):
             # 2d

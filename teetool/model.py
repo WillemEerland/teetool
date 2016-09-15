@@ -154,7 +154,7 @@ class Model(object):
 
             ellipse = ellipse * rotation.transpose() + c.transpose()
 
-            return ellipse
+            return np.mat(ellipse)
 
         if ndim == 3:
             # 3d
@@ -182,7 +182,7 @@ class Model(object):
 
             ap = ap * rotation.transpose() + c.transpose()
 
-            return ap
+            return np.mat(ap)
 
 
 
@@ -273,9 +273,10 @@ class Model(object):
 
         return (Y, s)
 
-    def _eval_grid(self, xx, yy, zz=None):
+    def _grid2points(self, xx, yy, zz=None):
         """
-        evaluates on a grid, aiming at the desired number of points
+        returns an Y matrix for a given grid
+
         """
 
         nx = np.size(xx, 0)
@@ -283,8 +284,7 @@ class Model(object):
         if (self._ndim == 3):
             nz = np.size(zz, 2)
 
-        # create two lists;
-        # - position, pos
+        # create list;
         Y_list = []
 
         if (self._ndim == 2):
@@ -309,6 +309,16 @@ class Model(object):
             raise NotImplementedError()
 
         Y = np.concatenate(Y_list, axis=0)
+
+        return np.array(Y)
+
+
+    def _eval_grid(self, xx, yy, zz=None):
+        """
+        evaluates on a grid, aiming at the desired number of points
+        """
+
+        Y = self._grid2points(xx, yy, zz)
 
         (npoints, _) = Y.shape
         ndim = self._ndim
@@ -336,6 +346,82 @@ class Model(object):
         s = np.array(list_val)
 
         return (Y, s)
+
+    def evalInside(self, sdwidth, xx, yy, zz=None):
+        """
+        evaluate if points are inside a grid
+        """
+
+        # get points from grid
+        Y = self._grid2points(xx, yy, zz)
+
+        # evaluate the points
+        s = self._isInside(Y, sdwidth)
+
+        # return values
+        return (Y, s)
+
+    def _isInside(self, P, sdwidth=1):
+        """
+        tests if points P NxD 'points' x 'dimensions' are inside the tube
+        """
+
+        ndim = self._ndim
+
+        # P is an array
+        P = np.array(P)
+
+        (p_npoints, p_ndim) = P.shape
+
+        # an array of bools (all FALSE, thus zeros)
+        # FALSE = not inside
+        # TRUE  = inside
+        P_inside = np.zeros((p_npoints,1), dtype=bool)
+
+        ngaus = len(self._cc)
+
+        # TODO fix hardcoding
+        nsamples = 10
+
+        for i in range(ngaus-1):
+            # points of first Gaussian
+            c = self._cc[i]
+            A = self._cA[i]
+            Yi = self._getEllipse(c, A, sdwidth, nsamples)
+            # points of next Gaussian
+            c = self._cc[i+1]
+            A = self._cA[i+1]
+            Yi1 = self._getEllipse(c, A, sdwidth, nsamples)
+
+            # this is the 'cloud' to test
+            Y = np.concatenate((Yi, Yi1), axis=0)
+
+            #print("Y {0}".format(Y))
+
+            # remove duplicates
+            Y = tt.helpers.unique_rows(Y)
+
+            """
+            # keep finite points
+            mask = np.isfinite(Y)
+            mask = np.all(mask, axis=1) # keeps rows
+            mask = list(mask)
+
+            Y = Y[mask,:]
+
+            Y = np.squeeze(Y)
+            """
+
+            #print("P {0}".format(P))
+            #print("Y {0}".format(Y))
+            # see what points are inside the 'cloud'
+            these_inside = tt.helpers.in_hull(P, Y)
+
+            # if already inside, or new inside,
+            P_inside = np.logical_or(P_inside, these_inside)
+
+        return P_inside
+
 
 
     def eval(self, xx, yy, zz=None):

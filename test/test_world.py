@@ -127,3 +127,6 @@ def test_model():
         world_1.buildLogProbality(-1)
 
     world_1.setResolution(10,10,10)
+
+    # build tube
+    world_1.buildTube(0)

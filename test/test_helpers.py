@@ -42,3 +42,37 @@ def test_toy_trajectories():
 
         for (x, Y) in traj:
             assert (np.size(Y,1) == d)
+
+def test_inside_hull():
+    """
+    tests if points are inside a hull
+    """
+    # 2d
+    Y = np.array([[-1, -1],
+                  [-1, +1],
+                  [+1, +1],
+                  [+1, -1]])
+
+    p = np.array([0, 0])
+
+    assert(tt.helpers.in_hull(p, Y))
+
+    p = np.array([[0, 0], [0, 0]])
+
+    temp = tt.helpers.in_hull(p, Y)
+
+    assert(temp.shape==(2,1))
+
+    # 3d
+    Y = np.array([[-1, -1, -1],
+                  [-1, +1, -1],
+                  [+1, +1, -1],
+                  [+1, -1, -1],
+                  [-1, -1, +1],
+                  [-1, +1, +1],
+                  [+1, +1, +1],
+                  [+1, -1, +1]])
+
+    p = np.array([0, 0, 0])
+
+    assert(tt.helpers.in_hull(p, Y))

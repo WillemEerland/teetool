@@ -83,6 +83,37 @@ class Visual_3d(object):
                                          slice_index=10,
                                          )
 
+    def plotTube(self, list_clusters, popacity=0.3):
+        """
+        plots log-probability
+        """
+
+        [xx, yy, zz] = self._world.getGrid(ndim=3,
+                             resolution=[40, 40, 40])
+
+        # ss = np.zeros_like(xx)
+        nclusters = len(list_clusters)
+        lcolours = tt.helpers.getDistinctColours(nclusters)
+
+        for (i, icluster) in enumerate(list_clusters):
+         this_cluster = self._world.getCluster(icluster)
+         if ("tube" in this_cluster):
+             (Y, s) = this_cluster["tube"]
+             # interpolate result
+             ss = griddata(Y, s, (xx, yy, zz),
+                         method='linear',
+                         fill_value=np.min(s))
+
+             ss = np.squeeze(ss)  # TODO fix this at a previous step
+             # mayavi
+             src = mlab.pipeline.scalar_field(xx, yy, zz, ss)
+
+             # plot an iso surface
+             mlab.pipeline.iso_surface(src,
+                                       contours=[0.5],
+                                       opacity=popacity,
+                                       color=lcolours[i])
+
     def plotLogIsoSurface(self, list_clusters, pcontours=[.1, .2], popacity=0.3):
         """
         plots log-probability

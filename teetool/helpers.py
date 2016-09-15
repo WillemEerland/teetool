@@ -3,6 +3,7 @@
 import colorsys
 import numpy as np
 from numpy.linalg import svd, cond, eig
+from scipy.spatial import Delaunay
 
 def getDistinctColours(ncolours):
     """
@@ -152,3 +153,28 @@ def get_trajectories(ntype=0, ndim=3, ntraj=50, npoints=100, noise_std=.5):
         toy_trajectories.append( (x, Y) )
 
     return toy_trajectories
+
+def in_hull(p, hull):
+    """
+    Test if points in `p` are in `hull`
+
+    `p` should be a `NxK` coordinates of `N` points in `K` dimensions
+    `hull` is either a scipy.spatial.Delaunay object or the `MxK` array of the
+    coordinates of `M` points in `K`dimensions for which Delaunay triangulation
+    will be computed
+    """
+
+    # if not Delaunay, create
+    if not isinstance(hull, Delaunay):
+        hull = Delaunay(hull, qhull_options='Qz')
+
+    res = (hull.find_simplex(p)>=0)
+
+    res_bool = np.array(res,dtype=bool).reshape(-1,1)
+
+    return res_bool
+
+def unique_rows(a):
+    a = np.ascontiguousarray(a)
+    unique_a = np.unique(a.view([('', a.dtype)]*a.shape[1]))
+    return unique_a.view(a.dtype).reshape((unique_a.shape[0], a.shape[1]))

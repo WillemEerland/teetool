@@ -7,6 +7,28 @@ import pytest as pt
 
 import teetool as tt
 
+
+def test_inside():
+    """
+    tests if points are inside
+    """
+
+    mdim = 2
+
+    cluster_data = tt.helpers.get_trajectories(1, mdim)
+    valid_settings = {"model_type": "resampling", "ngaus": 100}
+
+    # normal operation
+    new_model = tt.model.Model(cluster_data, valid_settings)
+
+    #
+    (x, Y) = cluster_data[0]
+
+    # insane width..
+    p_test = new_model._isInside(Y, sdwidth=30)
+
+    assert(p_test.all())
+
 def test_help_func():
     """
     testing various functions
