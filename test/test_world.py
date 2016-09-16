@@ -67,7 +67,7 @@ def test_addCluster():
         world_1.addCluster(correct_cluster_data, correct_cluster_name)
 
     #
-    these_clusters = world_1.getClusters()
+    these_clusters = world_1.getCluster()
 
     assert (len(these_clusters) == 2)
 

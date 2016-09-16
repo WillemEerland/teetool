@@ -33,15 +33,16 @@ class Visual_2d(object):
 
         self._labels = []
 
-    def plotTrajectories(self, list_clusters):
+    def plotTrajectories(self, list_iclusters):
         """
         <description>
         """
 
-        colours = tt.helpers.getDistinctColours(len(list_clusters))
+        colours = tt.helpers.getDistinctColours(len(list_iclusters))
 
-        for (i, icluster) in enumerate(list_clusters):
-            this_cluster = self._world.getCluster(icluster)
+        clusters = self._world.getCluster(list_iclusters)
+        for (i, this_cluster) in enumerate(clusters):
+            # pass clusters
             for (x, Y) in this_cluster["data"]:
                 a_line, = self._ax.plot(Y[:, 0],
                                        Y[:, 1],
@@ -50,14 +51,14 @@ class Visual_2d(object):
 
         self._labels.append((a_line, "data"))
 
-    def plotSamples(self, list_clusters):
+    def plotSamples(self, list_iclusters):
         """
         <description>
         """
 
-        colours = tt.helpers.getDistinctColours(len(list_clusters))
+        colours = tt.helpers.getDistinctColours(len(list_iclusters))
 
-        for (i, icluster) in enumerate(list_clusters):
+        for (i, icluster) in enumerate(list_iclusters):
             these_samples = self._world.getSamples(icluster)
             for (x, Y) in these_samples:
                 a_line, = self._ax.plot(Y[:, 0],
@@ -81,7 +82,7 @@ class Visual_2d(object):
 
         plt.legend(handles=list_lines, labels=list_label)
 
-    def plotLogProbability(self, list_clusters, pmin=0, pmax=1):
+    def plotLogProbability(self, list_iclusters, pmin=0, pmax=1):
         """
         plots log-probability
         ncontours: number of contours drawn
@@ -92,8 +93,9 @@ class Visual_2d(object):
 
         ss = np.zeros_like(xx)
 
-        for icluster in list_clusters:
-            this_cluster = self._world.getCluster(icluster)
+        clusters = self._world.getCluster(list_iclusters)
+        for (i, this_cluster) in enumerate(clusters):
+            # pass clusters
             if ("logp" in this_cluster):
                 (Y, s) = this_cluster["logp"]
                 s_min = np.min(s)

@@ -48,17 +48,18 @@ class Visual_3d(object):
         # return answers
         return ss
 
-    def plotTrajectories(self, list_clusters):
+    def plotTrajectories(self, list_iclusters):
         """
         plot trajectories
 
-        list_clusters should be a list of clusters, integers only
+        list_iclusters should be a list of clusters, integers only
         """
 
-        colours = tt.helpers.getDistinctColours(len(list_clusters))
+        colours = tt.helpers.getDistinctColours(len(list_iclusters))
 
-        for (i, icluster) in enumerate(list_clusters):
-            this_cluster = self._world.getCluster(icluster)
+        clusters = self._world.getCluster(list_iclusters)
+        for (i, this_cluster) in enumerate(clusters):
+            # pass clusters
             for (x, Y) in this_cluster["data"]:
                 mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
                             tube_radius=None)
@@ -75,7 +76,7 @@ class Visual_3d(object):
         ss = np.zeros_like(xx)
 
         # add
-        this_cluster = self._world.getCluster(icluster1)
+        this_cluster = self._world.getCluster([icluster1])
         if ("logp" in this_cluster):
             (Y, s) = this_cluster["logp"]
 
@@ -89,7 +90,7 @@ class Visual_3d(object):
             ss += ss1
 
         # subtract
-        this_cluster = self._world.getCluster(icluster2)
+        this_cluster = self._world.getCluster([icluster2])
         if ("logp" in this_cluster):
             (Y, s) = this_cluster["logp"]
             s_min = np.min(s)
@@ -112,47 +113,54 @@ class Visual_3d(object):
                                          slice_index=10,
                                          )
 
-    def plotTube(self, list_clusters, popacity=0.3):
+    def plotTube(self, list_iclusters=None, popacity=0.3):
         """
         plots log-probability
+
+        list_iclusters is a list of lcusters, None is all
+        popacity relates to the opacity [0, 1]
         """
 
         [xx, yy, zz] = self._getGrid()
 
         # ss = np.zeros_like(xx)
-        nclusters = len(list_clusters)
+        nclusters = len(list_iclusters)
         lcolours = tt.helpers.getDistinctColours(nclusters)
 
-        for (i, icluster) in enumerate(list_clusters):
-         this_cluster = self._world.getCluster(icluster)
-         if ("tube" in this_cluster):
-             (Y, s) = this_cluster["tube"]
+        clusters = self._world.getCluster(list_iclusters)
+        for (i, this_cluster) in enumerate(clusters):
+            # pass all clusters
+            if ("tube" in this_cluster):
+                (Y, s) = this_cluster["tube"]
 
-             ss = self._points2grid(Y, s)
+                ss = self._points2grid(Y, s)
 
-             ss = np.squeeze(ss)  # TODO fix this at a previous step
-             # mayavi
-             src = mlab.pipeline.scalar_field(xx, yy, zz, ss)
+                ss = np.squeeze(ss)  # TODO fix this at a previous step
+                # mayavi
+                src = mlab.pipeline.scalar_field(xx, yy, zz, ss)
 
-             # plot an iso surface
-             mlab.pipeline.iso_surface(src,
-                                       contours=[0.5],
-                                       opacity=popacity,
-                                       color=lcolours[i])
+                # plot an iso surface
+                mlab.pipeline.iso_surface(src,
+                contours=[0.5],
+                opacity=popacity,
+                color=lcolours[i])
 
-    def plotLogIsoSurface(self, list_clusters, pcontours=[.1, .2], popacity=0.3):
+    def plotLogIsoSurface(self, list_iclusters=None, pcontours=[.1, .2], popacity=0.3):
         """
         plots log-probability
+
+        list_iclusters selects what to plot, None is all
         """
 
         [xx, yy, zz] = self._getGrid()
 
         # ss = np.zeros_like(xx)
-        nclusters = len(list_clusters)
+        nclusters = len(list_iclusters)
         lcolours = tt.helpers.getDistinctColours(nclusters)
 
-        for (i, icluster) in enumerate(list_clusters):
-            this_cluster = self._world.getCluster(icluster)
+        clusters = self._world.getCluster(list_iclusters)
+        for (i, this_cluster) in enumerate(clusters):
+            # pass all clusters
             if ("logp" in this_cluster):
                 (Y, s) = this_cluster["logp"]
 
@@ -171,7 +179,7 @@ class Visual_3d(object):
                                           opacity=popacity,
                                           color=lcolours[i])
 
-    def plotLogProbability(self, list_clusters, pmin=0.0, pmax=1.0):
+    def plotLogProbability(self, list_iclusters=None, pmin=0.0, pmax=1.0):
         """
         plots log-probability
         """
@@ -180,8 +188,9 @@ class Visual_3d(object):
 
         ss = np.zeros_like(xx)
 
-        for icluster in list_clusters:
-            this_cluster = self._world.getCluster(icluster)
+        clusters = self._world.getCluster(list_iclusters)
+        for (i, this_cluster) in enumerate(clusters):
+            # pass all clusters
             if ("logp" in this_cluster):
                 (Y, s) = this_cluster["logp"]
 

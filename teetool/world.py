@@ -141,21 +141,20 @@ class World(object):
 
 
 
-    def getCluster(self, icluster):
+    def getCluster(self, list_iclusters=None):
         """
         returns a single cluster
         """
 
-        # TODO checks, and optional to provide name
-
-        return self._clusters[icluster]
-
-    def getClusters(self):
-        """
-        returns the clusters
-        """
-
-        return self._clusters
+        if (list_iclusters == None):
+            # return all
+            return self._clusters
+        else:
+            # return clusters in list
+            clusters = []
+            for i in list_iclusters:
+                clusters.append(self._clusters[i])
+            return clusters
 
     def _check_icluster(self, icluster):
         """

@@ -4,15 +4,12 @@
 
 import pytest as pt
 import teetool as tt
-pt.importorskip("teetool.visual_3d")
 
 
 def test_visual_3d():
     """
     can produce figures
     """
-
-    from teetool import visual_3d
 
     # build world
     world_1 = tt.World(name="Example 3D", ndim=3)
@@ -39,26 +36,31 @@ def test_visual_3d():
     for i in [0, 1]:
         world_1.buildModel(i, settings)
         world_1.buildLogProbality(i)
+        world_1.buildTube(i)
 
     #  this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
     for i in [0, 1]:
         # visuals by mayavi
-        visual = visual_3d.Visual_3d(world_1)
+        visual = tt.visual_3d.Visual_3d(world_1)
         # visualise trajectories
         visual.plotTrajectories([i])
         # visualise intersection
         visual.plotLogProbability([i])
+        # visualise tube
+        visual.plotTube([i])
         # visualise outline
         visual.plotOutline()
         # close
         visual.close()
 
     # visuals by mayavi
-    visual = visual_3d.Visual_3d(world_1)
+    visual = tt.visual_3d.Visual_3d(world_1)
     # visualise trajectories
     visual.plotTrajectories([0, 1])
     # visualise intersection
     visual.plotLogProbability([0, 1])
+    # visualise tube
+    visual.plotTube([0, 1])
     # visualise outline
     visual.plotOutline()
     # close

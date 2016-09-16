@@ -3,7 +3,6 @@
 """
 
 import pytest as pt
-pt.importorskip("teetool.visual_2d")
 import teetool as tt
 
 
@@ -11,8 +10,6 @@ def test_visual_2d():
     """
     produce figures
     """
-
-    # from teetool import visual_2d
 
     mdim = 2
     mtraj = 20
