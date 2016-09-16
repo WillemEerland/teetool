@@ -48,15 +48,13 @@ for ls in llsettings:
     new_world.overview()
 
     # build the model
-    new_world.buildModel(0, settings)
-    new_world.buildModel(1, settings)
+    new_world.buildModel([0, 1], settings)
 
     # modify default resolution
     new_world.setResolution(xstep=100, ystep=100)
 
     # build the log-probability for the set grid (resolution)
-    new_world.buildLogProbality(0)
-    new_world.buildLogProbality(1)
+    new_world.buildLogProbality([0, 1])
 
     # output an overview
     new_world.overview()

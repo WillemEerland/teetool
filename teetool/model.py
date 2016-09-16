@@ -7,7 +7,6 @@ from numpy.linalg import det, inv, svd, pinv
 from scipy.interpolate import griddata
 
 import pathos.multiprocessing as mp
-from pathos.helpers import cpu_count
 
 import time, sys
 
@@ -136,9 +135,6 @@ class Model(object):
         # find the rotation matrix and radii of the axes
         [_, s, rotation] = svd(A)
 
-        # ignore smallest eigenvalues (always ordered)
-        # s[2] = 0
-
         radii = sdwidth * np.sqrt(s)
 
         if ndim == 2:
@@ -185,7 +181,6 @@ class Model(object):
             return np.mat(ap)
 
 
-
     def _getSample(self, c, A, nsamples=1, std=1):
         """
         returns nsamples samples of the given Gaussian
@@ -227,7 +222,6 @@ class Model(object):
             c = self._cc[i]
             A = self._cA[i]
 
-            #Yi = self._getSample(c, A, nsamples)
             Yi = self._getEllipse(c, A, sdwidth, nsamples)
 
             Y_list.append(Yi)
@@ -252,8 +246,7 @@ class Model(object):
         ndim = self._ndim
 
         # parallel processing
-        ncores = cpu_count()
-        p = mp.ProcessingPool(ncores)
+        p = mp.ProcessingPool()
 
         print("number of calculations: {0}".format(npoints))
 
@@ -275,44 +268,7 @@ class Model(object):
 
         return (Y, s)
 
-    def _grid2points(self, xx, yy, zz=None):
-        """
-        returns an Y matrix for a given grid
 
-        """
-
-        nx = np.size(xx, 0)
-        ny = np.size(yy, 1)
-        if (self._ndim == 3):
-            nz = np.size(zz, 2)
-
-        # create list;
-        Y_list = []
-
-        if (self._ndim == 2):
-            # 2d
-            for ix in range(nx):
-                for iy in range(ny):
-                    x1 = xx[ix, 0]
-                    y1 = yy[0, iy]
-                    pos = np.mat([x1, y1])
-                    Y_list.append(pos)
-        elif (self._ndim == 3):
-            # 3d
-            for ix in range(nx):
-                for iy in range(ny):
-                    for iz in range(nz):
-                        x1 = xx[ix, 0, 0]
-                        y1 = yy[0, iy, 0]
-                        z1 = zz[0, 0, iz]
-                        pos = np.mat([x1, y1, z1])
-                        Y_list.append(pos)
-        else:
-            raise NotImplementedError()
-
-        Y = np.concatenate(Y_list, axis=0)
-
-        return np.array(Y)
 
 
     def _eval_grid(self, xx, yy, zz=None):
@@ -320,19 +276,18 @@ class Model(object):
         evaluates on a grid, aiming at the desired number of points
         """
 
-        Y = self._grid2points(xx, yy, zz)
+        (Y_pos, Y_idx) = self._grid2points(xx, yy, zz)
 
-        (npoints, _) = Y.shape
+        (npoints, _) = Y_pos.shape
         ndim = self._ndim
 
         # parallel processing
-        ncores = cpu_count()
-        p = mp.ProcessingPool(ncores)
+        p = mp.ProcessingPool()
 
         print("number of calculations: {0}".format(npoints))
 
         # output
-        results = p.amap(self._gauss_logLc, Y)
+        results = p.amap(self._gauss_logLc, Y_pos)
 
         while not results.ready():
             # obtain intermediate results
@@ -347,7 +302,86 @@ class Model(object):
 
         s = np.array(list_val)
 
-        return (Y, s)
+        return (Y_pos, s)
+
+    def _grid2points(self, xx, yy, zz=None):
+        """
+        returns an Y matrix for a given grid
+
+        xx, yy, (zz) are mgrid
+
+        """
+
+        nx = np.size(xx, 0)
+        ny = np.size(yy, 1)
+        if (self._ndim == 3):
+            nz = np.size(zz, 2)
+
+        # create list;
+        Y_pos = []
+        Y_idx = []
+
+        if (self._ndim == 2):
+            # 2d
+            for ix in range(nx):
+                for iy in range(ny):
+                    x1 = xx[ix, 0]
+                    y1 = yy[0, iy]
+                    pos = np.mat([x1, y1])
+                    Y_pos.append(pos)
+                    Y_idx.append([ix, iy])
+        elif (self._ndim == 3):
+            # 3d
+            for ix in range(nx):
+                for iy in range(ny):
+                    for iz in range(nz):
+                        x1 = xx[ix, 0, 0]
+                        y1 = yy[0, iy, 0]
+                        z1 = zz[0, 0, iz]
+                        pos = np.mat([x1, y1, z1])
+                        Y_pos.append(pos)
+                        Y_idx.append([ix, iy, iz])
+        else:
+            raise NotImplementedError()
+
+        Y_pos = np.concatenate(Y_pos, axis=0)
+        Y_pos = np.array(Y_pos)
+
+        #Y_idx = np.concatenate(Y_idx, axis=0)
+        Y_idx = np.array(Y_idx)
+
+        return (Y_pos, Y_idx)
+
+    def _points2grid(self, s, Y_idx):
+        """
+        converts points to a matrix
+
+        s is values np.array and Y_idx is position np.array
+        """
+
+        #print("s {0} {1}".format(np.min(s), np.max(s)))
+
+        this_shape = np.max(Y_idx, axis=0)
+
+        this_shape += 1  # one larger than indices
+
+        ss = np.zeros(shape=this_shape, dtype=float)
+
+        for i, y_idx in enumerate(Y_idx):
+            # pass all positions (passes rows)
+
+            if self._ndim is 2:
+                # 2d
+                [ix, iy] = y_idx
+                ss[ix, iy] = s[i]
+            else:
+                # 3d
+                [ix, iy, iz] = y_idx
+                ss[ix, iy, iz] = s[i]
+
+        #print("ss {0} {1}".format(np.min(ss), np.max(ss)))
+
+        return ss
 
     def evalInside(self, sdwidth, xx, yy, zz=None):
         """
@@ -355,15 +389,49 @@ class Model(object):
         """
 
         # get points from grid
-        Y = self._grid2points(xx, yy, zz)
+        (Y_pos, Y_idx) = self._grid2points(xx, yy, zz)
 
         # evaluate the points
-        s = self._isInside(Y, sdwidth)
+        s = self._isInside_pnts(Y_pos, sdwidth)
+
+        """
+        npoints, _ = Y_pos.shape
+
+        sdwidth_list = np.ones(shape=(npoints)) * sdwidth
+        sdwidth_list = list(sdwidth_list)
+
+        print(Y_pos)
+        print(sdwidth_list)
+
+        # parallel processing
+        p = mp.ProcessingPool()
+
+        # output
+        results = p.amap(self._isInside_pnts, Y_pos, sdwidth_list)
+
+        while not results.ready():
+            # obtain intermediate results
+            print(".", end="")
+            sys.stdout.flush()
+            time.sleep(1)
+
+        print("") # new line
+
+        # extract results
+        list_val = results.get()
+
+        print("listval {0}".format(list_val))
+
+        s = np.array(list_val)
+        s = np.squeeze(s)
+        """
+
+        ss = self._points2grid(s, Y_idx)
 
         # return values
-        return (Y, s)
+        return ss
 
-    def _isInside(self, P, sdwidth=1):
+    def _isInside_pnts(self, P, sdwidth=1, nsamples=10):
         """
         tests if points P NxD 'points' x 'dimensions' are inside the tube
         """
@@ -382,9 +450,6 @@ class Model(object):
 
         ngaus = len(self._cc)
 
-        # TODO fix hardcoding
-        nsamples = 10
-
         for i in range(ngaus-1):
             # points of first Gaussian
             c = self._cc[i]
@@ -398,24 +463,9 @@ class Model(object):
             # this is the 'cloud' to test
             Y = np.concatenate((Yi, Yi1), axis=0)
 
-            #print("Y {0}".format(Y))
-
             # remove duplicates
             Y = tt.helpers.unique_rows(Y)
 
-            """
-            # keep finite points
-            mask = np.isfinite(Y)
-            mask = np.all(mask, axis=1) # keeps rows
-            mask = list(mask)
-
-            Y = Y[mask,:]
-
-            Y = np.squeeze(Y)
-            """
-
-            #print("P {0}".format(P))
-            #print("Y {0}".format(Y))
             # see what points are inside the 'cloud'
             these_inside = tt.helpers.in_hull(P, Y)
 
@@ -423,7 +473,6 @@ class Model(object):
             P_inside = np.logical_or(P_inside, these_inside)
 
         return P_inside
-
 
 
     def eval(self, xx, yy, zz=None):

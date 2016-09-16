@@ -52,28 +52,25 @@ for ls in llsettings:
     new_world.overview()
 
     # model
-    new_world.buildModel(0, settings)
-    new_world.overview()  # overview
-    new_world.buildModel(1, settings)
+    new_world.buildModel([0, 1], settings)
     new_world.overview()  # overview
 
     # log
-    new_world.buildTube(0)
-    new_world.overview()  # overview
-    new_world.buildTube(1)
+    new_world.buildTube([0, 1], sdwidth=3, nres=[70, 70, 70])
     new_world.overview()  # overview
 
     #  this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
 
-    visual = visual_3d.Visual_3d(new_world)
-    # visualise trajectories
-    visual.plotTrajectories([0, 1])
+    #visual = visual_3d.Visual_3d(new_world)
+
     # visualise outline
-    visual.plotOutline()
+    #visual.plotOutline()
 
     # visuals by mayavi
     visual = visual_3d.Visual_3d(new_world)
-    # visualise intersection
+    # visualise trajectories
+    visual.plotTrajectories([0, 1])
+    # visualise tube
     visual.plotTube([0, 1])
     # visualise outline
     visual.plotOutline()

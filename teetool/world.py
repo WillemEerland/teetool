@@ -74,7 +74,7 @@ class World(object):
             else:
                 has_logp = "-"
 
-            if ("tube" in this_cluster):
+            if ("tube_grid" in this_cluster):
                 has_tube = "*"
             else:
                 has_tube = "-"
@@ -139,8 +139,6 @@ class World(object):
         else:
             return self._name
 
-
-
     def getCluster(self, list_icluster=None):
         """
         returns a single cluster
@@ -181,7 +179,6 @@ class World(object):
             # check validity
             self._check_icluster(icluster)
 
-
     def getSamples(self, icluster, nsamples=50):
         """
         returns samples (x, Y) list
@@ -199,7 +196,9 @@ class World(object):
 
     def buildModel(self, list_icluster, settings):
         """
-        creates a model with these settings
+        creates a model
+
+        settings are
         model_type: [resample]
         mgaus: number of Gaussians (e.g. 50-100)
         """
@@ -219,9 +218,11 @@ class World(object):
             this_cluster["model"] = new_model
             self._clusters[icluster] = this_cluster
 
-    def buildTube(self, list_icluster, sdwidth=1):
+    def buildTube(self, list_icluster, sdwidth=1, nres=[50, 50, 50]):
         """
         builds points for tube
+
+        given list_icluster and sdwidth and nres
         """
 
         # check validity
@@ -231,11 +232,11 @@ class World(object):
             # extract
             this_cluster = self._clusters[icluster]
 
-            [xx, yy, zz] = self.getGrid(ndim=self._D)
+            [xx, yy, zz] = self.getGrid(ndim=self._D, resolution=nres)
 
-            (Y, s) = this_cluster["model"].evalInside(sdwidth, xx, yy, zz)
+            ss = this_cluster["model"].evalInside(sdwidth, xx, yy, zz)
 
-            this_cluster["tube"] = (Y, s)
+            this_cluster["tube_grid"] = [ss, xx, yy, zz]
 
             # overwrite
             self._clusters[icluster] = this_cluster
@@ -312,9 +313,6 @@ class World(object):
         #outline = self.getRealOutline()
         outline = self.getExpandedOutline()
 
-        #print(outline1)
-        #print(outline)
-
         if (ndim == 2):
             # 2d
             [xmin, xmax, ymin, ymax] = outline[0:4]
@@ -365,8 +363,8 @@ class World(object):
             expanded_outline[pos1] = real_outline[pos1] - self.fraction_to_expand*xdif
             expanded_outline[pos1+1] = real_outline[pos1+1] + self.fraction_to_expand*xdif
 
-        if (self._D == 3):
-            expanded_outline[4] = 0 # set minimum altitude to zero
+        #if (self._D == 3):
+        #    expanded_outline[4] = 0 # set minimum altitude to zero
 
         # convert to numpy array
         expanded_outline = np.array(expanded_outline)

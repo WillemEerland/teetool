@@ -130,12 +130,11 @@ class Visual_3d(object):
         clusters = self._world.getCluster(list_icluster)
         for (i, this_cluster) in enumerate(clusters):
             # pass all clusters
-            if ("tube" in this_cluster):
-                (Y, s) = this_cluster["tube"]
+            if ("tube_grid" in this_cluster):
+                [ss, xx, yy, zz] = this_cluster["tube_grid"]
 
-                ss = self._points2grid(Y, s)
+                print("ss: {0} {1} {2}".format(ss.shape,np.min(ss), np.max(ss)))
 
-                ss = np.squeeze(ss)  # TODO fix this at a previous step
                 # mayavi
                 src = mlab.pipeline.scalar_field(xx, yy, zz, ss)
 

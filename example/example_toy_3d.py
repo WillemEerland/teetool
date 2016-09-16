@@ -52,15 +52,11 @@ for ls in llsettings:
     new_world.overview()
 
     # model
-    new_world.buildModel(0, settings)
-    new_world.overview()  # overview
-    new_world.buildModel(1, settings)
+    new_world.buildModel([0, 1], settings)
     new_world.overview()  # overview
 
     # log
-    new_world.buildLogProbality(0)
-    new_world.overview()  # overview
-    new_world.buildLogProbality(1)
+    new_world.buildLogProbality([0, 1])
     new_world.overview()  # overview
 
     #  this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
