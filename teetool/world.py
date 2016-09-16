@@ -74,8 +74,13 @@ class World(object):
             else:
                 has_logp = "-"
 
-            print("{0} [{1}] [{2}] [{3}]".format(
-                        i, this_cluster["name"], has_model, has_logp))
+            if ("tube" in this_cluster):
+                has_tube = "*"
+            else:
+                has_tube = "-"
+
+            print("{0} [{1}] [{2}] [{3}] [{4}]".format(
+                        i, this_cluster["name"], has_model, has_logp, has_tube))
 
     def addCluster(self, cluster_data, cluster_name=""):
         """
@@ -256,9 +261,6 @@ class World(object):
             # 3d
             [xx, yy, zz] = self.getGrid(ndim=3)
             temp = this_cluster["model"].eval(xx, yy, zz)
-
-
-        #(Y, s) = this_cluster["model"]._eval_random()
 
         this_cluster["logp"] = temp
 

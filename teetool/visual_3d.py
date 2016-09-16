@@ -22,9 +22,37 @@ class Visual_3d(object):
         self._mfig = mlab.figure(size=(800,600))
         self._world = thisWorld
 
+    def _getGrid(self):
+        """
+        returns a grid to plot on
+        """
+
+        [xx, yy, zz] = self._world.getGrid(ndim=3,
+                                           resolution=[30, 30, 30])
+
+        return [xx, yy, zz]
+
+    def _points2grid(self, Y, s):
+        """
+        returns the grid points based on the input values
+        """
+
+        # obtain grid positions
+        [xx, yy, zz] = self._getGrid()
+
+        # interpolate result
+        ss = griddata(Y, s, (xx, yy, zz),
+                       method='linear',
+                       fill_value=np.min(s))
+
+        # return answers
+        return ss
+
     def plotTrajectories(self, list_clusters):
         """
-        <description>
+        plot trajectories
+
+        list_clusters should be a list of clusters, integers only
         """
 
         colours = tt.helpers.getDistinctColours(len(list_clusters))
@@ -38,10 +66,11 @@ class Visual_3d(object):
     def plotLogDifference(self, icluster1, icluster2):
         """
         plots difference
+
+        icluster1, and icluster2 should be both integers
         """
 
-        [xx, yy, zz] = self._world.getGrid(ndim=3,
-                                           resolution=[50, 50, 50])
+        [xx, yy, zz] = self._getGrid()
 
         ss = np.zeros_like(xx)
 
@@ -49,7 +78,9 @@ class Visual_3d(object):
         this_cluster = self._world.getCluster(icluster1)
         if ("logp" in this_cluster):
             (Y, s) = this_cluster["logp"]
-            s_min = np.min(s)
+
+            ss1 = self._points2grid(Y, s)
+            #s_min = np.min(s)
             # interpolate result
             ss1 = griddata(Y, s, (xx, yy, zz),
                            method='linear',
@@ -75,8 +106,6 @@ class Visual_3d(object):
         # mayavi
         src = mlab.pipeline.scalar_field(xx, yy, zz, ss_norm)
 
-        # plot a volume
-        # mlab.pipeline.volume(src, vmin=pmin, vmax=pmax)
         # slice it
         mlab.pipeline.image_plane_widget(src,
                                          plane_orientation='z_axes',
@@ -88,8 +117,7 @@ class Visual_3d(object):
         plots log-probability
         """
 
-        [xx, yy, zz] = self._world.getGrid(ndim=3,
-                             resolution=[40, 40, 40])
+        [xx, yy, zz] = self._getGrid()
 
         # ss = np.zeros_like(xx)
         nclusters = len(list_clusters)
@@ -99,10 +127,8 @@ class Visual_3d(object):
          this_cluster = self._world.getCluster(icluster)
          if ("tube" in this_cluster):
              (Y, s) = this_cluster["tube"]
-             # interpolate result
-             ss = griddata(Y, s, (xx, yy, zz),
-                         method='linear',
-                         fill_value=np.min(s))
+
+             ss = self._points2grid(Y, s)
 
              ss = np.squeeze(ss)  # TODO fix this at a previous step
              # mayavi
@@ -119,8 +145,7 @@ class Visual_3d(object):
         plots log-probability
         """
 
-        [xx, yy, zz] = self._world.getGrid(ndim=3,
-                                resolution=[40, 40, 40])
+        [xx, yy, zz] = self._getGrid()
 
         # ss = np.zeros_like(xx)
         nclusters = len(list_clusters)
@@ -130,10 +155,9 @@ class Visual_3d(object):
             this_cluster = self._world.getCluster(icluster)
             if ("logp" in this_cluster):
                 (Y, s) = this_cluster["logp"]
+
                 # interpolate result
-                ss = griddata(Y, s, (xx, yy, zz),
-                            method='linear',
-                            fill_value=np.min(s))
+                ss = self._points2grid(Y, s)
 
                 # normalise
                 ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
@@ -152,8 +176,7 @@ class Visual_3d(object):
         plots log-probability
         """
 
-        [xx, yy, zz] = self._world.getGrid(ndim=3,
-                                           resolution=[30, 30, 30])
+        [xx, yy, zz] = self._getGrid()
 
         ss = np.zeros_like(xx)
 
@@ -161,11 +184,10 @@ class Visual_3d(object):
             this_cluster = self._world.getCluster(icluster)
             if ("logp" in this_cluster):
                 (Y, s) = this_cluster["logp"]
-                s_min = np.min(s)
+
                 # interpolate result
-                ss1 = griddata(Y, s, (xx, yy, zz),
-                               method='linear',
-                               fill_value=s_min)
+                ss1 = self._points2grid(Y, s)
+
                 # sum
                 ss += ss1
 

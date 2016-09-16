@@ -62,7 +62,7 @@ def test_help_func():
 
         # generating coordinates
         msamples = 10
-        Y = new_model._getCoords(nsamples=msamples)
+        Y = new_model._getCoordsEllipse(nsamples=msamples)
 
         #assert(Y.shape == (mgaus*msamples, mdim))
 

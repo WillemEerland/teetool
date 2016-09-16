@@ -210,9 +210,11 @@ class Model(object):
 
         return np.mat(Y)
 
-    def _getCoords(self, nsamples=20, sdwidth=5):
+    def _getCoordsEllipse(self, nsamples=20, sdwidth=5):
         """
         returns an array of xy(z) coordinates
+
+        nsamples is number of points in ellipsoid and sdwidth is the variance
         """
 
         ndim = self._ndim
@@ -241,7 +243,7 @@ class Model(object):
 
         Y_list = []
         for sdwidth1 in sdwidth:
-            Y1 = self._getCoords(nsamples, sdwidth1)
+            Y1 = self._getCoordsEllipse(nsamples, sdwidth1)
             Y_list.append(Y1)
 
         Y = np.concatenate(Y_list, axis=0)
@@ -336,7 +338,7 @@ class Model(object):
             # obtain intermediate results
             print(".", end="")
             sys.stdout.flush()
-            time.sleep(3)
+            time.sleep(1)
 
         print("") # new line
 
