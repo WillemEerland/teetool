@@ -28,39 +28,27 @@ def test_visual_3d():
     [xx, yy, zz] = world_1.getGrid(ndim=3)
     assert (xx.shape == yy.shape)
 
+    list_icluster = [0, 1]
+
     # model all trajectories
     settings = {}
     settings["model_type"] = "resampling"
     settings["ngaus"] = 10
 
-    for i in [0, 1]:
-        world_1.buildModel(i, settings)
-        world_1.buildLogProbality(i)
-        world_1.buildTube(i)
+    world_1.buildModel(list_icluster, settings)
+    world_1.buildLogProbality(list_icluster)
+    world_1.buildTube(list_icluster)
 
     #  this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
-    for i in [0, 1]:
-        # visuals by mayavi
-        visual = tt.visual_3d.Visual_3d(world_1)
-        # visualise trajectories
-        visual.plotTrajectories([i])
-        # visualise intersection
-        visual.plotLogProbability([i])
-        # visualise tube
-        visual.plotTube([i])
-        # visualise outline
-        visual.plotOutline()
-        # close
-        visual.close()
 
     # visuals by mayavi
     visual = tt.visual_3d.Visual_3d(world_1)
     # visualise trajectories
-    visual.plotTrajectories([0, 1])
+    visual.plotTrajectories(list_icluster)
     # visualise intersection
-    visual.plotLogProbability([0, 1])
+    visual.plotLogProbability(list_icluster)
     # visualise tube
-    visual.plotTube([0, 1])
+    visual.plotTube(list_icluster)
     # visualise outline
     visual.plotOutline()
     # close

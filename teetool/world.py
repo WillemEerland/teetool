@@ -141,18 +141,18 @@ class World(object):
 
 
 
-    def getCluster(self, list_iclusters=None):
+    def getCluster(self, list_icluster=None):
         """
         returns a single cluster
         """
 
-        if (list_iclusters == None):
+        if (list_icluster == None):
             # return all
             return self._clusters
         else:
             # return clusters in list
             clusters = []
-            for i in list_iclusters:
+            for i in list_icluster:
                 clusters.append(self._clusters[i])
             return clusters
 
@@ -169,6 +169,19 @@ class World(object):
             raise ValueError(
                 "{0} not in range [0,{1}]".format(icluster, nclusters))
 
+    def _check_list_icluster(self, list_icluster):
+        """
+        check validity of list of integers
+        """
+
+        if type(list_icluster) is not list:
+            raise TypeError("expected list, not {0}".format(type(list_icluster)))
+
+        for icluster in list_icluster:
+            # check validity
+            self._check_icluster(icluster)
+
+
     def getSamples(self, icluster, nsamples=50):
         """
         returns samples (x, Y) list
@@ -184,7 +197,7 @@ class World(object):
 
         return generated_samples
 
-    def buildModel(self, icluster, settings):
+    def buildModel(self, list_icluster, settings):
         """
         creates a model with these settings
         model_type: [resample]
@@ -192,79 +205,61 @@ class World(object):
         """
 
         # check validity
-        self._check_icluster(icluster)
+        self._check_list_icluster(list_icluster)
 
-        # extract
-        this_cluster = self._clusters[icluster]
 
-        # build a new model
-        new_model = tt.model.Model(this_cluster["data"], settings)
+        for icluster in list_icluster:
+            # extract
+            this_cluster = self._clusters[icluster]
 
-        # overwrite
-        this_cluster["model"] = new_model
-        self._clusters[icluster] = this_cluster
+            # build a new model
+            new_model = tt.model.Model(this_cluster["data"], settings)
 
-    def buildTube(self, icluster, sdwidth=1):
+            # overwrite
+            this_cluster["model"] = new_model
+            self._clusters[icluster] = this_cluster
+
+    def buildTube(self, list_icluster, sdwidth=1):
         """
         builds points for tube
         """
 
-        if type(icluster) is not int:
-            raise TypeError("expected integer, not {0}".format(type(icluster)))
+        # check validity
+        self._check_list_icluster(list_icluster)
 
-        nclusters = len(self._clusters)
-        if ((icluster < 0) or (icluster >= nclusters)):
-            raise ValueError(
-                "{0} not in range [0,{1}]".format(icluster, nclusters))
+        for icluster in list_icluster:
+            # extract
+            this_cluster = self._clusters[icluster]
 
-        # extract
-        this_cluster = self._clusters[icluster]
+            [xx, yy, zz] = self.getGrid(ndim=self._D)
 
-        if (self._D == 2):
-            # 2d
-            [xx, yy] = self.getGrid(ndim=2)
-            (Y, s) = this_cluster["model"].evalInside(sdwidth, xx, yy)
-
-        if (self._D == 3):
-            # 3d
-            [xx, yy, zz] = self.getGrid(ndim=3)
             (Y, s) = this_cluster["model"].evalInside(sdwidth, xx, yy, zz)
 
-        this_cluster["tube"] = (Y, s)
+            this_cluster["tube"] = (Y, s)
 
-        # overwrite
-        self._clusters[icluster] = this_cluster
+            # overwrite
+            self._clusters[icluster] = this_cluster
 
-    def buildLogProbality(self, icluster):
+    def buildLogProbality(self, list_icluster):
         """
         builds a log-probability grid
         """
 
-        if type(icluster) is not int:
-            raise TypeError("expected integer, not {0}".format(type(icluster)))
+        # check validity
+        self._check_list_icluster(list_icluster)
 
-        nclusters = len(self._clusters)
-        if ((icluster < 0) or (icluster >= nclusters)):
-            raise ValueError(
-                "{0} not in range [0,{1}]".format(icluster, nclusters))
+        for icluster in list_icluster:
+            # extract
+            this_cluster = self._clusters[icluster]
 
-        # extract
-        this_cluster = self._clusters[icluster]
+            [xx, yy, zz] = self.getGrid(ndim=self._D)
 
-        if (self._D == 2):
-            # 2d
-            [xx, yy] = self.getGrid(ndim=2)
-            temp = this_cluster["model"].eval(xx, yy)
+            (Y, s) = this_cluster["model"].eval(xx, yy, zz)
 
-        if (self._D == 3):
-            # 3d
-            [xx, yy, zz] = self.getGrid(ndim=3)
-            temp = this_cluster["model"].eval(xx, yy, zz)
+            this_cluster["logp"] = (Y, s)
 
-        this_cluster["logp"] = temp
-
-        # overwrite
-        self._clusters[icluster] = this_cluster
+            # overwrite
+            self._clusters[icluster] = this_cluster
 
     def _getDefaultOutline(self, ndim):
         """
@@ -325,19 +320,20 @@ class World(object):
             [xmin, xmax, ymin, ymax] = outline[0:4]
             [xstep, ystep] = resolution[0:2]
             # 2d
-            res = np.mgrid[xmin:xmax:np.complex(0, xstep),
+            [xx, yy] = np.mgrid[xmin:xmax:np.complex(0, xstep),
                            ymin:ymax:np.complex(0, ystep)]
+            zz = None
 
         if (ndim == 3):
             # 3d
             [xmin, xmax, ymin, ymax, zmin, zmax] = outline[0:6]
             [xstep, ystep, zstep] = resolution[0:3]
             # 3d
-            res = np.mgrid[xmin:xmax:np.complex(0, xstep),
+            [xx, yy, zz] = np.mgrid[xmin:xmax:np.complex(0, xstep),
                            ymin:ymax:np.complex(0, ystep),
                            zmin:zmax:np.complex(0, zstep)]
 
-        return res
+        return [xx, yy, zz]
 
     def getRealOutline(self):
         """

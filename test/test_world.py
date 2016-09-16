@@ -109,24 +109,24 @@ def test_model():
     settings["ngaus"] = 10
 
     # build a model
-    world_1.buildModel(0, settings)
+    world_1.buildModel([0], settings)
 
     with pt.raises(TypeError) as testException:
         world_1.buildModel("Hello World!", settings)
 
     with pt.raises(ValueError) as testException:
-        world_1.buildModel(-1, settings)
+        world_1.buildModel([-1], settings)
 
     # build log-likelihood
-    world_1.buildLogProbality(0)
+    world_1.buildLogProbality([0])
 
     with pt.raises(TypeError) as testException:
         world_1.buildLogProbality("Hello World!")
 
     with pt.raises(ValueError) as testException:
-        world_1.buildLogProbality(-1)
+        world_1.buildLogProbality([-1])
 
-    world_1.setResolution(10,10,10)
+    world_1.setResolution(10, 10, 10)
 
     # build tube
-    world_1.buildTube(0)
+    world_1.buildTube([0])

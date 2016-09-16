@@ -33,14 +33,14 @@ class Visual_2d(object):
 
         self._labels = []
 
-    def plotTrajectories(self, list_iclusters):
+    def plotTrajectories(self, list_icluster):
         """
         <description>
         """
 
-        colours = tt.helpers.getDistinctColours(len(list_iclusters))
+        colours = tt.helpers.getDistinctColours(len(list_icluster))
 
-        clusters = self._world.getCluster(list_iclusters)
+        clusters = self._world.getCluster(list_icluster)
         for (i, this_cluster) in enumerate(clusters):
             # pass clusters
             for (x, Y) in this_cluster["data"]:
@@ -51,14 +51,14 @@ class Visual_2d(object):
 
         self._labels.append((a_line, "data"))
 
-    def plotSamples(self, list_iclusters):
+    def plotSamples(self, list_icluster):
         """
         <description>
         """
 
-        colours = tt.helpers.getDistinctColours(len(list_iclusters))
+        colours = tt.helpers.getDistinctColours(len(list_icluster))
 
-        for (i, icluster) in enumerate(list_iclusters):
+        for (i, icluster) in enumerate(list_icluster):
             these_samples = self._world.getSamples(icluster)
             for (x, Y) in these_samples:
                 a_line, = self._ax.plot(Y[:, 0],
@@ -82,18 +82,18 @@ class Visual_2d(object):
 
         plt.legend(handles=list_lines, labels=list_label)
 
-    def plotLogProbability(self, list_iclusters, pmin=0, pmax=1):
+    def plotLogProbability(self, list_icluster, pmin=0, pmax=1):
         """
         plots log-probability
         ncontours: number of contours drawn
         """
 
-        [xx, yy] = self._world.getGrid(ndim=2,
+        [xx, yy, zz] = self._world.getGrid(ndim=2,
                                        resolution=[100, 100])
 
         ss = np.zeros_like(xx)
 
-        clusters = self._world.getCluster(list_iclusters)
+        clusters = self._world.getCluster(list_icluster)
         for (i, this_cluster) in enumerate(clusters):
             # pass clusters
             if ("logp" in this_cluster):
@@ -119,8 +119,6 @@ class Visual_2d(object):
         """
 
         # TODO draw a box
-
-        return True
 
     def _plotTitle(self):
         """
