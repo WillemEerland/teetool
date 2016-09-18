@@ -133,8 +133,6 @@ class Visual_3d(object):
             if ("tube_grid" in this_cluster):
                 [ss, xx, yy, zz] = this_cluster["tube_grid"]
 
-                print("ss: {0} {1} {2}".format(ss.shape,np.min(ss), np.max(ss)))
-
                 # mayavi
                 src = mlab.pipeline.scalar_field(xx, yy, zz, ss)
 

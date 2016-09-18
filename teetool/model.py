@@ -248,8 +248,6 @@ class Model(object):
         # parallel processing
         p = mp.ProcessingPool()
 
-        print("number of calculations: {0}".format(npoints))
-
         # output
         results = p.amap(self._gauss_logLc, Y)
 
@@ -268,9 +266,6 @@ class Model(object):
 
         return (Y, s)
 
-
-
-
     def _eval_grid(self, xx, yy, zz=None):
         """
         evaluates on a grid, aiming at the desired number of points
@@ -283,8 +278,6 @@ class Model(object):
 
         # parallel processing
         p = mp.ProcessingPool()
-
-        print("number of calculations: {0}".format(npoints))
 
         # output
         results = p.amap(self._gauss_logLc, Y_pos)
