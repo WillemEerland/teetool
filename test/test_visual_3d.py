@@ -43,6 +43,8 @@ def test_visual_3d():
 
     # visuals by mayavi
     visual = tt.visual_3d.Visual_3d(world_1)
+    # enable offscreen rendering
+    visual.enableOffScreen()
     # visualise trajectories
     visual.plotTrajectories(list_icluster)
     # visualise intersection

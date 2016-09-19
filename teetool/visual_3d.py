@@ -255,6 +255,13 @@ class Visual_3d(object):
         # show figure
         mlab.show()
 
+    def enableOffScreen(self, bOffscreen=True):
+        """
+        mlab.options.offscreen = True
+        """
+
+        mlab.options.offscreen = bOffscreen
+
     def close(self):
         """
         closes figure(s)
