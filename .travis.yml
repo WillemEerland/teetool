@@ -22,7 +22,7 @@ before_install:
   - sleep 3 # give xvfb some time to start
 # Install packages
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION pytest pytest-cov mayavi numpy scipy distribute
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION pytest pytest-cov mayavi numpy scipy
   - pip install pathos matplotlib
   - python setup.py install
 
