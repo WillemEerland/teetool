@@ -6,7 +6,7 @@ import pytest as pt
 import teetool as tt
 
 
-@pytest.mark.xfail(reason="out of the blue stopped working on Travis. Mayavi/VTK *sigh*")
+@pt.mark.xfail(reason="out of the blue stopped working on Travis. Mayavi/VTK *sigh*")
 def test_visual_3d():
     """
     can produce figures

@@ -3,13 +3,9 @@
 from __future__ import print_function
 import numpy as np
 from numpy.linalg import det, inv, svd, pinv
-
 from scipy.interpolate import griddata
-
 import pathos.multiprocessing as mp
-
 import time, sys
-
 import teetool as tt
 
 
@@ -939,11 +935,6 @@ class Model(object):
         cA = self._cA
 
         M = len(cc)
-
-        """
-        should be zero, but this causes log infinity
-        TODO: filter these results
-        """
 
         py = 0
 
