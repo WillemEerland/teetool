@@ -3,7 +3,6 @@
 """
 
 import teetool as tt  # core
-from teetool import visual_3d
 
 
 llsettings = []
@@ -33,10 +32,7 @@ for ls in llsettings:
                                   ls[4])
 
     # build world
-    new_world = tt.World(name=world_name, ndim=3)
-
-    # modify default resolution
-    new_world.setResolution(xstep=20, ystep=20, zstep=20)
+    new_world = tt.World(name=world_name, ndim=3, nres=20)
 
     # add trajectories
     for ntype in [0, 1]:
@@ -55,23 +51,13 @@ for ls in llsettings:
     new_world.buildModel([0, 1], settings)
     new_world.overview()  # overview
 
-    # log
-    new_world.buildTube([0, 1], sdwidth=3, nres=[70, 70, 70])
-    new_world.overview()  # overview
-
     #  this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
 
-    #visual = visual_3d.Visual_3d(new_world)
-
-    # visualise outline
-    #visual.plotOutline()
-
-    # visuals by mayavi
-    visual = visual_3d.Visual_3d(new_world)
+    visual = tt.visual_3d.Visual_3d(new_world)
     # visualise trajectories
     visual.plotTrajectories([0, 1])
-    # visualise tube
-    visual.plotTube([0, 1])
+    # visualise intersection
+    visual.plotLogLikelihood([0, 1], pmin=.95, pmax=1)
     # visualise outline
     visual.plotOutline()
 

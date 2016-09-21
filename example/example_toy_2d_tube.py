@@ -3,7 +3,7 @@
 """
 
 import teetool as tt  # core
-#from teetool import visual_2d
+
 
 llsettings = []
 
@@ -32,7 +32,7 @@ for ls in llsettings:
                                   ls[4])
 
     # create a new world
-    new_world = tt.World(name=world_name, ndim=2)
+    new_world = tt.World(name=world_name, ndim=2, nres=100)
 
     # add trajectories
     for ntype in [0, 1]:
@@ -50,29 +50,13 @@ for ls in llsettings:
     # build the model
     new_world.buildModel([0, 1], settings)
 
-    # modify default resolution
-    new_world.setResolution(xstep=100, ystep=100)
-
-    # build the log-probability for the set grid (resolution)
-    new_world.buildLogProbality([0, 1])
-
     # output an overview
     new_world.overview()
 
-    # visuals by matplotlib
-    for ntype in [0, 1]:
-        visual = tt.visual_2d.Visual_2d(new_world)
-        visual.plotTrajectories([ntype])
-        visual.plotSamples([ntype])
-        visual.plotLogProbability([ntype], pmin=.9, pmax=1)
-        visual.plotLegend()
-        visual.save(ntype)
-        visual.close()
-
     visual = tt.visual_2d.Visual_2d(new_world)
-    visual.plotTrajectories([0, 1])
-    visual.plotLogProbability([0, 1], pmin=.9, pmax=1.0)
-    visual.save('i')
+    #visual.plotTrajectories([0, 1])
+    visual.plotTube()
+    visual.save('t')
     visual.close()
 
 # show [ wait for user input ]

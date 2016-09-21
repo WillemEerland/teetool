@@ -29,9 +29,10 @@ def test_inside():
 
     assert(p_test.all())
 
+    # 2d
     [xx, yy] = np.mgrid[-10:10:2j, -10:10:2j]
 
-    ss = new_model.evalInside(1, xx, yy)
+    ss = new_model.evalInside(sdwidth=1, xx=xx, yy=yy)
 
     # test points2grid
     (Y_pos, Y_idx) = new_model._grid2points(xx, yy)
@@ -40,8 +41,10 @@ def test_inside():
     s = new_model._isInside_pnts(Y_pos)
 
     # convert back to grid
-    ss = new_model._points2grid(s, Y_idx)
+    ss2 = new_model._points2grid(s, Y_idx)
 
+    # should be identical
+    np.testing.assert_array_almost_equal_nulp(ss, ss2)
 
 
 def test_help_func():
@@ -141,4 +144,4 @@ def test_init():
     with pt.raises(ValueError) as testException:
         _, yy = np.mgrid[-10:10:2j, -10:10:2j]
         xx, _, _ = np.mgrid[-10:10:2j, -10:10:2j, -10:10:2j]
-        _ = new_model.eval(xx, yy)
+        _ = new_model.evalLogLikelihood(xx, yy)

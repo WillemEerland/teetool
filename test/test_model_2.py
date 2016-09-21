@@ -21,16 +21,25 @@ def test_eval():
         # normal operation
         new_model = tt.model.Model(cluster_data, valid_settings)
 
+        # tube
         if (mdim == 2):
             xx, yy = np.mgrid[-10:10:2j, -10:10:2j]
-            (Y, s) = new_model.eval(xx, yy)
+            ss = new_model.evalInside(sdwidth=1, xx=xx, yy=yy)
+            assert (ss.shape==xx.shape)
         if (mdim == 3):
             xx, yy, zz = np.mgrid[-10:10:2j, -10:10:2j, -10:10:2j]
-            (Y, s) = new_model.eval(xx, yy, zz)
+            ss = new_model.evalInside(sdwidth=1, xx=xx, yy=yy, zz=zz)
+            assert (ss.shape==xx.shape)
 
-        assert(np.size(s, axis=0) == np.size(Y, axis=0))
-
-        assert(np.size(Y, axis=1) == mdim)
+        # log likelihood
+        if (mdim == 2):
+            xx, yy = np.mgrid[-10:10:2j, -10:10:2j]
+            ss = new_model.evalLogLikelihood(xx, yy)
+            assert (ss.shape==xx.shape)
+        if (mdim == 3):
+            xx, yy, zz = np.mgrid[-10:10:2j, -10:10:2j, -10:10:2j]
+            ss = new_model.evalLogLikelihood(xx, yy, zz)
+            assert (ss.shape==xx.shape)
 
         # test subfunctions
 

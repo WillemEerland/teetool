@@ -19,13 +19,13 @@ def test_init():
     D_1 = 2
     world_1 = tt.World(name=name_1, ndim=D_1)
     assert (world_1._name == name_1)
-    assert (world_1._D == D_1)
+    assert (world_1._ndim == D_1)
 
     # test 2
     # default values
     world_2 = tt.World()
     assert (world_2._name == "")
-    assert (world_2._D == 3)
+    assert (world_2._ndim == 3)
 
     # test 3
     # bad name
@@ -44,8 +44,6 @@ def test_init():
     D_5 = 1
     with pt.raises(ValueError) as testException:
         world_5 = tt.World(name_5, D_5)
-
-
 
 
 def test_addCluster():
@@ -109,7 +107,7 @@ def test_model():
     settings["ngaus"] = 10
 
     # build a model
-    world_1.buildModel([0], settings)
+    world_1.buildModel([0, 1], settings)
 
     with pt.raises(TypeError) as testException:
         world_1.buildModel("Hello World!", settings)
@@ -117,16 +115,14 @@ def test_model():
     with pt.raises(ValueError) as testException:
         world_1.buildModel([-1], settings)
 
-    # build log-likelihood
-    world_1.buildLogProbality([0])
+    # log-likelihood
+    (ss_list, [xx, yy, zz]) = world_1.getLogLikelihood([0, 1])
 
     with pt.raises(TypeError) as testException:
-        world_1.buildLogProbality("Hello World!")
+        (ss_list, [xx, yy, zz]) = world_1.getLogLikelihood("Hello World!")
 
     with pt.raises(ValueError) as testException:
-        world_1.buildLogProbality([-1])
-
-    world_1.setResolution(10, 10, 10)
+        (ss_list, [xx, yy, zz]) = world_1.getLogLikelihood([-1])
 
     # build tube
-    world_1.buildTube([0])
+    (ss_list, [xx, yy, zz]) = world_1.getTube([0, 1])

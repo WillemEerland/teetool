@@ -229,6 +229,8 @@ class Model(object):
     def _eval_tube(self, nsamples=20, sdwidth=[5]):
         """
         returns points and values of points along tube
+
+        OBSOLETE
         """
 
         Y_list = []
@@ -262,12 +264,10 @@ class Model(object):
 
         return (Y, s)
 
-    def _eval_grid(self, xx, yy, zz=None):
+    def _eval_logp(self, Y_pos):
         """
         evaluates on a grid, aiming at the desired number of points
         """
-
-        (Y_pos, Y_idx) = self._grid2points(xx, yy, zz)
 
         (npoints, _) = Y_pos.shape
         ndim = self._ndim
@@ -291,7 +291,7 @@ class Model(object):
 
         s = np.array(list_val)
 
-        return (Y_pos, s)
+        return s
 
     def _grid2points(self, xx, yy, zz=None):
         """
@@ -375,46 +375,24 @@ class Model(object):
     def evalInside(self, sdwidth, xx, yy, zz=None):
         """
         evaluate if points are inside a grid
+
+        Input parameters:
+            - sdwidth
+            - xx
+            - yy
         """
 
-        # get points from grid
+        # check values
+        if not (xx.shape == yy.shape):
+            raise ValueError("dimensions should equal (use np.mgrid)")
+
+        # grid2points
         (Y_pos, Y_idx) = self._grid2points(xx, yy, zz)
 
-        # evaluate the points
+        # evaluate points
         s = self._isInside_pnts(Y_pos, sdwidth)
 
-        """
-        npoints, _ = Y_pos.shape
-
-        sdwidth_list = np.ones(shape=(npoints)) * sdwidth
-        sdwidth_list = list(sdwidth_list)
-
-        print(Y_pos)
-        print(sdwidth_list)
-
-        # parallel processing
-        p = mp.ProcessingPool()
-
-        # output
-        results = p.amap(self._isInside_pnts, Y_pos, sdwidth_list)
-
-        while not results.ready():
-            # obtain intermediate results
-            print(".", end="")
-            sys.stdout.flush()
-            time.sleep(1)
-
-        print("") # new line
-
-        # extract results
-        list_val = results.get()
-
-        print("listval {0}".format(list_val))
-
-        s = np.array(list_val)
-        s = np.squeeze(s)
-        """
-
+        # points2grid
         ss = self._points2grid(s, Y_idx)
 
         # return values
@@ -464,7 +442,7 @@ class Model(object):
         return P_inside
 
 
-    def eval(self, xx, yy, zz=None):
+    def evalLogLikelihood(self, xx, yy, zz=None):
         """
         evaluates values in this grid [2d/3d] and returns values
 
@@ -476,37 +454,19 @@ class Model(object):
         if not (xx.shape == yy.shape):
             raise ValueError("dimensions should equal (use np.mgrid)")
 
-        # choose how to evaluate tube / grid
-        """
-        (Y1, s1) = self._eval_tube(nsamples=5, sdwidth=[2, 3])
-        (Y2, s2) = self._eval_grid(xx, yy, zz)
+        # grid2points
+        (Y_pos, Y_idx) = self._grid2points(xx, yy, zz)
 
-        Y = np.concatenate((Y1, Y2), axis=0)
-        s = np.concatenate((s1, s2), axis=0)
-        """
+        # evaluate points
+        s = self._eval_logp(Y_pos)
 
-        (Y, s) = self._eval_grid(xx, yy, zz)
+        # points2grid
+        ss = self._points2grid(s, Y_idx)
 
-        # keep finite values
-        mask = np.isfinite(s)
-        #
-        Y = Y[mask,:]
-        s = s[mask]
-
-        return (Y, s)
-
-        """
-        s_min = np.min(s)
-
-        if (self._ndim == 2):
-            ss = griddata(Y, s, (xx, yy), method='linear', fill_value=s_min)
-        elif (self._ndim == 3):
-            ss = griddata(Y, s, (xx, yy, zz), method='linear', fill_value=s_min)
-        else:
-            raise NotImplementedError("not available")
+        # replace NaN's with minimum
+        ss[np.isnan(ss)] = np.nanmin(ss)
 
         return ss
-        """
 
 
     def _normalise_data(self, cluster_data):
@@ -721,29 +681,8 @@ class Model(object):
 
             sig_w = np.mat(sig_w_sum / ntraj)
 
+            # pre-calculate inverse
             sig_w_inv = inv(sig_w)
-
-            """
-            # !! nearest SPD inverse
-            [U, S_diag, V] = svd(sig_w)
-
-
-            ln_det_Sigma = np.log(np.prod(S_diag))
-
-            # (optional) check eigenvalues
-            while np.isinf(ln_det_Sigma):
-                # adjust value
-                S_diag[S_diag < min_eig] = min_eig
-
-                # check
-                ln_det_Sigma = np.log( np.prod(S_diag) )
-
-                if np.isinf(ln_det_Sigma):
-                    # if still not good, add a little
-                    min_eig = min_eig + 10**-6
-
-            sig_w = np.mat(U * np.diag( S_diag ) * V)
-            """
 
             # E [BETA]
             BETA_sum_inv = 0.;
@@ -758,10 +697,6 @@ class Model(object):
                 BETA_sum_inv += np.dot(yn.transpose(),yn) - 2.*(np.dot(yn.transpose(),(Hn*Ewn))) + np.trace((Hn.transpose()*Hn)*Ewnwn)
 
             BETA_EM = np.mat((ndim*Mstar) / BETA_sum_inv)
-
-            # limit BETA_EM (how much accuracy is relevant?)
-            #if BETA_EM > BETA_EM_LIMIT:
-            # BETA_EM = BETA_EM_LIMIT
 
             # ////  log likelihood ///////////
 

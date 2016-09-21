@@ -22,10 +22,14 @@ class World(object):
      -
     """
 
-    def __init__(self, name="", ndim=3):
+    def __init__(self, name="", ndim=3, nres=20):
         """
-        name: name of World
-        ndim: dimension of world (2d or 3d)
+        initialises a World
+
+        input parameters:
+            - name: name of World
+            - ndim: dimension of world (2d or 3d)
+            - nres: sets the resolution of the grid
         <description>
         """
 
@@ -44,13 +48,13 @@ class World(object):
 
         # set values
         self._name = name
-        self._D = ndim
+        self._ndim = ndim
 
         # initial parameters
         self._clusters = []  # list holding clusters
+
         # these parameters define the grid
-        self._real_outline = self._getDefaultOutline(ndim)
-        self._resolution = self._getDefaultResolution(ndim)
+        self._resolution = self._getResolution(ndim, nres)
 
         # default value
         self.fraction_to_expand = 0.1
@@ -69,18 +73,8 @@ class World(object):
             else:
                 has_model = "-"
 
-            if ("logp" in this_cluster):
-                has_logp = "*"
-            else:
-                has_logp = "-"
-
-            if ("tube_grid" in this_cluster):
-                has_tube = "*"
-            else:
-                has_tube = "-"
-
-            print("{0} [{1}] [{2}] [{3}] [{4}]".format(
-                        i, this_cluster["name"], has_model, has_logp, has_tube))
+            print("{0} [{1}] [{2}]".format(
+                        i, this_cluster["name"], has_model))
 
     def addCluster(self, cluster_data, cluster_name=""):
         """
@@ -111,7 +105,7 @@ class World(object):
             # check values x [M x 1], Y [M x D]
             (x, Y) = trajectory_data
             (M, D) = Y.shape
-            if (D != self._D):
+            if (D != self._ndim):
                 raise ValueError("dimension not correct")
             if (M != np.size(x, 0)):
                 raise ValueError("number of data-points do not match")
@@ -124,10 +118,11 @@ class World(object):
 
         new_cluster["name"] = cluster_name
         new_cluster["data"] = cluster_data
+        # obtain the outline of this data
+        new_cluster["outl"] = self._get_outline_cluster(cluster_data)
 
+        # add cluster to the list
         self._clusters.append(new_cluster)
-
-        self._check_real_outline(cluster_data)  # extend outline, if required
 
     def getName(self):
         """
@@ -172,12 +167,19 @@ class World(object):
         check validity of list of integers
         """
 
+        # default
+        if (list_icluster == None):
+            # all
+            list_icluster = range(len(self._clusters))
+
         if type(list_icluster) is not list:
             raise TypeError("expected list, not {0}".format(type(list_icluster)))
 
         for icluster in list_icluster:
             # check validity
             self._check_icluster(icluster)
+
+        return list_icluster
 
     def getSamples(self, icluster, nsamples=50):
         """
@@ -204,8 +206,7 @@ class World(object):
         """
 
         # check validity
-        self._check_list_icluster(list_icluster)
-
+        list_icluster = self._check_list_icluster(list_icluster)
 
         for icluster in list_icluster:
             # extract
@@ -218,51 +219,62 @@ class World(object):
             this_cluster["model"] = new_model
             self._clusters[icluster] = this_cluster
 
-    def buildTube(self, list_icluster, sdwidth=1, nres=[50, 50, 50]):
+    def getTube(self, list_icluster=None, sdwidth=1):
         """
-        builds points for tube
+        return (ss_list, [xx, yy, zz]) of models that fall within sdwidth
 
-        given list_icluster and sdwidth and nres
+        Input parameters:
+            - list_icluster
+            - sdwidth
         """
 
         # check validity
-        self._check_list_icluster(list_icluster)
+        list_icluster = self._check_list_icluster(list_icluster)
+
+        # obtain grid to evaluate on
+        [xx, yy, zz] = self._getGrid(list_icluster)
+
+        # values returned
+        ss_list = []
 
         for icluster in list_icluster:
             # extract
             this_cluster = self._clusters[icluster]
-
-            [xx, yy, zz] = self.getGrid(ndim=self._D, resolution=nres)
 
             ss = this_cluster["model"].evalInside(sdwidth, xx, yy, zz)
 
-            this_cluster["tube_grid"] = [ss, xx, yy, zz]
+            ss_list.append(ss)
 
-            # overwrite
-            self._clusters[icluster] = this_cluster
+        return (ss_list, [xx, yy, zz])
 
-    def buildLogProbality(self, list_icluster):
+    def getLogLikelihood(self, list_icluster=None):
         """
-        builds a log-probability grid
+        return (ss_list, [xx, yy, zz]) of models and corresponding log-likelihood
+
+        Input parameters:
+            - list_icluster
         """
 
         # check validity
-        self._check_list_icluster(list_icluster)
+        list_icluster = self._check_list_icluster(list_icluster)
+
+        # obtain grid to evaluate on
+        [xx, yy, zz] = self._getGrid(list_icluster)
+
+        # values returned
+        ss_list = []
 
         for icluster in list_icluster:
             # extract
             this_cluster = self._clusters[icluster]
 
-            [xx, yy, zz] = self.getGrid(ndim=self._D)
+            ss = this_cluster["model"].evalLogLikelihood(xx, yy, zz)
 
-            (Y, s) = this_cluster["model"].eval(xx, yy, zz)
+            ss_list.append(ss)
 
-            this_cluster["logp"] = (Y, s)
+        return (ss_list, [xx, yy, zz])
 
-            # overwrite
-            self._clusters[icluster] = this_cluster
-
-    def _getDefaultOutline(self, ndim):
+    def _getMaxOutline(self, ndim):
         """
         returns default outline based on dimensionality
         """
@@ -274,44 +286,55 @@ class World(object):
 
         return defaultOutline
 
-    def _getDefaultResolution(self, ndim):
+    def _getResolution(self, ndim, nres):
         """
         returns default outline based on dimensionality
+
+        Input paramters:
+            - ndim
         """
         defaultResolution = []
 
         for d in range(ndim):
-            defaultResolution.append(20)  # default resolution
+            defaultResolution.append(nres)  # equal resolution
 
         return defaultResolution
 
-    def setResolution(self, xstep, ystep, zstep=None):
+    def _setResolution(self, xstep, ystep, zstep=None):
         """
         sets the resolution
-        WARNING: removes any existing loglikelihood calculations
+
+        conflicts with previous calculations
         """
 
+        """
         # remove existing likelihood calculations
         for i in range(len(self._clusters)):
             self._clusters[i].pop("logp", None)
+        """
 
         # new resolution
-        if (self._D) == 2:
+        if (self._ndim) == 2:
             self._resolution = [xstep, ystep]
 
-        if (self._D == 3):
+        if (self._ndim == 3):
             self._resolution = [xstep, ystep, zstep]
 
-    def getGrid(self, ndim, resolution=None):
+    def _getGrid(self, list_icluster=None):
         """
-        returns the grid used calculate the log-likelihood on
+        returns the grid
+
+        based on ndim and resolution
         """
 
-        if resolution is None:
-            resolution = self._resolution
+        # check validity
+        list_icluster = self._check_list_icluster(list_icluster)
 
-        #outline = self.getRealOutline()
-        outline = self.getExpandedOutline()
+        ndim = self._ndim
+        resolution = self._resolution
+
+        # use expanded grid for calculations
+        outline = self._get_outline_expanded(list_icluster)
 
         if (ndim == 2):
             # 2d
@@ -333,56 +356,91 @@ class World(object):
 
         return [xx, yy, zz]
 
-    def getRealOutline(self):
-        """
-        returns real outline of data
-        """
-        return self._real_outline
 
-    def getExpandedOutline(self):
+    def _get_outline_expanded(self, list_icluster=None, fraction_to_expand=0.1):
         """
         returns expanded outline of data (via fraction_to_expand)
         """
 
-        real_outline = self.getRealOutline()
+        # check validity
+        list_icluster = self._check_list_icluster(list_icluster)
 
-        ndim = self._D
+        original_outline = self._get_outline(list_icluster)
+
+        ndim = self._ndim
 
         # init
-        if (self._D == 2):
+        if (ndim == 2):
             expanded_outline = [0, 0, 0, 0]
-        if (self._D == 3):
+        if (ndim == 3):
             expanded_outline = [0, 0, 0, 0, 0, 0]
 
         for d in range(ndim):
             pos1 = d*2
             pos2 = d*2 + 2
-            [xmin, xmax] = real_outline[pos1:pos2]
+            [xmin, xmax] = original_outline[pos1:pos2]
             xdif = xmax - xmin
 
-            expanded_outline[pos1] = real_outline[pos1] - self.fraction_to_expand*xdif
-            expanded_outline[pos1+1] = real_outline[pos1+1] + self.fraction_to_expand*xdif
-
-        #if (self._D == 3):
-        #    expanded_outline[4] = 0 # set minimum altitude to zero
+            expanded_outline[pos1] = original_outline[pos1] - fraction_to_expand*xdif
+            expanded_outline[pos1+1] = original_outline[pos1+1] + fraction_to_expand*xdif
 
         # convert to numpy array
         expanded_outline = np.array(expanded_outline)
 
         return expanded_outline
 
-    def _check_real_outline(self, cluster_data):
+    def _get_outline(self, list_icluster=None):
         """
-        calculate maximum outline from list and store
+        returns the outline of specified clusters
+
+        list_icluster is list of clusters, if None, show all
         """
+
+        # check validity
+        list_icluster = self._check_list_icluster(list_icluster)
+
+        global_outline = self._getMaxOutline(self._ndim)
+
+        for icluster in list_icluster:
+
+            # outline
+            cluster = self._clusters[icluster]
+
+            local_outline = cluster["outl"]
+
+            for d in range(self._ndim):
+
+                # cluster specific
+                xmin = local_outline[d*2]
+                xmax = local_outline[d*2+1]
+
+                if xmin < global_outline[d*2]:
+                    global_outline[d*2] = xmin
+
+                if xmax > global_outline[d*2+1]:
+                    global_outline[d*2+1] = xmax
+
+        return global_outline
+
+
+    def _get_outline_cluster(self, cluster_data):
+        """
+        returns the outline of the cluster_data
+
+        returns an array
+        """
+
+        this_cluster_data_outline = self._getMaxOutline(self._ndim)
 
         for (x, Y) in cluster_data:
 
-            for d in range(self._D):
+            for d in range(self._ndim):
                 x = Y[:, d]
                 xmin = x.min()
                 xmax = x.max()
-                if (self._real_outline[d*2] > xmin):
-                    self._real_outline[d*2] = xmin
-                if (self._real_outline[d*2+1] < xmax):
-                    self._real_outline[d*2+1] = xmax
+                if (this_cluster_data_outline[d*2] > xmin):
+                    this_cluster_data_outline[d*2] = xmin
+                if (this_cluster_data_outline[d*2+1] < xmax):
+                    this_cluster_data_outline[d*2+1] = xmax
+
+        return this_cluster_data_outline

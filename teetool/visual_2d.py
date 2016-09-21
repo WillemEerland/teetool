@@ -24,7 +24,7 @@ class Visual_2d(object):
 
         self._ax.set_axis_bgcolor('grey')
 
-        [xmin, xmax, ymin, ymax] = thisWorld.getExpandedOutline()
+        [xmin, xmax, ymin, ymax] = thisWorld._get_outline_expanded()
         self._ax.set_xlim([xmin, xmax])
         self._ax.set_ylim([ymin, ymax])
 
@@ -82,40 +82,57 @@ class Visual_2d(object):
 
         plt.legend(handles=list_lines, labels=list_label)
 
-    def plotLogProbability(self, list_icluster, pmin=0, pmax=1):
+    def plotTube(self, list_icluster=None, sdwidth=1):
         """
-        plots log-probability
-        ncontours: number of contours drawn
+        plots tube
+
+        list_icluster is a list of lcusters, None is all
+        popacity relates to the opacity [0, 1]
         """
 
-        [xx, yy, zz] = self._world.getGrid(ndim=2,
-                                       resolution=[100, 100])
+        # extract
+        (ss_list, [xx, yy, zz]) = self._world.getTube(list_icluster, sdwidth)
+
+        # get colours
+        lcolours = tt.helpers.getDistinctColours(len(ss_list))
+
+        for i, ss1 in enumerate(ss_list):
+
+            # plot an iso surface
+            plt.contour(xx, yy, ss1, [0.0, 1.0], colors=(lcolours[i], ))
+            #mlab.pipeline.iso_surface(src,
+            #                          contours=[0.5],
+            #                          opacity=popacity,
+            #                          color=lcolours[i])
+
+    def plotLogLikelihood(self, list_icluster=None, pmin=0, pmax=1):
+        """
+        plots log-likelihood
+
+        input parameters:
+            - list_icluster
+            - pmin/pmax 0,1
+        """
+
+        (ss_list, [xx, yy, zz]) = self._world.getLogLikelihood(list_icluster)
 
         ss = np.zeros_like(xx)
 
-        clusters = self._world.getCluster(list_icluster)
-        for (i, this_cluster) in enumerate(clusters):
-            # pass clusters
-            if ("logp" in this_cluster):
-                (Y, s) = this_cluster["logp"]
-                s_min = np.min(s)
-                # interpolate result
-                ss1 = griddata(Y, s, (xx, yy),
-                               method='linear',
-                               fill_value=s_min)
-                # sum
-                ss += ss1
+        for ss1 in ss_list:
+            # sum
+            ss += ss1
 
         # normalise
         ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
 
         # plot contours
         self._ax.pcolor(xx, yy, ss_norm, cmap="viridis", vmin=pmin, vmax=pmax)
-        #self._ax.contourf(xx, yy, ss_norm, ncontours, cmap="viridis")
+
 
     def plotOutline(self):
         """
         adds an outline
+
         """
 
         # TODO draw a box
@@ -123,6 +140,7 @@ class Visual_2d(object):
     def _plotTitle(self):
         """
         adds a title
+
         """
 
         # add title
