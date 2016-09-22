@@ -23,7 +23,7 @@ before_install:
 # Install packages
 install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION pytest pytest-cov mayavi numpy scipy
-  - pip install pathos matplotlib
+  - pip install matplotlib
   - python setup.py install
 
 # Run test

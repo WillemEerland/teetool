@@ -24,11 +24,11 @@ def test_eval():
         # tube
         if (mdim == 2):
             xx, yy = np.mgrid[-10:10:2j, -10:10:2j]
-            ss = new_model.evalInside(sdwidth=1, xx=xx, yy=yy)
+            ss = new_model.isInside_grid(sdwidth=1, xx=xx, yy=yy)
             assert (ss.shape==xx.shape)
         if (mdim == 3):
             xx, yy, zz = np.mgrid[-10:10:2j, -10:10:2j, -10:10:2j]
-            ss = new_model.evalInside(sdwidth=1, xx=xx, yy=yy, zz=zz)
+            ss = new_model.isInside_grid(sdwidth=1, xx=xx, yy=yy, zz=zz)
             assert (ss.shape==xx.shape)
 
         # log likelihood
@@ -46,14 +46,14 @@ def test_eval():
         y = np.zeros((mdim, 1))
         y = np.mat(y)
 
-        pL = new_model._gauss_logLc(y)
+        pL = tt.helpers.gauss_logLc(y, mdim, new_model._cc, new_model._cA)
 
         assert (np.isfinite(pL))
 
         c = np.zeros((mdim, 1))
         A = np.eye(mdim)
 
-        pL = new_model._gauss(y, c, A)
+        pL = tt.helpers.gauss(y, mdim, c, A)
 
         assert (np.isfinite(pL))
 

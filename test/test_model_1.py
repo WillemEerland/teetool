@@ -25,20 +25,20 @@ def test_inside():
     (x, Y) = cluster_data[0]
 
     # insane width..
-    p_test = new_model._isInside_pnts(Y, sdwidth=30)
+    p_test = new_model.isInside_pnts(Y, sdwidth=30)
 
     assert(p_test.all())
 
     # 2d
     [xx, yy] = np.mgrid[-10:10:2j, -10:10:2j]
 
-    ss = new_model.evalInside(sdwidth=1, xx=xx, yy=yy)
+    ss = new_model.isInside_grid(sdwidth=1, xx=xx, yy=yy)
 
     # test points2grid
     (Y_pos, Y_idx) = new_model._grid2points(xx, yy)
 
     # evaluate some points
-    s = new_model._isInside_pnts(Y_pos)
+    s = new_model.isInside_pnts(Y_pos)
 
     # convert back to grid
     ss2 = new_model._points2grid(s, Y_idx)

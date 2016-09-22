@@ -181,6 +181,22 @@ class World(object):
 
         return list_icluster
 
+    def isInside(self, P, sdwidth=1, list_icluster=None):
+        """
+        returns list of bools, whether or not the points P are inside any of the models
+
+        list_icluster can be set to limit the check to a single values
+        """
+
+        # check validity
+        list_icluster = self._check_list_icluster(list_icluster)
+
+        list_inside = []
+
+        return list_inside
+
+
+
     def getSamples(self, icluster, nsamples=50):
         """
         returns samples (x, Y) list
@@ -241,7 +257,7 @@ class World(object):
             # extract
             this_cluster = self._clusters[icluster]
 
-            ss = this_cluster["model"].evalInside(sdwidth, xx, yy, zz)
+            ss = this_cluster["model"].isInside_grid(sdwidth, xx, yy, zz)
 
             ss_list.append(ss)
 

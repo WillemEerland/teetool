@@ -2,7 +2,7 @@
 
 import colorsys
 import numpy as np
-from numpy.linalg import svd, cond, eig
+from numpy.linalg import det, inv, svd, cond, eig
 from scipy.spatial import Delaunay
 
 def getDistinctColours(ncolours):
@@ -164,6 +164,8 @@ def in_hull(p, hull):
     will be computed
     """
 
+    # (p, hull) = tuple_p_hull
+
     # if not Delaunay, create
     if not isinstance(hull, Delaunay):
         hull = Delaunay(hull, qhull_options='Qz')
@@ -178,3 +180,48 @@ def unique_rows(a):
     a = np.ascontiguousarray(a)
     unique_a = np.unique(a.view([('', a.dtype)]*a.shape[1]))
     return unique_a.view(a.dtype).reshape((unique_a.shape[0], a.shape[1]))
+
+def gauss(y, ndim, c, A):
+    """
+    returns value Gaussian
+    """
+
+    y = np.mat(y)
+    c = np.mat(c)
+    A = np.mat(A)
+
+    p1 = 1 / np.sqrt(((2*np.pi)**ndim)*det(A))
+    p2 = np.exp(-1/2*(y-c).transpose()*inv(A)*(y-c))
+
+    return (p1*p2)
+
+def gauss_logLc(y, ndim, cc, cA):
+    """
+    returns the log likelihood of a position based on model (in cells)
+    """
+
+    y = y.reshape((ndim, 1), order='F')
+
+    y = np.array(y)
+
+    # check dimension y
+    if not y.shape == (ndim, 1):
+        raise ValueError("dimension is {0}, not {1}".format(y.shape, (ndim, 1)))
+
+    M = len(cc)
+
+    py = 0
+
+    for m in range(M):
+        c = cc[m]
+        A = cA[m]
+        py += gauss(y, ndim, c, A)  # addition of each Gaussian
+
+    # if zero, return nan, otherwise return log likelihood
+    if py == 0.0:
+        pyL = np.nan
+    else:
+        pyL = np.log(py) - np.log(M)  # division by number of Gaussians
+        pyL = float(pyL)  # output is a float
+
+    return pyL

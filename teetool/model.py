@@ -4,9 +4,12 @@ from __future__ import print_function
 import numpy as np
 from numpy.linalg import det, inv, svd, pinv
 from scipy.interpolate import griddata
-import pathos.multiprocessing as mp
+
 import time, sys
 import teetool as tt
+
+import multiprocessing as mp
+from functools import partial
 
 
 class Model(object):
@@ -226,44 +229,6 @@ class Model(object):
 
         return np.mat(Y)
 
-    def _eval_tube(self, nsamples=20, sdwidth=[5]):
-        """
-        returns points and values of points along tube
-
-        OBSOLETE
-        """
-
-        Y_list = []
-        for sdwidth1 in sdwidth:
-            Y1 = self._getCoordsEllipse(nsamples, sdwidth1)
-            Y_list.append(Y1)
-
-        Y = np.concatenate(Y_list, axis=0)
-
-        (npoints, _) = Y.shape
-        ndim = self._ndim
-
-        # parallel processing
-        p = mp.ProcessingPool()
-
-        # output
-        results = p.amap(self._gauss_logLc, Y)
-
-        while not results.ready():
-            # obtain intermediate results
-            print(".", end="")
-            sys.stdout.flush()
-            time.sleep(3)
-
-        print("") # new line
-
-        # extract results
-        list_val = results.get()
-        s = np.array(list_val)
-        s = np.squeeze(s)
-
-        return (Y, s)
-
     def _eval_logp(self, Y_pos):
         """
         evaluates on a grid, aiming at the desired number of points
@@ -272,6 +237,28 @@ class Model(object):
         (npoints, _) = Y_pos.shape
         ndim = self._ndim
 
+        # convert to list
+        Y_pos_list = []
+
+        for y in Y_pos:
+            Y_pos_list.append(y)
+
+        # create partial function (map only takes one argument)
+        # ndim, cc, cA
+        func = partial(tt.helpers.gauss_logLc, ndim=ndim, cc=self._cc, cA=self._cA)
+
+        # parallel processing
+        ncores = mp.cpu_count()
+        p = mp.Pool(processes=ncores)
+
+        # output - extract results
+        list_val = p.map(func, Y_pos_list)
+
+        # cleanup
+        p.close()
+        p.join()
+
+        """
         # parallel processing
         p = mp.ProcessingPool()
 
@@ -288,8 +275,9 @@ class Model(object):
 
         # extract results
         list_val = results.get()
+        """
 
-        s = np.array(list_val)
+        s = np.array(list_val).squeeze()
 
         return s
 
@@ -372,7 +360,7 @@ class Model(object):
 
         return ss
 
-    def evalInside(self, sdwidth, xx, yy, zz=None):
+    def isInside_grid(self, sdwidth, xx, yy, zz=None):
         """
         evaluate if points are inside a grid
 
@@ -390,7 +378,7 @@ class Model(object):
         (Y_pos, Y_idx) = self._grid2points(xx, yy, zz)
 
         # evaluate points
-        s = self._isInside_pnts(Y_pos, sdwidth)
+        s = self.isInside_pnts(Y_pos, sdwidth, nsamples=12)
 
         # points2grid
         ss = self._points2grid(s, Y_idx)
@@ -398,30 +386,63 @@ class Model(object):
         # return values
         return ss
 
-    def _isInside_pnts(self, P, sdwidth=1, nsamples=10):
+    def isInside_pnts(self, P, sdwidth=1, nsamples=10):
         """
         tests if points P NxD 'points' x 'dimensions' are inside the tube
         """
 
         ndim = self._ndim
 
+        # obtain a list of points, representing the Gaussian and area between
+        list_Y = self._get_point_cloud(sdwidth, nsamples)
+
         # P is an array
         P = np.array(P)
 
-        (p_npoints, p_ndim) = P.shape
+        # create partial function (map only takes one argument)
+        func = partial(tt.helpers.in_hull, P)
+
+        # parallel processing
+        ncores = mp.cpu_count()
+        p = mp.Pool(processes=ncores)
+
+        # output - extract results
+        list_these_inside = p.map(func, list_Y)
+
+        # cleanup
+        p.close()
+        p.join()
+
+        # convert to array
+        arr_these_inside = np.array(list_these_inside).squeeze().transpose()
 
         # an array of bools (all FALSE, thus zeros)
         # FALSE = not inside
         # TRUE  = inside
-        P_inside = np.zeros((p_npoints,1), dtype=bool)
+        P_inside = np.any(arr_these_inside, axis=1)
+
+        return P_inside
+
+
+    def _get_point_cloud(self, sdwidth=1, nsamples=10):
+        """
+        returns a list with point clouds, representing the transition between Gaussians
+
+        input paramters:
+            - none
+        """
+
+        list_points_cloud = []
 
         ngaus = len(self._cc)
 
+        # points of first Gaussian
+        c = self._cc[0]
+        A = self._cA[0]
+        Yi = self._getEllipse(c, A, sdwidth, nsamples)
+
         for i in range(ngaus-1):
-            # points of first Gaussian
-            c = self._cc[i]
-            A = self._cA[i]
-            Yi = self._getEllipse(c, A, sdwidth, nsamples)
+
             # points of next Gaussian
             c = self._cc[i+1]
             A = self._cA[i+1]
@@ -433,13 +454,12 @@ class Model(object):
             # remove duplicates
             Y = tt.helpers.unique_rows(Y)
 
-            # see what points are inside the 'cloud'
-            these_inside = tt.helpers.in_hull(P, Y)
+            list_points_cloud.append(Y)
 
-            # if already inside, or new inside,
-            P_inside = np.logical_or(P_inside, these_inside)
+            # new current Gaussian is next Gaussian
+            Yi = Yi1.copy()
 
-        return P_inside
+        return list_points_cloud
 
 
     def evalLogLikelihood(self, xx, yy, zz=None):
@@ -835,54 +855,3 @@ class Model(object):
                 A[d_row, d_col] = sig_y[(npoint+d_row*ngaus), (npoint+d_col*ngaus)]
 
         return (c, A)
-
-    def _gauss(self, y, c, A):
-        """
-        returns value Gaussian
-        """
-        D = self._ndim
-
-        y = np.mat(y)
-        c = np.mat(c)
-        A = np.mat(A)
-
-        p1 = 1 / np.sqrt(((2*np.pi)**D)*det(A))
-        p2 = np.exp(-1/2*(y-c).transpose()*inv(A)*(y-c))
-
-        return (p1*p2)
-
-    def _gauss_logLc(self, y):
-        """
-        returns the log likelihood of a position based on model (in cells)
-        """
-
-        ndim = self._ndim
-
-        y = y.reshape((ndim, 1), order='F')
-
-        y = np.array(y)
-
-        # check dimension y
-        if not y.shape == (ndim, 1):
-            raise ValueError("dimension is {0}, not {1}".format(y.shape, (ndim, 1)))
-
-        cc = self._cc
-        cA = self._cA
-
-        M = len(cc)
-
-        py = 0
-
-        for m in range(M):
-            c = cc[m]
-            A = cA[m]
-            py += self._gauss(y, c, A)  # addition of each Gaussian
-
-        # if zero, return nan, otherwise return log likelihood
-        if py == 0.0:
-            pyL = np.nan
-        else:
-            pyL = np.log(py) - np.log(M)  # division by number of Gaussians
-            pyL = float(pyL)  # output is a float
-
-        return pyL
