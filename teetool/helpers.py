@@ -225,3 +225,15 @@ def gauss_logLc(y, ndim, cc, cA):
         pyL = float(pyL)  # output is a float
 
     return pyL
+
+def getMaxOutline(ndim):
+    """
+    returns default outline based on dimensionality
+    """
+    defaultOutline = []
+
+    for d in range(ndim):
+        defaultOutline.append(np.inf)  # min
+        defaultOutline.append(-np.inf)  # max
+
+    return defaultOutline

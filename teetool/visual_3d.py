@@ -99,28 +99,34 @@ class Visual_3d(object):
         # extract
         (ss_list, [xx, yy, zz]) = self._world.getTube([icluster1, icluster2], sdwidth)
 
-        # difference matrix
-        ss = ss_list[0] - ss_list[1]
 
-        for test_this in [1, -1]:
+        for i in range(3):
+            # 3 different cases
 
-            # see which blocks are added/removed
-            ss1 = 1*(ss==test_this)
-
-            src = mlab.pipeline.scalar_field(xx, yy, zz, ss1)
-
-            if (test_this == 1):
-                # colour added
+            if i==1:
+                # 1 :: blocks added
+                ss1 = 1*((ss_list[0] - ss_list[1])==1)
                 colour = (0.0, 1.0, 0.0)  # green
-            else:
-                # colour removed
+                label = "added"
+            elif i==2:
+                # 2 :: blocks removed
+                ss1 = 1*((ss_list[0] - ss_list[1])==-1)
                 colour = (1.0, 0.0, 0.0)  # red
+                label = "removed"
+            else:
+                # 3 :: present in both
+                ss1 = 1*((ss_list[0] + ss_list[1])==2)
+                colour = (0.0, 0.0, 1.0)  # blue
+                label = "neutral"
 
-            # add blocks
+            #
+            src = mlab.pipeline.scalar_field(xx, yy, zz, ss1)
+            #
             mlab.pipeline.iso_surface(src,
                                       contours=[0.5],
                                       opacity=popacity,
-                                      color=colour)
+                                      color=colour,
+                                      name=label)
 
         # slice it
         """

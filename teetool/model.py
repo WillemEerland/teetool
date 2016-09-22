@@ -855,3 +855,33 @@ class Model(object):
                 A[d_row, d_col] = sig_y[(npoint+d_row*ngaus), (npoint+d_col*ngaus)]
 
         return (c, A)
+
+    def getOutline(self, sdwidth=1):
+        """
+        returns the outline [xmin, xmax, ymin, ymax, zmin, zmax]
+
+        input parameters:
+            - sdwidth
+        """
+
+        # get maximum outline (borrow from other module)
+        outline = tt.helpers.getMaxOutline(self._ndim)
+
+        # by adding a bit, the bounds include the edges
+        sdwidth += 0.1
+
+        # obtain a list of points
+        list_points_cloud = self._get_point_cloud(sdwidth, nsamples=10)
+
+        for Y in list_points_cloud:
+
+            for d in range(self._ndim):
+                x = Y[:, d]
+                xmin = x.min()
+                xmax = x.max()
+                if (outline[d*2] > xmin):
+                    outline[d*2] = xmin
+                if (outline[d*2+1] < xmax):
+                    outline[d*2+1] = xmax
+
+        return outline

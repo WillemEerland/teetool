@@ -196,7 +196,6 @@ class World(object):
         return list_inside
 
 
-
     def getSamples(self, icluster, nsamples=50):
         """
         returns samples (x, Y) list
@@ -247,8 +246,11 @@ class World(object):
         # check validity
         list_icluster = self._check_list_icluster(list_icluster)
 
+        # obtain the outline for the grid
+        outline = self._get_outline_tube(sdwidth, list_icluster)
+
         # obtain grid to evaluate on
-        [xx, yy, zz] = self._getGrid(list_icluster)
+        [xx, yy, zz] = self._getGrid(outline)
 
         # values returned
         ss_list = []
@@ -274,8 +276,11 @@ class World(object):
         # check validity
         list_icluster = self._check_list_icluster(list_icluster)
 
+        # obtain outline
+        outline = self._get_outline_expanded(list_icluster)
+
         # obtain grid to evaluate on
-        [xx, yy, zz] = self._getGrid(list_icluster)
+        [xx, yy, zz] = self._getGrid(outline)
 
         # values returned
         ss_list = []
@@ -289,18 +294,6 @@ class World(object):
             ss_list.append(ss)
 
         return (ss_list, [xx, yy, zz])
-
-    def _getMaxOutline(self, ndim):
-        """
-        returns default outline based on dimensionality
-        """
-        defaultOutline = []
-
-        for d in range(ndim):
-            defaultOutline.append(np.inf)  # min
-            defaultOutline.append(-np.inf)  # max
-
-        return defaultOutline
 
     def _getResolution(self, ndim, nres):
         """
@@ -336,7 +329,7 @@ class World(object):
         if (self._ndim == 3):
             self._resolution = [xstep, ystep, zstep]
 
-    def _getGrid(self, list_icluster=None):
+    def _getGrid(self, outline):
         """
         returns the grid
 
@@ -344,13 +337,13 @@ class World(object):
         """
 
         # check validity
-        list_icluster = self._check_list_icluster(list_icluster)
+        #list_icluster = self._check_list_icluster(list_icluster)
 
         ndim = self._ndim
         resolution = self._resolution
 
         # use expanded grid for calculations
-        outline = self._get_outline_expanded(list_icluster)
+        #outline = self._get_outline_expanded(list_icluster)
 
         if (ndim == 2):
             # 2d
@@ -415,7 +408,7 @@ class World(object):
         # check validity
         list_icluster = self._check_list_icluster(list_icluster)
 
-        global_outline = self._getMaxOutline(self._ndim)
+        global_outline = tt.helpers.getMaxOutline(self._ndim)
 
         for icluster in list_icluster:
 
@@ -438,6 +431,37 @@ class World(object):
 
         return global_outline
 
+    def _get_outline_tube(self, sdwidth=1, list_icluster=None):
+        """
+        returns the outline of specified clusters for the tube
+
+        list_icluster is list of clusters, if None, show all
+        """
+
+        # check validity
+        list_icluster = self._check_list_icluster(list_icluster)
+
+        global_outline = tt.helpers.getMaxOutline(self._ndim)
+
+        for icluster in list_icluster:
+            # pass clusters
+            this_cluster = self._clusters[icluster]
+
+            local_outline = this_cluster["model"].getOutline(sdwidth)
+
+            for d in range(self._ndim):
+
+                # cluster specific
+                xmin = local_outline[d*2]
+                xmax = local_outline[d*2+1]
+
+                if xmin < global_outline[d*2]:
+                    global_outline[d*2] = xmin
+
+                if xmax > global_outline[d*2+1]:
+                    global_outline[d*2+1] = xmax
+
+        return global_outline
 
     def _get_outline_cluster(self, cluster_data):
         """
@@ -446,7 +470,7 @@ class World(object):
         returns an array
         """
 
-        this_cluster_data_outline = self._getMaxOutline(self._ndim)
+        this_cluster_data_outline = tt.helpers.getMaxOutline(self._ndim)
 
         for (x, Y) in cluster_data:
 
