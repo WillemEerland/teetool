@@ -211,7 +211,7 @@ class World(object):
 
         return generated_samples
 
-    def buildModel(self, list_icluster, settings):
+    def buildModel(self, settings, list_icluster=None):
         """
         creates a model
 

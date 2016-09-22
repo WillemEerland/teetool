@@ -32,7 +32,7 @@ def test_visual_3d():
     settings["model_type"] = "resampling"
     settings["ngaus"] = 10
 
-    world_1.buildModel(list_icluster, settings)
+    world_1.buildModel(settings)
 
     #  this part is Python 2.7 [ONLY] due to Mayavi / VTK dependencies
 

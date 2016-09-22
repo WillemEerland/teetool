@@ -48,7 +48,7 @@ for ls in llsettings:
     new_world.overview()
 
     # build the model
-    new_world.buildModel([0, 1], settings)
+    new_world.buildModel(settings)
 
     # output an overview
     new_world.overview()

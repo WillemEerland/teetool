@@ -48,7 +48,7 @@ for ls in llsettings:
     new_world.overview()
 
     # build the model
-    new_world.buildModel([0, 1], settings)
+    new_world.buildModel(settings)
 
     # modify default resolution
     #new_world.setResolution(xstep=100, ystep=100)

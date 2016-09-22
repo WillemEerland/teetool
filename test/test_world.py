@@ -107,13 +107,13 @@ def test_model():
     settings["ngaus"] = 10
 
     # build a model
-    world_1.buildModel([0, 1], settings)
+    world_1.buildModel(settings)
 
     with pt.raises(TypeError) as testException:
-        world_1.buildModel("Hello World!", settings)
+        world_1.buildModel(settings, "Hello World!")
 
     with pt.raises(ValueError) as testException:
-        world_1.buildModel([-1], settings)
+        world_1.buildModel(settings, [-1])
 
     # log-likelihood
     (ss_list, [xx, yy, zz]) = world_1.getLogLikelihood([0, 1])

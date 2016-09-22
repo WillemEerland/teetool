@@ -33,7 +33,7 @@ def test_visual_2d():
     settings["model_type"] = "resampling"
     settings["ngaus"] = 10
 
-    world_1.buildModel(list_iclusters, settings)
+    world_1.buildModel(settings)
 
     # visuals by
     visual = tt.visual_2d.Visual_2d(world_1)
