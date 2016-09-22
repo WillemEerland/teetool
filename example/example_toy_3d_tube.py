@@ -32,7 +32,7 @@ for ls in llsettings:
                                   ls[4])
 
     # build world
-    new_world = tt.World(name=world_name, ndim=3, nres=50)
+    new_world = tt.World(name=world_name, ndim=3, nres=100)
 
     # add trajectories
     for ntype in [0, 1]:

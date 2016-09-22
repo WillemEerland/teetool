@@ -164,11 +164,11 @@ def in_hull(p, hull):
     will be computed
     """
 
-    # (p, hull) = tuple_p_hull
+    #print("{0} {1}".format(np.min(hull), np.max(hull)))
 
     # if not Delaunay, create
     if not isinstance(hull, Delaunay):
-        hull = Delaunay(hull, qhull_options='Qz')
+        hull = Delaunay(hull, qhull_options='QJ')
 
     res = (hull.find_simplex(p)>=0)
 
