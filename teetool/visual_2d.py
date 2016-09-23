@@ -24,9 +24,9 @@ class Visual_2d(object):
 
         self._ax.set_axis_bgcolor('grey')
 
-        [xmin, xmax, ymin, ymax] = thisWorld._get_outline_expanded()
-        self._ax.set_xlim([xmin, xmax])
-        self._ax.set_ylim([ymin, ymax])
+        #[xmin, xmax, ymin, ymax] = thisWorld._get_outline_expanded()
+        #self._ax.set_xlim([xmin, xmax])
+        #self._ax.set_ylim([ymin, ymax])
 
         self._world = thisWorld
         self._plotTitle()

@@ -181,6 +181,23 @@ def unique_rows(a):
     unique_a = np.unique(a.view([('', a.dtype)]*a.shape[1]))
     return unique_a.view(a.dtype).reshape((unique_a.shape[0], a.shape[1]))
 
+def gauss_logp(y, ndim, c, A):
+    """
+    returns value Gaussian log likelihood
+    """
+
+    y = np.mat(y)
+    c = np.mat(c)
+    A = np.mat(A)
+
+    pL1 = 1. * ndim * np.log(2.*np.pi)
+    pL2 = 1. * np.log( det(A) )
+    pL3 = 1. * (y-c).transpose()*inv(A)*(y-c)
+
+    pL = - 1. / 2. * ( pL1 + pL2 + pL3 )
+
+    return pL
+
 def gauss(y, ndim, c, A):
     """
     returns value Gaussian
@@ -210,19 +227,25 @@ def gauss_logLc(y, ndim, cc, cA):
 
     M = len(cc)
 
-    py = 0
+    pyL = - np.inf
 
     for m in range(M):
         c = cc[m]
         A = cA[m]
-        py += gauss(y, ndim, c, A)  # addition of each Gaussian
+        pyLm = gauss_logp(y, ndim, c, A)
+        if pyLm > pyL:
+            pyL = pyLm
+        # py += gauss(y, ndim, c, A)  # addition of each Gaussian
 
     # if zero, return nan, otherwise return log likelihood
+    """
     if py == 0.0:
         pyL = np.nan
     else:
         pyL = np.log(py) - np.log(M)  # division by number of Gaussians
         pyL = float(pyL)  # output is a float
+    """
+
 
     return pyL
 
