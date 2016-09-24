@@ -38,6 +38,9 @@ class Visual_2d(object):
         <description>
         """
 
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
+
         colours = tt.helpers.getDistinctColours(len(list_icluster), bBlack)
 
         clusters = self._world.getCluster(list_icluster)
@@ -58,6 +61,9 @@ class Visual_2d(object):
         """
         <description>
         """
+
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
 
         colours = tt.helpers.getDistinctColours(len(list_icluster))
 
@@ -93,6 +99,9 @@ class Visual_2d(object):
         popacity relates to the opacity [0, 1]
         """
 
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
+
         # extract
         (ss_list, [xx, yy, zz]) = self._world.getTube(list_icluster, sdwidth)
 
@@ -116,6 +125,9 @@ class Visual_2d(object):
             - list_icluster
             - pmin/pmax 0,1
         """
+
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
 
         (ss_list, [xx, yy, zz]) = self._world.getLogLikelihood(list_icluster)
 

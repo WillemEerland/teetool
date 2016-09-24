@@ -32,7 +32,7 @@ for ls in llsettings:
                                   ls[4])
 
     # build world
-    new_world = tt.World(name=world_name, ndim=3, nres=100)
+    new_world = tt.World(name=world_name, ndim=3, resolution=[10, 10, 10])
 
     # add trajectories
     for ntype in [0, 1]:
@@ -56,9 +56,9 @@ for ls in llsettings:
     # visuals by mayavi
     visual = tt.visual_3d.Visual_3d(new_world)
     # visualise trajectories
-    visual.plotTrajectories()
+    visual.plotTrajectories(linewidth=0.2, colour=(0.0, 0.0, 0.0))
     # visualise tube
-    visual.plotTube()
+    visual.plotTube(resolution=[50, 50, 50], colour=(1.0, 0.2, 0.2))
     # visualise outline
     visual.plotOutline()
 

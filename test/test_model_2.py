@@ -19,34 +19,24 @@ def test_eval():
             valid_settings["nbasis"] = 5
 
         # normal operation
-        new_model = tt.model.Model(cluster_data, valid_settings)
+        model = tt.model.Model(cluster_data, valid_settings)
 
-        # tube
         if (mdim == 2):
             xx, yy = np.mgrid[-10:10:2j, -10:10:2j]
-            ss = new_model.isInside_grid(sdwidth=1, xx=xx, yy=yy)
-            assert (ss.shape==xx.shape)
+            ss1 = model.isInside_grid(sdwidth=1, xx=xx, yy=yy)
+            ss2 = model.evalLogLikelihood(xx, yy)
+            assert (ss1.shape==ss2.shape)
         if (mdim == 3):
             xx, yy, zz = np.mgrid[-10:10:2j, -10:10:2j, -10:10:2j]
-            ss = new_model.isInside_grid(sdwidth=1, xx=xx, yy=yy, zz=zz)
-            assert (ss.shape==xx.shape)
-
-        # log likelihood
-        if (mdim == 2):
-            xx, yy = np.mgrid[-10:10:2j, -10:10:2j]
-            ss = new_model.evalLogLikelihood(xx, yy)
-            assert (ss.shape==xx.shape)
-        if (mdim == 3):
-            xx, yy, zz = np.mgrid[-10:10:2j, -10:10:2j, -10:10:2j]
-            ss = new_model.evalLogLikelihood(xx, yy, zz)
-            assert (ss.shape==xx.shape)
+            ss1 = model.isInside_grid(sdwidth=1, xx=xx, yy=yy, zz=zz)
+            ss2 = model.evalLogLikelihood(xx, yy, zz)
+            assert (ss1.shape==ss2.shape)
 
         # test subfunctions
-
         y = np.zeros((mdim, 1))
         y = np.mat(y)
 
-        pL = tt.helpers.gauss_logLc(y, mdim, new_model._cc, new_model._cA)
+        pL = tt.helpers.gauss_logLc(y, mdim, model._cc, model._cA)
 
         assert (np.isfinite(pL))
 
@@ -61,6 +51,10 @@ def test_eval():
     for d in [2, 3]:
         do_this_test(mdim=d, model_type="resampling")
 
-    for model_type1 in ["ML", "EM"]:
+    #
+    for model_type1 in ["ML"]:
         for basis_type1 in ["rbf", "bernstein"]:
             do_this_test(mdim=2, model_type=model_type1, basis_type=basis_type1)
+
+    # test EM, long test
+    # do_this_test(mdim=2, model_type="EM", basis_type="bernstein")

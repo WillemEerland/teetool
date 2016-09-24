@@ -25,12 +25,15 @@ class Visual_3d(object):
         self._world = thisWorld
 
     def plotTrajectories(self, list_icluster=None,
-                         ntraj=50, linewidth=2, colour=None):
+                         ntraj=50, linewidth=1, colour=None):
         """
         plot trajectories
 
         list_icluster should be a list of clusters, integers only
         """
+
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
 
         # extract data
         clusters = self._world.getCluster(list_icluster)
@@ -201,17 +204,9 @@ class Visual_3d(object):
             outline = self._world._get_outline(list_icluster)
 
         # 3d
-        [xmin, xmax, ymin, ymax, zmin, zmax] = np.array(outline, dtype=int)
+        [xx, yy, zz] = tt.helpers.getGridFromResolution(outline, resolution)
 
-        xnsteps = int( (xmax-xmin) / resolution )
-        ynsteps = int( (ymax-ymin) / resolution )
-        znsteps = int( (ymax-ymin) / resolution )
-
-        [xx, yy, zz] = np.mgrid[xmin:xmax:np.complex(0, xnsteps),
-                       ymin:ymax:np.complex(0, ynsteps),
-                       zmin:zmax:np.complex(0, znsteps)]
-
-        # fake data
+        # fake data (not used)
         ss = np.ones_like(xx)
 
         src = mlab.pipeline.scalar_field(xx, yy, zz, ss)
@@ -232,6 +227,9 @@ class Visual_3d(object):
         resolution does the grid
         """
 
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
+
         # extract
         (ss_list, [xx, yy, zz]) = self._world.getTube(list_icluster,
                                                       sdwidth, resolution)
@@ -251,7 +249,8 @@ class Visual_3d(object):
                                       opacity=popacity,
                                       color=lcolours[list_icluster[i]])
 
-    def plotLogLikelihood(self, list_icluster=None, pmin=0.0, pmax=1.0, popacity=0.3):
+    def plotLogLikelihood(self, list_icluster=None, pmin=0.0, pmax=1.0,
+                          popacity=0.3, resolution=None):
         """
         plots log-likelihood
 
@@ -261,8 +260,12 @@ class Visual_3d(object):
             - pmax
         """
 
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
+
         # extract
-        (ss_list, [xx, yy, zz]) = self._world.getLogLikelihood(list_icluster)
+        (ss_list, [xx, yy, zz]) = self._world.getLogLikelihood(list_icluster,
+                                                               resolution)
 
         ss = np.zeros_like(xx)
 
@@ -294,6 +297,9 @@ class Visual_3d(object):
         input parameters:
             - list_icluster
         """
+
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
 
         plot_outline = self._world._get_outline(list_icluster)
 

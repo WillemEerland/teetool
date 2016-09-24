@@ -269,3 +269,56 @@ def getMaxOutline(ndim):
         defaultOutline.append(-np.inf)  # max
 
     return defaultOutline
+
+def getGridFromResolution(outline, resolution):
+    """
+    return xx, yy, (zz), based on outline and resolution
+    """
+
+    if type(resolution) is not list:
+        # create an equal sized grid
+
+        [xmin, xmax, ymin, ymax] = outline[:4]
+
+        xnsteps = int( np.round((xmax-xmin) / resolution) )
+        ynsteps = int( np.round((ymax-ymin) / resolution) )
+
+        if xnsteps < 2:
+            xnsteps = 2
+
+        if ynsteps < 2:
+            ynsteps = 2
+
+        if len(outline) is 4:
+            # 2d
+            [xx, yy] = np.mgrid[xmin:xmax:np.complex(0, xnsteps),
+                           ymin:ymax:np.complex(0, ynsteps)]
+            zz = None
+        else:
+            # 3d
+            [zmin, zmax] = outline[4:6]
+            znsteps = int( np.round((ymax-ymin) / resolution) )
+            if znsteps < 2:
+                znsteps = 2
+            [xx, yy, zz] = np.mgrid[xmin:xmax:np.complex(0, xnsteps),
+                           ymin:ymax:np.complex(0, ynsteps),
+                           zmin:zmax:np.complex(0, znsteps)]
+
+    else:
+        # create a grid based on resolution
+
+        [xmin, xmax, ymin, ymax] = outline[:4]
+
+        if len(outline) is 4:
+            # 2d
+            [xx, yy] = np.mgrid[xmin:xmax:np.complex(0, resolution[0]),
+                           ymin:ymax:np.complex(0, resolution[1])]
+            zz = None
+        else:
+            # 3d
+            [zmin, zmax] = outline[4:6]
+            [xx, yy, zz] = np.mgrid[xmin:xmax:np.complex(0, resolution[0]),
+                           ymin:ymax:np.complex(0, resolution[1]),
+                           zmin:zmax:np.complex(0, resolution[2])]
+
+    return [xx, yy, zz]

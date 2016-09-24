@@ -32,7 +32,7 @@ for ls in llsettings:
                                   ls[4])
 
     # build world
-    new_world = tt.World(name=world_name, ndim=3, nres=20)
+    new_world = tt.World(name=world_name, ndim=3, resolution=[10, 10, 10])
 
     # add trajectories
     for ntype in [0, 1]:
@@ -55,9 +55,9 @@ for ls in llsettings:
 
     visual = tt.visual_3d.Visual_3d(new_world)
     # visualise trajectories
-    visual.plotTrajectories([0, 1])
+    visual.plotTrajectories([0, 1], colour=(0.0, 0.0, 0.0))
     # visualise intersection
-    visual.plotLogLikelihood([0, 1], pmin=.95, pmax=1)
+    visual.plotLogLikelihood([0, 1], pmin=.95, pmax=1, resolution=[10, 10, 10])
     # visualise outline
     visual.plotOutline()
 

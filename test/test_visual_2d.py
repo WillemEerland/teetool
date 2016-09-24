@@ -15,7 +15,7 @@ def test_visual_2d():
     mtraj = 20
 
     # build world
-    world_1 = tt.World(name="Example 3D", ndim=2, nres=3)
+    world_1 = tt.World(name="Example 3D", ndim=2, resolution=100)
 
     # extreme reduced resolution
     #world_1.setResolution(xstep=3, ystep=3, zstep=3)

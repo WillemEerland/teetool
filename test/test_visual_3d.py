@@ -13,7 +13,7 @@ def test_visual_3d():
     """
 
     # build world
-    world_1 = tt.World(name="Example 3D", ndim=3, nres=3)
+    world_1 = tt.World(name="Example 3D", ndim=3, resolution=[10, 10, 10])
 
     # extreme reduced resolution
     # world_1.setResolution(xstep=3, ystep=3, zstep=3)

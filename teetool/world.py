@@ -22,7 +22,7 @@ class World(object):
      -
     """
 
-    def __init__(self, name="", ndim=3, nres=20):
+    def __init__(self, name="", ndim=3, resolution=[10, 10, 10]):
         """
         initialises a World
 
@@ -54,7 +54,7 @@ class World(object):
         self._clusters = []  # list holding clusters
 
         # these parameters define the grid
-        self._resolution = self._getResolution(ndim, nres)
+        self._resolution = resolution
 
         # default value
         self.fraction_to_expand = 0.1
@@ -295,40 +295,6 @@ class World(object):
 
         return (ss_list, [xx, yy, zz])
 
-    def _getResolution(self, ndim, nres):
-        """
-        returns default outline based on dimensionality
-
-        Input paramters:
-            - ndim
-        """
-        defaultResolution = []
-
-        for d in range(ndim):
-            defaultResolution.append(nres)  # equal resolution
-
-        return defaultResolution
-
-    def _setResolution(self, xstep, ystep, zstep=None):
-        """
-        sets the resolution
-
-        conflicts with previous calculations
-        """
-
-        """
-        # remove existing likelihood calculations
-        for i in range(len(self._clusters)):
-            self._clusters[i].pop("logp", None)
-        """
-
-        # new resolution
-        if (self._ndim) == 2:
-            self._resolution = [xstep, ystep]
-
-        if (self._ndim == 3):
-            self._resolution = [xstep, ystep, zstep]
-
     def _getGrid(self, outline, resolution=None):
         """
         returns the grid
@@ -347,26 +313,7 @@ class World(object):
         # use expanded grid for calculations
         #outline = self._get_outline_expanded(list_icluster)
 
-        if (ndim == 2):
-            # 2d
-            [xmin, xmax, ymin, ymax] = outline[0:4]
-            xnsteps = int( (xmax-xmin) / resolution )
-            ynsteps = int( (ymax-ymin) / resolution )
-            # 2d
-            [xx, yy] = np.mgrid[xmin:xmax:np.complex(0, xnsteps),
-                           ymin:ymax:np.complex(0, ynsteps)]
-            zz = None
-
-        if (ndim == 3):
-            # 3d
-            [xmin, xmax, ymin, ymax, zmin, zmax] = outline[0:6]
-            xnsteps = int( (xmax-xmin) / resolution )
-            ynsteps = int( (ymax-ymin) / resolution )
-            znsteps = int( (ymax-ymin) / resolution )
-            # 3d
-            [xx, yy, zz] = np.mgrid[xmin:xmax:np.complex(0, xnsteps),
-                           ymin:ymax:np.complex(0, ynsteps),
-                           zmin:zmax:np.complex(0, znsteps)]
+        [xx, yy, zz] = tt.helpers.getGridFromResolution(outline, resolution)
 
         return [xx, yy, zz]
 
