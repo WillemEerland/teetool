@@ -56,9 +56,9 @@ for ls in llsettings:
     # visuals by mayavi
     visual = tt.visual_3d.Visual_3d(new_world)
     # visualise trajectories
-    visual.plotTrajectories([0, 1])
+    visual.plotTrajectories()
     # visualise tube
-    visual.plotTube([0, 1])
+    visual.plotTube()
     # visualise outline
     visual.plotOutline()
 

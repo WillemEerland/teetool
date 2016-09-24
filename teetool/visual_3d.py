@@ -19,10 +19,13 @@ class Visual_3d(object):
         """
 
         # start figure
-        self._mfig = mlab.figure(size=(800,600))
+        self._mfig = mlab.figure(size=(800,600),
+                                 bgcolor=(1.0, 1.0, 1.0),
+                                 fgcolor=(0.0, 0.0, 0.0))
         self._world = thisWorld
 
-    def plotTrajectories(self, list_icluster=None, linewidth=2, reduced=30):
+    def plotTrajectories(self, list_icluster=None,
+                         ntraj=50, linewidth=2, colour=None):
         """
         plot trajectories
 
@@ -33,18 +36,17 @@ class Visual_3d(object):
         clusters = self._world.getCluster(list_icluster)
 
         # unique colours
-        colours = tt.helpers.getDistinctColours(len(clusters))
+        colours = tt.helpers.getDistinctColours(len(clusters), colour)
 
         for (i, this_cluster) in enumerate(clusters):
             # pass clusters
-            for (x, Y) in this_cluster["data"]:
-                #mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i])
-                (npoints, ndim) = Y.shape
-                # reduce points to 30
-                step_size = int(npoints / reduced)
-                these_rows = range(0, npoints, step_size)
-                Y_red = Y[these_rows,:]
-                mlab.plot3d(Y_red[:, 0], Y_red[:, 1], Y_red[:, 2], color=colours[i], line_width=linewidth)
+            for itraj, (x, Y) in enumerate(this_cluster["data"]):
+                mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
+                            tube_radius=linewidth)
+
+                # limit number of trajectories printed
+                if itraj > ntraj:
+                    break
 
     def plotLogDifference(self, icluster1, icluster2, pmin=0.0, pmax=1.0, popacity=0.3):
         """
@@ -138,19 +140,105 @@ class Visual_3d(object):
                                        vmax=0.6)
                                        """
 
-    def plotTube(self, list_icluster=None, sdwidth=1, popacity=0.3):
+    def setView(self, **kwargs):
+        """
+        passes arguments to view
+
+        mayavi.mlab.view(azimuth=None, elevation=None, distance=None, focalpoint=None, roll=None, reset_roll=True, figure=None)
+
+        azimuth:	float, optional. The azimuthal angle (in degrees, 0-360), i.e. the angle subtended by the position vector on a sphere projected on to the x-y plane with the x-axis.
+        elevation:	float, optional. The zenith angle (in degrees, 0-180), i.e. the angle subtended by the position vector and the z-axis.
+        distance:	float or ‘auto’, optional. A positive floating point number representing the distance from the focal point to place the camera. New in Mayavi 3.4.0: if ‘auto’ is passed, the distance is computed to have a best fit of objects in the frame.
+        focalpoint:	array_like or ‘auto’, optional. An array of 3 floating point numbers representing the focal point of the camera. New in Mayavi 3.4.0: if ‘auto’ is passed, the focal point is positioned at the center of all objects in the scene.
+        roll:	float, optional Controls the roll, ie the rotation of the camera around its axis.
+        reset_roll:	boolean, optional. If True, and ‘roll’ is not specified, the roll orientation of the camera is reset.
+        figure:	The Mayavi figure to operate on. If None is passed, the current one is used.
+        """
+
+        view = mlab.view(**kwargs)
+
+
+        return view
+
+    def setLabels(self, xlabel="", ylabel="", zlabel=""):
+        """
+        sets the label
+
+        input:
+            - xlabel
+            - ylabel
+            - zlabel
+        """
+
+        mlab.xlabel(xlabel)
+        mlab.ylabel(ylabel)
+        mlab.zlabel(zlabel)
+
+    def setAxesFormat(self, newFormat="%.0f"):
+        """
+        changes the format of axis
+
+        input:
+            - newFormat
+        """
+
+        # change scientific notation to normal
+        ax = mlab.axes()
+        ax.axes.label_format = newFormat
+
+
+    def plotGrid(self, list_icluster=None, resolution=1, outline=None):
+        """
+        plots a gridplane, based on src
+
+        input:
+            - list_icluster
+            - resolution
+        """
+
+        # obtain an outline
+        if outline is None:
+            outline = self._world._get_outline(list_icluster)
+
+        # 3d
+        [xmin, xmax, ymin, ymax, zmin, zmax] = np.array(outline, dtype=int)
+
+        xnsteps = int( (xmax-xmin) / resolution )
+        ynsteps = int( (ymax-ymin) / resolution )
+        znsteps = int( (ymax-ymin) / resolution )
+
+        [xx, yy, zz] = np.mgrid[xmin:xmax:np.complex(0, xnsteps),
+                       ymin:ymax:np.complex(0, ynsteps),
+                       zmin:zmax:np.complex(0, znsteps)]
+
+        # fake data
+        ss = np.ones_like(xx)
+
+        src = mlab.pipeline.scalar_field(xx, yy, zz, ss)
+
+        gx = mlab.pipeline.grid_plane(src)
+        gy = mlab.pipeline.grid_plane(src)
+        gy.grid_plane.axis = 'y'
+        gz = mlab.pipeline.grid_plane(src)
+        gz.grid_plane.axis = 'z'
+
+    def plotTube(self, list_icluster=None, sdwidth=1, popacity=0.3,
+                 resolution=None, colour=None):
         """
         plots log-probability
 
         list_icluster is a list of lcusters, None is all
         popacity relates to the opacity [0, 1]
+        resolution does the grid
         """
 
         # extract
-        (ss_list, [xx, yy, zz]) = self._world.getTube(list_icluster, sdwidth)
+        (ss_list, [xx, yy, zz]) = self._world.getTube(list_icluster,
+                                                      sdwidth, resolution)
 
         # get colours
-        lcolours = tt.helpers.getDistinctColours(len(ss_list))
+        lcolours = tt.helpers.getDistinctColours(len(self._world._clusters),
+                                                 colour)
 
         for i, ss1 in enumerate(ss_list):
 
@@ -161,7 +249,7 @@ class Visual_3d(object):
             mlab.pipeline.iso_surface(src,
                                       contours=[0.5],
                                       opacity=popacity,
-                                      color=lcolours[i])
+                                      color=lcolours[list_icluster[i]])
 
     def plotLogLikelihood(self, list_icluster=None, pmin=0.0, pmax=1.0, popacity=0.3):
         """
@@ -211,16 +299,17 @@ class Visual_3d(object):
 
         mlab.outline(extent=plot_outline)
 
-    def _plotTitle(self):
+    def plotTitle(self, title=None):
         """
         adds a title
         """
 
         # add title
-        world_name = self._world.getName()
+        if title is None:
+            title = self._world.getName()
 
-        if not (world_name == None):
-            mlab.title(world_name)
+        mlab.title(title)
+
 
     def save(self, add=None):
         """

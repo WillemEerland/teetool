@@ -33,21 +33,24 @@ class Visual_2d(object):
 
         self._labels = []
 
-    def plotTrajectories(self, list_icluster):
+    def plotTrajectories(self, list_icluster, ntraj=50, bBlack=False):
         """
         <description>
         """
 
-        colours = tt.helpers.getDistinctColours(len(list_icluster))
+        colours = tt.helpers.getDistinctColours(len(list_icluster), bBlack)
 
         clusters = self._world.getCluster(list_icluster)
         for (i, this_cluster) in enumerate(clusters):
             # pass clusters
-            for (x, Y) in this_cluster["data"]:
+            for itraj, (x, Y) in enumerate(this_cluster["data"]):
                 a_line, = self._ax.plot(Y[:, 0],
                                        Y[:, 1],
                                        color="black",
                                        linestyle="-")
+                # limit number of trajectories
+                if itraj > ntraj:
+                    break
 
         self._labels.append((a_line, "data"))
 

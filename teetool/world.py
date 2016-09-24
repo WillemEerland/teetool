@@ -234,7 +234,7 @@ class World(object):
             this_cluster["model"] = new_model
             self._clusters[icluster] = this_cluster
 
-    def getTube(self, list_icluster=None, sdwidth=1):
+    def getTube(self, list_icluster=None, sdwidth=1, resolution=None):
         """
         return (ss_list, [xx, yy, zz]) of models that fall within sdwidth
 
@@ -250,7 +250,7 @@ class World(object):
         outline = self._get_outline_tube(sdwidth, list_icluster)
 
         # obtain grid to evaluate on
-        [xx, yy, zz] = self._getGrid(outline)
+        [xx, yy, zz] = self._getGrid(outline, resolution)
 
         # values returned
         ss_list = []
@@ -265,7 +265,7 @@ class World(object):
 
         return (ss_list, [xx, yy, zz])
 
-    def getLogLikelihood(self, list_icluster=None):
+    def getLogLikelihood(self, list_icluster=None, resolution=None):
         """
         return (ss_list, [xx, yy, zz]) of models and corresponding log-likelihood
 
@@ -280,7 +280,7 @@ class World(object):
         outline = self._get_outline_expanded(list_icluster)
 
         # obtain grid to evaluate on
-        [xx, yy, zz] = self._getGrid(outline)
+        [xx, yy, zz] = self._getGrid(outline, resolution)
 
         # values returned
         ss_list = []
@@ -329,7 +329,7 @@ class World(object):
         if (self._ndim == 3):
             self._resolution = [xstep, ystep, zstep]
 
-    def _getGrid(self, outline):
+    def _getGrid(self, outline, resolution=None):
         """
         returns the grid
 
@@ -340,7 +340,9 @@ class World(object):
         #list_icluster = self._check_list_icluster(list_icluster)
 
         ndim = self._ndim
-        resolution = self._resolution
+
+        if resolution is None:
+            resolution = self._resolution
 
         # use expanded grid for calculations
         #outline = self._get_outline_expanded(list_icluster)
@@ -348,20 +350,23 @@ class World(object):
         if (ndim == 2):
             # 2d
             [xmin, xmax, ymin, ymax] = outline[0:4]
-            [xstep, ystep] = resolution[0:2]
+            xnsteps = int( (xmax-xmin) / resolution )
+            ynsteps = int( (ymax-ymin) / resolution )
             # 2d
-            [xx, yy] = np.mgrid[xmin:xmax:np.complex(0, xstep),
-                           ymin:ymax:np.complex(0, ystep)]
+            [xx, yy] = np.mgrid[xmin:xmax:np.complex(0, xnsteps),
+                           ymin:ymax:np.complex(0, ynsteps)]
             zz = None
 
         if (ndim == 3):
             # 3d
             [xmin, xmax, ymin, ymax, zmin, zmax] = outline[0:6]
-            [xstep, ystep, zstep] = resolution[0:3]
+            xnsteps = int( (xmax-xmin) / resolution )
+            ynsteps = int( (ymax-ymin) / resolution )
+            znsteps = int( (ymax-ymin) / resolution )
             # 3d
-            [xx, yy, zz] = np.mgrid[xmin:xmax:np.complex(0, xstep),
-                           ymin:ymax:np.complex(0, ystep),
-                           zmin:zmax:np.complex(0, zstep)]
+            [xx, yy, zz] = np.mgrid[xmin:xmax:np.complex(0, xnsteps),
+                           ymin:ymax:np.complex(0, ynsteps),
+                           zmin:zmax:np.complex(0, znsteps)]
 
         return [xx, yy, zz]
 

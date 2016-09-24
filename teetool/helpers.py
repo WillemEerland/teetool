@@ -5,7 +5,7 @@ import numpy as np
 from numpy.linalg import det, inv, svd, cond, eig
 from scipy.spatial import Delaunay
 
-def getDistinctColours(ncolours):
+def getDistinctColours(ncolours, colour=None):
     """
     returns N distinct colors using the colourspace.
     spreads equally in hue space, then converts to RGB
@@ -17,13 +17,22 @@ def getDistinctColours(ncolours):
     if (ncolours < 1):
         raise ValueError("expected integer to be larger than 0, not {0}".format(ncolours))
 
-    # spread equally in hue space
-    HSV_tuples = [(x*1.0/ncolours, 0.5, 0.5) for x in range(ncolours)]
+    if colour is None:
+        # spread equally in hue space
+        HSV_tuples = [(x*1.0/ncolours, 0.5, 0.5) for x in range(ncolours)]
+        # convert to RGB
+        RGB_tuples = map(lambda x: colorsys.hsv_to_rgb(*x), HSV_tuples)
+        # convert to list
+        list_to_return = list(RGB_tuples)
+    else:
+        # return this colour only
+        list_to_return = []
+        for i in range(ncolours):
+            list_to_return.append( colour )
 
-    # conver to RGB
-    RGB_tuples = map(lambda x: colorsys.hsv_to_rgb(*x), HSV_tuples)
 
-    return list(RGB_tuples)
+
+    return list_to_return
 
 def find_nearest(target_array, target_values):
     """
