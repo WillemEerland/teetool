@@ -44,6 +44,8 @@ def test_visual_3d():
     visual.plotLogLikelihood()
     # visualise tube
     visual.plotTube()
+    # visualise difference
+    visual.plotTubeDifference(0, 1)
     # visualise outline
     visual.plotOutline()
     # close

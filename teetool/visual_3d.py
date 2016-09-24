@@ -90,7 +90,8 @@ class Visual_3d(object):
                                          slice_index=10,
                                          )
 
-    def plotTubeDifference(self, icluster1, icluster2, sdwidth=1, popacity=0.1):
+    def plotTubeDifference(self, icluster1, icluster2, sdwidth=1, popacity=0.1,
+                           resolution=None, cases=[1, 2, 3]):
         """
         plots difference between sets
 
@@ -99,15 +100,16 @@ class Visual_3d(object):
             - icluster2
             - sdwidth
             - popacity
+            - cases: 1 added, 2 removed, 3 neutral
         """
 
         # extract
-        (ss_list, [xx, yy, zz]) = self._world.getTube([icluster1, icluster2], sdwidth)
+        (ss_list, [xx, yy, zz]) = self._world.getTube([icluster1, icluster2],
+                                                      sdwidth, resolution)
 
 
-        for i in range(3):
+        for i in cases:
             # 3 different cases
-
             if i==1:
                 # 1 :: blocks added
                 ss1 = 1*((ss_list[0] - ss_list[1])==1)
@@ -118,7 +120,7 @@ class Visual_3d(object):
                 ss1 = 1*((ss_list[0] - ss_list[1])==-1)
                 colour = (1.0, 0.0, 0.0)  # red
                 label = "removed"
-            else:
+            elif i==3:
                 # 3 :: present in both
                 ss1 = 1*((ss_list[0] + ss_list[1])==2)
                 colour = (0.0, 0.0, 1.0)  # blue
