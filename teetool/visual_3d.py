@@ -108,6 +108,8 @@ class Visual_3d(object):
                                                       sdwidth, resolution)
 
 
+        # produce some stats
+
         for i in cases:
             # 3 different cases
             if i==1:
@@ -126,12 +128,22 @@ class Visual_3d(object):
                 colour = (0.0, 0.0, 1.0)  # blue
                 label = "neutral"
 
+            nblocks_used = np.count_nonzero(ss1)
+            nblocks_total = np.prod(ss1.shape)
+            print("{0} > {1} of {2}".format(label, nblocks_used, nblocks_total))
+
+            # only plot if desired
+            if i in cases:
+                this_opacity = popacity  # normal
+            else:
+                this_opacity = 0.0  # invisible
+
             #
             src = mlab.pipeline.scalar_field(xx, yy, zz, ss1)
             #
             mlab.pipeline.iso_surface(src,
                                       contours=[0.5],
-                                      opacity=popacity,
+                                      opacity=this_opacity,
                                       color=colour,
                                       name=label)
 
