@@ -4,6 +4,7 @@
 import numpy as np
 from scipy.interpolate import griddata
 import mayavi.mlab as mlab
+import time
 
 import teetool as tt
 
@@ -341,7 +342,9 @@ class Visual_3d(object):
         else:
             saveas = "{0}_{1}".format(self._world.getName(), add)
 
+        #
         mlab.savefig("output/3d_{0}.png".format(saveas), figure=self._mfig)
+
 
     def show(self):
         """

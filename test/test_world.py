@@ -124,5 +124,6 @@ def test_model():
     with pt.raises(ValueError) as testException:
         (ss_list, [xx, yy, zz]) = world_1.getLogLikelihood([-1])
 
-    # build tube
-    (ss_list, [xx, yy, zz]) = world_1.getTube([0, 1])
+    # build tube (twice!)
+    for i in range(2):
+        (ss_list, [xx, yy, zz]) = world_1.getTube([0, 1])

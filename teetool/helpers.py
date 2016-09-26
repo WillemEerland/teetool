@@ -280,8 +280,8 @@ def getGridFromResolution(outline, resolution):
 
         [xmin, xmax, ymin, ymax] = outline[:4]
 
-        xnsteps = int( np.round((xmax-xmin) / resolution) )
-        ynsteps = int( np.round((ymax-ymin) / resolution) )
+        xnsteps = int( np.around( (xmax-xmin) / (1.*resolution) ) )
+        ynsteps = int( np.around( (ymax-ymin) / (1.*resolution) ) )
 
         if xnsteps < 2:
             xnsteps = 2
@@ -291,18 +291,18 @@ def getGridFromResolution(outline, resolution):
 
         if len(outline) is 4:
             # 2d
-            [xx, yy] = np.mgrid[xmin:xmax:np.complex(0, xnsteps),
-                           ymin:ymax:np.complex(0, ynsteps)]
+            [xx, yy] = np.mgrid[xmin:xmax:np.complex(0, xnsteps+1),
+                           ymin:ymax:np.complex(0, ynsteps+1)]
             zz = None
         else:
             # 3d
             [zmin, zmax] = outline[4:6]
-            znsteps = int( np.round((ymax-ymin) / resolution) )
+            znsteps = int( np.around( (zmax-zmin) / (1.*resolution) ) )
             if znsteps < 2:
                 znsteps = 2
-            [xx, yy, zz] = np.mgrid[xmin:xmax:np.complex(0, xnsteps),
-                           ymin:ymax:np.complex(0, ynsteps),
-                           zmin:zmax:np.complex(0, znsteps)]
+            [xx, yy, zz] = np.mgrid[xmin:xmax:np.complex(0, xnsteps+1),
+                           ymin:ymax:np.complex(0, ynsteps+1),
+                           zmin:zmax:np.complex(0, znsteps+1)]
 
     else:
         # create a grid based on resolution

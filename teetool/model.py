@@ -89,6 +89,10 @@ class Model(object):
         self._cc = cc
         self._cA = cA
 
+        # create a list to store previous calculated values
+        self._list_tube = []
+        self._list_logp = []
+
     def getSamples(self, nsamples):
         """
         return nsamples of the model
@@ -368,20 +372,41 @@ class Model(object):
             - sdwidth
             - xx
             - yy
+            - zz (when 3d)
         """
 
         # check values
         if not (xx.shape == yy.shape):
             raise ValueError("dimensions should equal (use np.mgrid)")
 
-        # grid2points
-        (Y_pos, Y_idx) = self._grid2points(xx, yy, zz)
+        # ** check if this has been previously calculated
 
-        # evaluate points
-        s = self.isInside_pnts(Y_pos, sdwidth, nsamples=12)
+        ss = None
+        # pass previous calculated versions
+        for [ss1, sdwidth1, xx1, yy1, zz1] in self._list_tube:
+            # check if exactly the same
+            if (np.all(xx1==xx) and
+                np.all(yy1==yy) and
+                np.all(zz1==zz) and
+                np.all(sdwidth1==sdwidth)):
+                # copy
+                ss = ss1
 
-        # points2grid
-        ss = self._points2grid(s, Y_idx)
+        if ss is None:
+            # do the calculations
+
+            # grid2points
+            (Y_pos, Y_idx) = self._grid2points(xx, yy, zz)
+
+            # evaluate points
+            s = self.isInside_pnts(Y_pos, sdwidth, nsamples=12)
+
+            # points2grid
+            ss = self._points2grid(s, Y_idx)
+
+            # store results
+            self._list_tube.append([ss, sdwidth, xx, yy, zz])
+
 
         # return values
         return ss
@@ -474,17 +499,33 @@ class Model(object):
         if not (xx.shape == yy.shape):
             raise ValueError("dimensions should equal (use np.mgrid)")
 
-        # grid2points
-        (Y_pos, Y_idx) = self._grid2points(xx, yy, zz)
+        ss = None
+        # pass previous calculated versions
+        for [ss1, xx1, yy1, zz1] in self._list_logp:
+            # check if exactly the same
+            if ( (xx1==xx).all() and
+                 (yy1==yy).all() and
+                 (zz1==zz).all() ):
+                # copy
+                ss = ss1
 
-        # evaluate points
-        s = self._eval_logp(Y_pos)
+        if ss is None:
+            # do the calculations
 
-        # points2grid
-        ss = self._points2grid(s, Y_idx)
+            # grid2points
+            (Y_pos, Y_idx) = self._grid2points(xx, yy, zz)
 
-        # replace NaN's with minimum
-        ss[np.isnan(ss)] = np.nanmin(ss)
+            # evaluate points
+            s = self._eval_logp(Y_pos)
+
+            # points2grid
+            ss = self._points2grid(s, Y_idx)
+
+            # replace NaN's with minimum
+            ss[np.isnan(ss)] = np.nanmin(ss)
+
+            # store values
+            self._list_logp.append([ss, xx, yy, zz])
 
         return ss
 
