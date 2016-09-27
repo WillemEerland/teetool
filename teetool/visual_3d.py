@@ -111,7 +111,7 @@ class Visual_3d(object):
 
         # produce some stats
 
-        for i in cases:
+        for i in [1, 2, 3]:
             # 3 different cases
             if i==1:
                 # 1 :: blocks added
