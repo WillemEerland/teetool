@@ -8,13 +8,12 @@ import time
 
 import teetool as tt
 
-
 class Visual_3d(object):
     """
     <description>
     """
 
-    def __init__(self, thisWorld):
+    def __init__(self, thisWorld, **kwargs):
         """
         <description>
         """
@@ -22,11 +21,13 @@ class Visual_3d(object):
         # start figure
         self._mfig = mlab.figure(size=(800,600),
                                  bgcolor=(1.0, 1.0, 1.0),
-                                 fgcolor=(0.0, 0.0, 0.0))
+                                 fgcolor=(0.0, 0.0, 0.0),
+                                 **kwargs);
+
         self._world = thisWorld
 
     def plotTrajectories(self, list_icluster=None,
-                         ntraj=50, linewidth=1, colour=None):
+                         ntraj=50, linewidth=None, colour=None):
         """
         plot trajectories
 

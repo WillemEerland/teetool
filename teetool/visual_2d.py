@@ -18,11 +18,13 @@ class Visual_2d(object):
         <description>
         """
 
+        # TODO check if world is 3d, z should be set
+
         # start figure
         self._fig = plt.figure(facecolor="white")
         self._ax = self._fig.gca()
 
-        self._ax.set_axis_bgcolor('grey')
+        self._ax.set_axis_bgcolor('white')
 
         #[xmin, xmax, ymin, ymax] = thisWorld._get_outline_expanded()
         #self._ax.set_xlim([xmin, xmax])
@@ -91,7 +93,7 @@ class Visual_2d(object):
 
         plt.legend(handles=list_lines, labels=list_label)
 
-    def plotTube(self, list_icluster=None, sdwidth=1):
+    def plotTube(self, list_icluster=None, sdwidth=1, z=None, resolution=None):
         """
         plots tube
 
@@ -103,19 +105,17 @@ class Visual_2d(object):
         list_icluster = self._world._check_list_icluster(list_icluster)
 
         # extract
-        (ss_list, [xx, yy, zz]) = self._world.getTube(list_icluster, sdwidth)
+        (ss_list, [xx, yy, zz]) = self._world.getTube(list_icluster,
+                                                      sdwidth,
+                                                      z=z,
+                                                      resolution=resolution)
 
         # get colours
         lcolours = tt.helpers.getDistinctColours(len(ss_list))
 
         for i, ss1 in enumerate(ss_list):
-
             # plot an iso surface
             plt.contour(xx, yy, ss1, [0.0, 1.0], colors=(lcolours[i], ))
-            #mlab.pipeline.iso_surface(src,
-            #                          contours=[0.5],
-            #                          opacity=popacity,
-            #                          color=lcolours[i])
 
     def plotLogLikelihood(self, list_icluster=None, pmin=0, pmax=1):
         """

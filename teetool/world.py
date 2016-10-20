@@ -234,13 +234,14 @@ class World(object):
             this_cluster["model"] = new_model
             self._clusters[icluster] = this_cluster
 
-    def getTube(self, list_icluster=None, sdwidth=1, resolution=None):
+    def getTube(self, list_icluster=None, sdwidth=1, resolution=None, z=None):
         """
         return (ss_list, [xx, yy, zz]) of models that fall within sdwidth
 
         Input parameters:
             - list_icluster
             - sdwidth
+            - z
         """
 
         # check validity
@@ -249,8 +250,18 @@ class World(object):
         # obtain the outline for the grid
         outline = self._get_outline_tube(sdwidth, list_icluster)
 
+        # if z is set, reduce outline to four parameters
+        if z is not None:
+            outline = outline[:4]
+
         # obtain grid to evaluate on
         [xx, yy, zz] = self._getGrid(outline, resolution)
+
+        # temporary adjust arrays
+        if z is not None:
+            xx = np.reshape(xx, newshape=(xx.shape[0], xx.shape[1], 1))
+            yy = np.reshape(yy, newshape=(yy.shape[0], yy.shape[1], 1))
+            zz = np.ones_like(xx)*1.0*z;
 
         # values returned
         ss_list = []
@@ -261,7 +272,16 @@ class World(object):
 
             ss = this_cluster["model"].isInside_grid(sdwidth, xx, yy, zz)
 
+            if z is not None:
+                ss = np.reshape(ss, newshape=(xx.shape[0], xx.shape[1]))
+
             ss_list.append(ss)
+
+        # re-adjust
+        if z is not None:
+            xx = np.reshape(xx, newshape=(xx.shape[0], xx.shape[1]))
+            yy = np.reshape(yy, newshape=(yy.shape[0], yy.shape[1]))
+            zz = None
 
         return (ss_list, [xx, yy, zz])
 
@@ -299,14 +319,10 @@ class World(object):
         """
         returns the grid
 
-        based on ndim and resolution
+        based on outline and resolution
         """
 
-        # check validity
-        #list_icluster = self._check_list_icluster(list_icluster)
-
-        ndim = self._ndim
-
+        # default resolution
         if resolution is None:
             resolution = self._resolution
 
