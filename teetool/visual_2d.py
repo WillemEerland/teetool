@@ -59,6 +59,38 @@ class Visual_2d(object):
 
         self._labels.append((a_line, "data"))
 
+    def plotBox(self, coord_lowerleft, coord_upperright, **kwargs):
+        """
+        plots box based on two coordinates
+
+        input:
+        - coord_lowerleft (x, y)
+        - coord_upperright (x, y)
+        """
+
+        x_lo = coord_lowerleft[0]
+        x_hi = coord_upperright[0]
+        y_lo = coord_lowerleft[1]
+        y_hi = coord_upperright[1]
+
+        coords = np.array([[x_lo, y_lo],
+                           [x_hi, y_lo],
+                           [x_hi, y_hi],
+                           [x_lo, y_hi],
+                           [x_lo, y_lo]])
+
+        coords_x = coords[:,0]
+        coords_y = coords[:,1]
+
+        self._ax.plot(coords_x, coords_y, **kwargs)
+
+    def plot(self, *args, **kwargs):
+        """
+        plotting function - standard matplotlib
+        """
+
+        self._ax.plot(*args, **kwargs)
+
     def plotSamples(self, list_icluster):
         """
         <description>

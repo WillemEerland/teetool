@@ -26,8 +26,14 @@ class Visual_3d(object):
 
         self._world = thisWorld
 
+    def plot(self, *args, **kwargs):
+        """
+        plotting function - standard mayavi plot3d
+        """
+        mlab.plot3d(*args, **kwargs)
+
     def plotTrajectories(self, list_icluster=None,
-                         ntraj=50, linewidth=None, colour=None):
+                         ntraj=50, colour=None, **kwargs):
         """
         plot trajectories
 
@@ -47,7 +53,7 @@ class Visual_3d(object):
             # pass clusters
             for itraj, (x, Y) in enumerate(this_cluster["data"]):
                 mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
-                            tube_radius=linewidth)
+                            tube_radius=None, **kwargs)
 
                 # limit number of trajectories printed
                 if itraj > ntraj:
