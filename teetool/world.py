@@ -139,15 +139,13 @@ class World(object):
         returns a single cluster
         """
 
-        if (list_icluster == None):
-            # return all
-            return self._clusters
-        else:
-            # return clusters in list
-            clusters = []
-            for i in list_icluster:
-                clusters.append(self._clusters[i])
-            return clusters
+        list_icluster = self._check_list_icluster(list_icluster)
+
+        # return clusters in list
+        clusters = []
+        for i in list_icluster:
+            clusters.append(self._clusters[i])
+        return clusters
 
     def _check_icluster(self, icluster):
         """
@@ -234,6 +232,27 @@ class World(object):
             this_cluster["model"] = new_model
             self._clusters[icluster] = this_cluster
 
+    def getMean(self, list_icluster=None):
+        """
+        returns the mean trajectory [x, y, z] for list_icluster
+        """
+
+        # check validity
+        list_icluster = self._check_list_icluster(list_icluster)
+
+        Y_list = []
+
+        for icluster in list_icluster:
+            # extract
+            this_cluster = self._clusters[icluster]
+            # obtain mean
+            Y = this_cluster["model"].getMean()
+            # append to list
+            Y_list.append(Y)
+
+        return Y_list
+
+
     def getTube(self, list_icluster=None, sdwidth=1, resolution=None, z=None):
         """
         return (ss_list, [xx, yy, zz]) of models that fall within sdwidth
@@ -285,7 +304,7 @@ class World(object):
 
         return (ss_list, [xx, yy, zz])
 
-    def getLogLikelihood(self, list_icluster=None, resolution=None):
+    def getLogLikelihood(self, list_icluster=None, resolution=None, z=None):
         """
         return (ss_list, [xx, yy, zz]) of models and corresponding log-likelihood
 
@@ -299,8 +318,18 @@ class World(object):
         # obtain outline
         outline = self._get_outline_expanded(list_icluster)
 
+        # if z is set, reduce outline to four parameters
+        if z is not None:
+            outline = outline[:4]
+
         # obtain grid to evaluate on
         [xx, yy, zz] = self._getGrid(outline, resolution)
+
+        # temporary adjust arrays
+        if z is not None:
+            xx = np.reshape(xx, newshape=(xx.shape[0], xx.shape[1], 1))
+            yy = np.reshape(yy, newshape=(yy.shape[0], yy.shape[1], 1))
+            zz = np.ones_like(xx)*1.0*z;
 
         # values returned
         ss_list = []
@@ -311,7 +340,16 @@ class World(object):
 
             ss = this_cluster["model"].evalLogLikelihood(xx, yy, zz)
 
+            if z is not None:
+                ss = np.reshape(ss, newshape=(xx.shape[0], xx.shape[1]))
+
             ss_list.append(ss)
+
+        # re-adjust
+        if z is not None:
+            xx = np.reshape(xx, newshape=(xx.shape[0], xx.shape[1]))
+            yy = np.reshape(yy, newshape=(yy.shape[0], yy.shape[1]))
+            zz = None
 
         return (ss_list, [xx, yy, zz])
 

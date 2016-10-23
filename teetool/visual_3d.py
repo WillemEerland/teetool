@@ -13,14 +13,13 @@ class Visual_3d(object):
     <description>
     """
 
-    def __init__(self, thisWorld, size=(800,600), **kwargs):
+    def __init__(self, thisWorld, **kwargs):
         """
         <description>
         """
 
         # start figure
-        self._mfig = mlab.figure(size=size,
-                                 bgcolor=(1.0, 1.0, 1.0),
+        self._mfig = mlab.figure(bgcolor=(1.0, 1.0, 1.0),
                                  fgcolor=(0.0, 0.0, 0.0),
                                  **kwargs);
 

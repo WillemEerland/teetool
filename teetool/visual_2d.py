@@ -13,29 +13,50 @@ class Visual_2d(object):
     <description>
     """
 
-    def __init__(self, thisWorld):
+    def __init__(self, thisWorld, **kwargs):
         """
         <description>
         """
 
-        # TODO check if world is 3d, z should be set
-
         # start figure
-        self._fig = plt.figure(facecolor="white")
+        self._fig = plt.figure(facecolor="white", **kwargs)
         self._ax = self._fig.gca()
 
         self._ax.set_axis_bgcolor('white')
 
-        #[xmin, xmax, ymin, ymax] = thisWorld._get_outline_expanded()
-        #self._ax.set_xlim([xmin, xmax])
-        #self._ax.set_ylim([ymin, ymax])
-
         self._world = thisWorld
-        self._plotTitle()
 
         self._labels = []
 
-    def plotTrajectories(self, list_icluster, ntraj=50, bBlack=False):
+    def plotMean(self, list_icluster=None, colour=None, **kwargs):
+        """
+        plots the mean trajectories
+        """
+
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
+
+        # extract data
+        clusters = self._world.getCluster(list_icluster)
+
+        # unique colours
+        colours = tt.helpers.getDistinctColours(len(clusters), colour)
+
+        clusters = self._world.getCluster(list_icluster)
+        for (i, this_cluster) in enumerate(clusters):
+            # pass clusters
+            Y = this_cluster["model"].getMean()
+
+            a_line, = self._ax.plot(Y[:, 0],
+                                    Y[:, 1],
+                                    color=colours[i],
+                                    **kwargs)
+
+
+
+
+    def plotTrajectories(self, list_icluster=None, ntraj=50,
+                         colour=None, **kwargs):
         """
         <description>
         """
@@ -43,16 +64,20 @@ class Visual_2d(object):
         # check validity
         list_icluster = self._world._check_list_icluster(list_icluster)
 
-        colours = tt.helpers.getDistinctColours(len(list_icluster), bBlack)
+        # extract data
+        clusters = self._world.getCluster(list_icluster)
+
+        # unique colours
+        colours = tt.helpers.getDistinctColours(len(clusters), colour)
 
         clusters = self._world.getCluster(list_icluster)
         for (i, this_cluster) in enumerate(clusters):
             # pass clusters
             for itraj, (x, Y) in enumerate(this_cluster["data"]):
                 a_line, = self._ax.plot(Y[:, 0],
-                                       Y[:, 1],
-                                       color="black",
-                                       linestyle="-")
+                                        Y[:, 1],
+                                        color=colours[i],
+                                        **kwargs)
                 # limit number of trajectories
                 if itraj > ntraj:
                     break
@@ -149,7 +174,8 @@ class Visual_2d(object):
             # plot an iso surface
             plt.contour(xx, yy, ss1, [0.0, 1.0], colors=(lcolours[i], ))
 
-    def plotLogLikelihood(self, list_icluster=None, pmin=0, pmax=1):
+    def plotLogLikelihood(self, list_icluster=None, pmin=0, pmax=1,
+                          z=None, resolution=None):
         """
         plots log-likelihood
 
@@ -161,7 +187,10 @@ class Visual_2d(object):
         # check validity
         list_icluster = self._world._check_list_icluster(list_icluster)
 
-        (ss_list, [xx, yy, zz]) = self._world.getLogLikelihood(list_icluster)
+        (ss_list, [xx, yy, zz]) = self._world.getLogLikelihood(
+                                                    list_icluster,
+                                                    z=z,
+                                                    resolution=resolution)
 
         ss = np.zeros_like(xx)
 

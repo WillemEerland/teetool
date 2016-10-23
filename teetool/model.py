@@ -93,6 +93,31 @@ class Model(object):
         self._list_tube = []
         self._list_logp = []
 
+    def getMean(self):
+        """
+        returns the average trajectory [x, y, (z)]
+        """
+
+        ndim = self._ndim
+
+        mu_y = self._mu_y
+
+        Y = np.reshape(mu_y, newshape=(-1, ndim), order='F')
+
+        if (ndim == 2):
+            x = Y[:, 0]
+            y = Y[:, 1]
+            z = np.zeros_like(x) # fill with zeros
+        elif (ndim == 3):
+            x = Y[:, 0]
+            y = Y[:, 1]
+            z = Y[:, 2]
+
+        Y_out = np.array([x, y, z]).T
+
+        return Y_out
+
+
     def getSamples(self, nsamples):
         """
         return nsamples of the model
@@ -503,9 +528,9 @@ class Model(object):
         # pass previous calculated versions
         for [ss1, xx1, yy1, zz1] in self._list_logp:
             # check if exactly the same
-            if ( (xx1==xx).all() and
-                 (yy1==yy).all() and
-                 (zz1==zz).all() ):
+            if ( np.all(xx1==xx) and
+                 np.all(yy1==yy) and
+                 np.all(zz1==zz) ):
                 # copy
                 ss = ss1
 
