@@ -1,4 +1,4 @@
-[![Travis CI](https://travis-ci.org/WillemEerland/teetool.svg?branch=master)]
+[![Travis CI](https://travis-ci.org/WillemEerland/teetool.svg?branch=master)](https://travis-ci.org/WillemEerland/teetool)
 
 # teetool
 a package to support with the statistical analysis of trajectory data -- helpful at determining the probability of clusters (collection) of trajectories colliding
