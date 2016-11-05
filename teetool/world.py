@@ -179,16 +179,14 @@ class World(object):
         list_pairs = []
 
         ncluster = len(list_icluster)
-        print("{0}".format(ncluster))
         temp_list = range(0, ncluster)
-        print("{0}".format(temp_list))
 
         # i1, i2 are counting
         for i1 in temp_list[:-1]:
             for i2 in temp_list[i1+1:]:
                 # add tuple
                 list_pairs.append((i1, i2))
-                print("* {0} {1}".format(i1, i2))
+                # print("* {0} {1}".format(i1, i2))
 
         for (i1, i2) in list_pairs:
             # to produce
@@ -221,36 +219,6 @@ class World(object):
             str_output = "{0} vs {1}\nadd/rem/neu\n{2}/{3}/{4}\nadd/rem/neu/tot\n{5}/{6}/{7}/{8}".format(i1_id, i2_id, nblocks_add_perc, nblocks_rem_perc, nblocks_neu_perc,nblocks_add,nblocks_rem,nblocks_neu,nblocks_tot)
 
             print(str_output)
-
-        #return(str_output)
-
-
-
-            """
-            for i in [1, 2, 3]:
-                if i == 1:
-                    ss1 = 1.*ss_removed
-                    label = "removed"
-                elif i == 2:
-                    ss1 = 1.*ss_added
-                    label = "added"
-                elif i == 3:
-                    ss1 = 1.*ss_neutral
-                    label = "neutral"
-
-                # some stats
-                nblocks_used = np.count_nonzero(ss1)
-                nblocks_total = np.prod(ss1.shape)
-                nblocks_perc = nblocks_used / (1.* nblocks_total)
-
-                print("{0} vs {1} [{2}] [{3}] [{4} / {5}]".format(i1_id,
-                                                            i2_id,
-                                                            label,
-                                                            nblocks_perc,
-                                                            nblocks_used,
-                                                            nblocks_total))
-            """
-
 
     def _check_icluster(self, icluster):
         """
