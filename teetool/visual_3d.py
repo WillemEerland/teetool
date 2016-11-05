@@ -97,8 +97,39 @@ class Visual_3d(object):
                                          slice_index=10,
                                          )
 
-    def plotTubeDifference(self, icluster1, icluster2, sdwidth=1, popacity=0.1,
-                           resolution=None, cases=[1, 2, 3]):
+    def plotTube(self, list_icluster=None, sdwidth=1, alpha=1.0,
+                  resolution=None, colour=None, **kwargs):
+        """
+        plots log-probability
+
+        list_icluster is a list of lcusters, None is all
+        alpha relates to the opacity [0, 1]
+        resolution does the grid
+        """
+
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
+
+        # extract
+        (ss_list, [xx, yy, zz]) = self._world.getTube(list_icluster,
+                                                   sdwidth, resolution)
+
+        # get colours
+        lcolours = tt.helpers.getDistinctColours(len(self._world._clusters),
+                                              colour)
+
+        for i, ss1 in enumerate(ss_list):
+            # mayavi
+            src = mlab.pipeline.scalar_field(xx, yy, zz, ss1)
+            # plot an iso surface
+            mlab.pipeline.iso_surface(src,
+                                   contours=[0.5],
+                                   opacity=alpha,
+                                   color=lcolours[list_icluster[i]],
+                                   **kwargs)
+
+    def plotTubeDifference(self, list_icluster=None, sdwidth=1, alpha=1.0,
+                           resolution=None, **kwargs):
         """
         plots difference between sets
 
@@ -106,63 +137,53 @@ class Visual_3d(object):
             - icluster1
             - icluster2
             - sdwidth
-            - popacity
-            - cases: 1 added, 2 removed, 3 neutral
+            - alpha
         """
 
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
+
+        # extract first two only!
+        list_icluster = list_icluster[:2]
+
         # extract
-        (ss_list, [xx, yy, zz]) = self._world.getTube([icluster1, icluster2],
+        (ss_list, [xx, yy, zz]) = self._world.getTube(list_icluster,
                                                       sdwidth, resolution)
 
+        # 1 :: blocks added
+        ss_added = ((ss_list[0] - ss_list[1])==1)
 
-        # produce some stats
+        # 2 :: blocks removed
+        ss_removed = ((ss_list[0] - ss_list[1])==-1)
+
+        # 3 :: present in both
+        ss_neutral = ((ss_list[0] + ss_list[1])==2)
 
         for i in [1, 2, 3]:
-            # 3 different cases
-            if i==1:
-                # 1 :: blocks added
-                ss1 = 1*((ss_list[0] - ss_list[1])==1)
-                colour = (0.0, 1.0, 0.0)  # green
-                label = "added"
-            elif i==2:
-                # 2 :: blocks removed
-                ss1 = 1*((ss_list[0] - ss_list[1])==-1)
-                colour = (1.0, 0.0, 0.0)  # red
+            if i == 1:
+                ss1 = 1.*ss_removed
+                color = (1.0, 0.1, 0.1)
                 label = "removed"
-            elif i==3:
-                # 3 :: present in both
-                ss1 = 1*((ss_list[0] + ss_list[1])==2)
-                colour = (0.0, 0.0, 1.0)  # blue
+            elif i == 2:
+                ss1 = 1.*ss_added
+                color = (0.1, 1.0, 0.1)
+                label = "added"
+            elif i == 3:
+                ss1 = 1.*ss_neutral
+                color = (0.1, 0.1, 1.0)
                 label = "neutral"
-
+            # mayavi
+            src = mlab.pipeline.scalar_field(xx, yy, zz, ss1)
+            # plot an iso surface
+            mlab.pipeline.iso_surface(src,
+                                   contours=[0.5],
+                                   opacity=alpha,
+                                   color=color, **kwargs)
+            # some stats
             nblocks_used = np.count_nonzero(ss1)
             nblocks_total = np.prod(ss1.shape)
             print("{0} > {1} of {2}".format(label, nblocks_used, nblocks_total))
 
-            # only plot if desired
-            if i in cases:
-                this_opacity = popacity  # normal
-            else:
-                this_opacity = 0.0  # invisible
-
-            #
-            src = mlab.pipeline.scalar_field(xx, yy, zz, ss1)
-            #
-            mlab.pipeline.iso_surface(src,
-                                      contours=[0.5],
-                                      opacity=this_opacity,
-                                      color=colour,
-                                      name=label)
-
-        # slice it
-        """
-        src = mlab.pipeline.scalar_field(xx, yy, zz, ss)
-        mlab.pipeline.image_plane_widget(src,
-                                       plane_orientation='z_axes',
-                                       slice_index=10,
-                                       vmin=0.4,
-                                       vmax=0.6)
-                                       """
 
     def setView(self, **kwargs):
         """
@@ -238,37 +259,7 @@ class Visual_3d(object):
         gz = mlab.pipeline.grid_plane(src)
         gz.grid_plane.axis = 'z'
 
-    def plotTube(self, list_icluster=None, sdwidth=1, popacity=0.3,
-                 resolution=None, colour=None):
-        """
-        plots log-probability
 
-        list_icluster is a list of lcusters, None is all
-        popacity relates to the opacity [0, 1]
-        resolution does the grid
-        """
-
-        # check validity
-        list_icluster = self._world._check_list_icluster(list_icluster)
-
-        # extract
-        (ss_list, [xx, yy, zz]) = self._world.getTube(list_icluster,
-                                                      sdwidth, resolution)
-
-        # get colours
-        lcolours = tt.helpers.getDistinctColours(len(self._world._clusters),
-                                                 colour)
-
-        for i, ss1 in enumerate(ss_list):
-
-            # mayavi
-            src = mlab.pipeline.scalar_field(xx, yy, zz, ss1)
-
-            # plot an iso surface
-            mlab.pipeline.iso_surface(src,
-                                      contours=[0.5],
-                                      opacity=popacity,
-                                      color=lcolours[list_icluster[i]])
 
     def plotLogLikelihood(self, list_icluster=None, pmin=0.0, pmax=1.0,
                           popacity=0.3, resolution=None):

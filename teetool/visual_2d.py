@@ -40,7 +40,8 @@ class Visual_2d(object):
         clusters = self._world.getCluster(list_icluster)
 
         # unique colours
-        colours = tt.helpers.getDistinctColours(len(clusters), colour)
+        colours = tt.helpers.getDistinctColours(len(self._world._clusters),
+                                                 colour)
 
         clusters = self._world.getCluster(list_icluster)
         for (i, this_cluster) in enumerate(clusters):
@@ -49,10 +50,8 @@ class Visual_2d(object):
 
             a_line, = self._ax.plot(Y[:, 0],
                                     Y[:, 1],
-                                    color=colours[i],
+                                    color=colours[list_icluster[i]],
                                     **kwargs)
-
-
 
 
     def plotTrajectories(self, list_icluster=None, ntraj=50,
@@ -68,7 +67,8 @@ class Visual_2d(object):
         clusters = self._world.getCluster(list_icluster)
 
         # unique colours
-        colours = tt.helpers.getDistinctColours(len(clusters), colour)
+        colours = tt.helpers.getDistinctColours(len(self._world._clusters),
+                                                 colour)
 
         clusters = self._world.getCluster(list_icluster)
         for (i, this_cluster) in enumerate(clusters):
@@ -124,7 +124,9 @@ class Visual_2d(object):
         # check validity
         list_icluster = self._world._check_list_icluster(list_icluster)
 
-        colours = tt.helpers.getDistinctColours(len(list_icluster))
+        # unique colours
+        colours = tt.helpers.getDistinctColours(len(self._world._clusters),
+                                                 colour)
 
         for (i, icluster) in enumerate(list_icluster):
             these_samples = self._world.getSamples(icluster)
@@ -150,7 +152,8 @@ class Visual_2d(object):
 
         plt.legend(handles=list_lines, labels=list_label)
 
-    def plotTube(self, list_icluster=None, sdwidth=1, z=None, resolution=None):
+    def plotTube(self, list_icluster=None, sdwidth=1, z=None, resolution=None,
+                 colour=None, alpha=.1, **kwargs):
         """
         plots tube
 
@@ -167,12 +170,81 @@ class Visual_2d(object):
                                                       z=z,
                                                       resolution=resolution)
 
-        # get colours
-        lcolours = tt.helpers.getDistinctColours(len(ss_list))
+        # unique colours
+        lcolours = tt.helpers.getDistinctColours(len(self._world._clusters),
+                                                 colour)
 
         for i, ss1 in enumerate(ss_list):
+            #plt.contourf(xx, yy, 1.*ss1, levels=[-np.inf, 1., np.inf], colors=(lcolours[i],), alpha=alpha, **kwargs)
+            # plot an iso surface line
+            plt.contour(xx,
+                        yy,
+                        ss1,
+                        levels=[.5],
+                        colors=(lcolours[list_icluster[i]], 'w'),
+                        **kwargs)
+
+    def plotTubeDifference(self, list_icluster=None, sdwidth=1, z=None,
+                           resolution=None, colour=None, alpha=.1, **kwargs):
+        """
+        plots difference between sets, first two list_icluster
+
+        input parameters:
+            - list_icluster
+            - sdwidth
+            - popacity
+        """
+
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
+
+        # extract first two only!
+        list_icluster = list_icluster[:2]
+
+        # extract
+        (ss_list, [xx, yy, zz]) = self._world.getTube(list_icluster,
+                                                      sdwidth, z=z,
+                                                      resolution=resolution)
+
+        # to plot
+        ss_plot = - np.inf * np.ones_like(ss_list[0])
+
+        # 1 :: blocks added
+        ss_added = ((ss_list[0] - ss_list[1])==1)
+
+        # 2 :: blocks removed
+        ss_removed = ((ss_list[0] - ss_list[1])==-1)
+
+        # 3 :: present in both
+        ss_neutral = ((ss_list[0] + ss_list[1])==2)
+
+        ss_plot[ss_added] = 1.
+        ss_plot[ss_removed] = -1.
+        ss_plot[ss_neutral] = 0.
+
+        #plt.contourf(xx, yy, ss_plot, levels=[-np.inf, -1., 0., 1., np.inf], colors='none', hatches=['//', '.', '/'], **kwargs)
+
+        plt.contourf(xx,
+                     yy,
+                     ss_plot,
+                     levels=[-np.inf, -1., 0., 1., np.inf],
+                     colors=('r','b','g'),
+                     alpha=alpha,
+                     **kwargs)
+
+        for i in [1, 2, 3]:
+            if i == 1:
+                ss1 = 1.*ss_removed
+                color = 'r'
+            elif i == 2:
+                ss1 = 1.*ss_added
+                color = 'g'
+            elif i == 3:
+                ss1 = 1.*ss_neutral
+                color = 'b'
             # plot an iso surface
-            plt.contour(xx, yy, ss1, [0.0, 1.0], colors=(lcolours[i], ))
+            plt.contour(xx, yy, ss1, levels=[0.5], colors=color)
+
 
     def plotLogLikelihood(self, list_icluster=None, pmin=0, pmax=1,
                           z=None, resolution=None):

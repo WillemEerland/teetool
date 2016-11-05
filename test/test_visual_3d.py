@@ -45,7 +45,7 @@ def test_visual_3d():
     # visualise tube
     visual.plotTube()
     # visualise difference
-    visual.plotTubeDifference(0, 1)
+    visual.plotTubeDifference([0, 1])
     # visualise outline
     visual.plotOutline()
     # close
