@@ -59,6 +59,16 @@ class World(object):
         # default value
         self.fraction_to_expand = 0.1
 
+    def clear(self):
+        """
+        clear stored calculations from models
+        """
+        for (i, this_cluster) in enumerate(self._clusters):
+
+            if ("model" in this_cluster):
+                # clears stored information
+                this_cluster["model"].clear()
+
     def overview(self):
         """
         prints overview in console
@@ -147,6 +157,101 @@ class World(object):
             clusters.append(self._clusters[i])
         return clusters
 
+    def getTubeStats(self, list_icluster=None, sdwidth=1., resolution=None):
+        """
+        return statistics on difference found in scenarios
+
+        input:
+        - list_icluster
+        - sdwidth
+        - resolution
+        """
+
+        # check validity
+        list_icluster = self._check_list_icluster(list_icluster)
+
+        # extract
+        (ss_list, [xx, yy, zz]) = self.getTube(list_icluster,
+                                               sdwidth,
+                                               resolution)
+
+        # obtain a list of possible pairs
+        list_pairs = []
+
+        ncluster = len(list_icluster)
+        print("{0}".format(ncluster))
+        temp_list = range(0, ncluster)
+        print("{0}".format(temp_list))
+
+        # i1, i2 are counting
+        for i1 in temp_list[:-1]:
+            for i2 in temp_list[i1+1:]:
+                # add tuple
+                list_pairs.append((i1, i2))
+                print("* {0} {1}".format(i1, i2))
+
+        for (i1, i2) in list_pairs:
+            # to produce
+
+            # these are the actual labels
+            i1_id = list_icluster[i1]
+            i2_id = list_icluster[i2]
+
+            # 1 :: blocks added
+            ss_added = 1.*((ss_list[i1] - ss_list[i2])==1)
+
+            # 2 :: blocks removed
+            ss_removed = 1.*((ss_list[i1] - ss_list[i2])==-1)
+
+            # 3 :: present in both
+            ss_neutral = 1.*((ss_list[i1] + ss_list[i2])==2)
+
+            # count blocks
+            nblocks_add = np.count_nonzero(ss_added)
+            nblocks_rem = np.count_nonzero(ss_removed)
+            nblocks_neu = np.count_nonzero(ss_neutral)
+            # total
+            nblocks_tot = 1.*(nblocks_add + nblocks_rem + nblocks_neu)
+            # percentages
+            nblocks_add_perc = nblocks_add / nblocks_tot
+            nblocks_rem_perc = nblocks_rem / nblocks_tot
+            nblocks_neu_perc = nblocks_neu / nblocks_tot
+
+            # generate string
+            str_output = "{0} vs {1}\nadd/rem/neu\n{2}/{3}/{4}\nadd/rem/neu/tot\n{5}/{6}/{7}/{8}".format(i1_id, i2_id, nblocks_add_perc, nblocks_rem_perc, nblocks_neu_perc,nblocks_add,nblocks_rem,nblocks_neu,nblocks_tot)
+
+            print(str_output)
+
+        #return(str_output)
+
+
+
+            """
+            for i in [1, 2, 3]:
+                if i == 1:
+                    ss1 = 1.*ss_removed
+                    label = "removed"
+                elif i == 2:
+                    ss1 = 1.*ss_added
+                    label = "added"
+                elif i == 3:
+                    ss1 = 1.*ss_neutral
+                    label = "neutral"
+
+                # some stats
+                nblocks_used = np.count_nonzero(ss1)
+                nblocks_total = np.prod(ss1.shape)
+                nblocks_perc = nblocks_used / (1.* nblocks_total)
+
+                print("{0} vs {1} [{2}] [{3}] [{4} / {5}]".format(i1_id,
+                                                            i2_id,
+                                                            label,
+                                                            nblocks_perc,
+                                                            nblocks_used,
+                                                            nblocks_total))
+            """
+
+
     def _check_icluster(self, icluster):
         """
         check validity int icluster input
@@ -192,7 +297,6 @@ class World(object):
         list_inside = []
 
         return list_inside
-
 
     def getSamples(self, icluster, nsamples=50):
         """
@@ -251,7 +355,6 @@ class World(object):
             Y_list.append(Y)
 
         return Y_list
-
 
     def getTube(self, list_icluster=None, sdwidth=1, resolution=None, z=None):
         """
@@ -370,7 +473,6 @@ class World(object):
         [xx, yy, zz] = tt.helpers.getGridFromResolution(outline, resolution)
 
         return [xx, yy, zz]
-
 
     def _get_outline_expanded(self, list_icluster=None, fraction_to_expand=0.1):
         """

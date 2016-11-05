@@ -93,6 +93,13 @@ class Model(object):
         self._list_tube = []
         self._list_logp = []
 
+    def clear(self):
+        """
+        clears memory usage
+        """
+        self._list_tube = []
+        self._list_logp = []
+
     def getMean(self):
         """
         returns the average trajectory [x, y, (z)]

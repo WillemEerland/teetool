@@ -180,9 +180,9 @@ class Visual_3d(object):
                                    opacity=alpha,
                                    color=color, **kwargs)
             # some stats
-            nblocks_used = np.count_nonzero(ss1)
-            nblocks_total = np.prod(ss1.shape)
-            print("{0} > {1} of {2}".format(label, nblocks_used, nblocks_total))
+            #nblocks_used = np.count_nonzero(ss1)
+            #nblocks_total = np.prod(ss1.shape)
+            #print("{0} > {1} of {2}".format(label, nblocks_used, nblocks_total))
 
 
     def setView(self, **kwargs):
