@@ -196,10 +196,10 @@ class World(object):
             i2_id = list_icluster[i2]
 
             # 1 :: blocks added
-            ss_added = 1.*((ss_list[i1] - ss_list[i2])==1)
+            ss_added = 1.*((ss_list[i1] - ss_list[i2])==-1)
 
             # 2 :: blocks removed
-            ss_removed = 1.*((ss_list[i1] - ss_list[i2])==-1)
+            ss_removed = 1.*((ss_list[i1] - ss_list[i2])==1)
 
             # 3 :: present in both
             ss_neutral = 1.*((ss_list[i1] + ss_list[i2])==2)
@@ -208,15 +208,15 @@ class World(object):
             nblocks_add = np.count_nonzero(ss_added)
             nblocks_rem = np.count_nonzero(ss_removed)
             nblocks_neu = np.count_nonzero(ss_neutral)
-            # total
-            nblocks_tot = 1.*(nblocks_add + nblocks_rem + nblocks_neu)
+            # total (of original)
+            nblocks_tot = 1.*(nblocks_rem + nblocks_neu)
             # percentages
             nblocks_add_perc = nblocks_add / nblocks_tot
             nblocks_rem_perc = nblocks_rem / nblocks_tot
             nblocks_neu_perc = nblocks_neu / nblocks_tot
 
             # generate string
-            str_output = "{0} vs {1}\nadd/rem/neu\n{2}/{3}/{4}\nadd/rem/neu/tot\n{5}/{6}/{7}/{8}".format(i1_id, i2_id, nblocks_add_perc, nblocks_rem_perc, nblocks_neu_perc,nblocks_add,nblocks_rem,nblocks_neu,nblocks_tot)
+            str_output = "{0} vs {1}\nadd/rem/neu\n{2:.3}/{3:.3}/{4:.3}\nadd/rem/neu/tot\n{5}/{6}/{7}/{8}".format(i1_id, i2_id, nblocks_add_perc, nblocks_rem_perc, nblocks_neu_perc,nblocks_add,nblocks_rem,nblocks_neu,nblocks_tot)
 
             print(str_output)
 

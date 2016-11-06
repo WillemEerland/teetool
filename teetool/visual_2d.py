@@ -210,10 +210,10 @@ class Visual_2d(object):
         ss_plot = - np.inf * np.ones_like(ss_list[0])
 
         # 1 :: blocks added
-        ss_added = ((ss_list[0] - ss_list[1])==1)
+        ss_added = ((ss_list[0] - ss_list[1])==-1)
 
         # 2 :: blocks removed
-        ss_removed = ((ss_list[0] - ss_list[1])==-1)
+        ss_removed = ((ss_list[0] - ss_list[1])==1)
 
         # 3 :: present in both
         ss_neutral = ((ss_list[0] + ss_list[1])==2)
