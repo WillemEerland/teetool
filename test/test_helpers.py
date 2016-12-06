@@ -76,3 +76,27 @@ def test_inside_hull():
     p = np.array([0, 0, 0])
 
     assert(tt.helpers.in_hull(p, Y))
+
+def test_nearest_spd():
+    """test if nearest spd functions as should
+    """
+
+    Z = np.zeros(shape=(2,2))
+
+    Z_valid = tt.helpers.nearest_spd(Z)
+
+    Z_det = np.linalg.det(Z_valid)
+
+    assert(Z_det > 0)
+
+def test_find_nearest():
+    """tests if nearest are returned"""
+
+    # 0, 0.1, 0.2, --- 1.0
+    A = np.linspace(0, 1, 10)
+
+    a = np.array([0.11])
+
+    a_nearest_idx = tt.helpers.find_nearest(A, a)
+
+    assert(a_nearest_idx[0] == 1)

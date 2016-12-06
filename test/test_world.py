@@ -127,3 +127,12 @@ def test_model():
     # build tube (twice!)
     for i in range(2):
         (ss_list, [xx, yy, zz]) = world_1.getTube([0, 1])
+
+    # overview
+    world_1.overview()
+
+    # produce some numbers
+    world_1.getTubeStats()
+
+    # clear world
+    world_1.clear()

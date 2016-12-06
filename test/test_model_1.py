@@ -110,7 +110,7 @@ def test_init():
     for mdim2 in (2, 3):
         cluster_data_d = tt.helpers.get_trajectories(ntype=1,
                                                      ndim=mdim2, ntraj=10)
-        assert (new_model._getDimension(cluster_data_d) == mdim2)
+        assert (tt.helpers.getDimension(cluster_data_d) == mdim2)
 
     # normalise data
     cluster_data = tt.helpers.get_trajectories(1, mdim)
@@ -122,7 +122,9 @@ def test_init():
     assert (xmax == 1)
 
     # model by resampling
-    (mu_y, sig_y) = new_model._model_by_resampling(norm_cluster_data, mgaus)
+    gp = tt.gaussianprocess.GaussianProcess(norm_cluster_data, mgaus)
+
+    (mu_y, sig_y) = gp.model_by_resampling()
 
     # CHECK dimensions
     assert (mu_y.shape == ((mdim*mgaus), 1))  # [ mdim*mgaus x 1 ]

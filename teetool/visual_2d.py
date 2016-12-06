@@ -116,7 +116,7 @@ class Visual_2d(object):
 
         self._ax.plot(*args, **kwargs)
 
-    def plotSamples(self, list_icluster):
+    def plotSamples(self, list_icluster=None, colour=None):
         """
         <description>
         """

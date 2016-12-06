@@ -39,7 +39,7 @@ def test_visual_3d():
     # visuals by mayavi
     visual = tt.visual_3d.Visual_3d(world_1)
     # visualise trajectories
-    visual.plotTrajectories(list_icluster)
+    visual.plotTrajectories(list_icluster, ntraj=3)
     # visualise intersection
     visual.plotLogLikelihood()
     # visualise tube

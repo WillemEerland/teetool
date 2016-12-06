@@ -322,3 +322,11 @@ def getGridFromResolution(outline, resolution):
                            zmin:zmax:np.complex(0, resolution[2])]
 
     return [xx, yy, zz]
+
+def getDimension(cluster_data):
+    """
+    returns dimension D of data
+    """
+    (_, Y) = cluster_data[0]
+    (_, D) = Y.shape
+    return D

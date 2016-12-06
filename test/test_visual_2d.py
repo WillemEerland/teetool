@@ -3,6 +3,7 @@
 """
 
 import pytest as pt
+import numpy as np
 import teetool as tt
 
 
@@ -37,9 +38,36 @@ def test_visual_2d():
 
     # visuals by
     visual = tt.visual_2d.Visual_2d(world_1)
-    # visualise trajectories
-    visual.plotTrajectories(list_iclusters)
     # visualise intersection
     visual.plotLogLikelihood()
+    # close
+    visual.close()
+
+    # visuals by
+    visual = tt.visual_2d.Visual_2d(world_1)
+    # visualise intersection
+    visual.plotTube()
+    # close
+    visual.close()
+
+    # visuals by
+    visual = tt.visual_2d.Visual_2d(world_1)
+    # visualise intersection
+    visual.plotTubeDifference()
+    # close
+    visual.close()
+
+    # new figure
+    visual = tt.visual_2d.Visual_2d(world_1)
+    # visualise trajectories
+    visual.plotTrajectories(list_iclusters)
+    # mean
+    visual.plotMean()
+    #
+    visual.plotSamples()
+
+    #
+    visual.plotBox(np.array([0.0, 0.0]), np.array([1.0, 1.0]))
+
     # close
     visual.close()
