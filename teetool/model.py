@@ -60,7 +60,7 @@ class Model(object):
         self._ndim = tt.helpers.getDimension(cluster_data)
 
         # Fit x on a [0, 1] domain
-        norm_cluster_data = self._normalise_data(cluster_data)
+        norm_cluster_data = tt.helpers.normalise_data(cluster_data)
 
         # assume a gaussian stochastic process and model via one of these methods
 
@@ -559,49 +559,6 @@ class Model(object):
             self._list_logp.append([ss, xx, yy, zz])
 
         return ss
-
-
-    def _normalise_data(self, cluster_data):
-        """
-        normalises the x dimension
-        """
-
-        # determine minimum maximum
-        tuple_min_max = self._getMinMax(cluster_data)
-
-        for (i, (x, Y)) in enumerate(cluster_data):
-            x = self._getNorm(x, tuple_min_max)  # normalise
-            cluster_data[i] = (x, Y)  # overwrite
-
-        return cluster_data
-
-
-
-    def _getMinMax(self, cluster_data):
-        """
-        returns tuple (xmin, xmax), to normalise data
-        """
-        xmin = np.inf
-        xmax = -np.inf
-        for (x, Y) in cluster_data:
-            x1min = x.min()
-            x1max = x.max()
-
-            if (x1min < xmin):
-                xmin = x1min
-            if (x1max > xmax):
-                xmax = x1max
-
-        return (xmin, xmax)
-
-    def _getNorm(self, x, tuple_min_max):
-        """
-        returns normalised array
-        """
-        (xmin, xmax) = tuple_min_max
-        return ((x - xmin) / (xmax - xmin))
-
-
 
     def _getGMMCells(self, mu_y, sig_y, ngaus):
         """

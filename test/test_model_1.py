@@ -114,10 +114,10 @@ def test_init():
 
     # normalise data
     cluster_data = tt.helpers.get_trajectories(1, mdim)
-    norm_cluster_data = new_model._normalise_data(cluster_data)
+    norm_cluster_data = tt.helpers.normalise_data(cluster_data)
 
     # CHECK if trajectories are normalised
-    (xmin, xmax) = new_model._getMinMax(norm_cluster_data)
+    (xmin, xmax) = tt.helpers.getMinMax(norm_cluster_data)
     assert (xmin == 0)
     assert (xmax == 1)
 

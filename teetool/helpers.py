@@ -330,3 +330,44 @@ def getDimension(cluster_data):
     (_, Y) = cluster_data[0]
     (_, D) = Y.shape
     return D
+
+def getMinMax(cluster_data):
+    """
+    returns tuple (xmin, xmax), to normalise data
+    """
+    xmin = np.inf
+    xmax = -np.inf
+    for (x, Y) in cluster_data:
+        x1min = x.min()
+        x1max = x.max()
+
+        if (x1min < xmin):
+            xmin = x1min
+        if (x1max > xmax):
+            xmax = x1max
+
+    return (xmin, xmax)
+
+def normalise_data(cluster_data):
+    """
+    normalises the x dimension
+    """
+
+    # determine minimum maximum
+    tuple_min_max = getMinMax(cluster_data)
+
+    cluster_data_norm = []
+
+    for (i, (x, Y)) in enumerate(cluster_data):
+        x = getNorm(x, tuple_min_max)  # normalise
+        cluster_data[i] = (x, Y)  # overwrite
+        cluster_data_norm.append(x, Y)
+
+    return cluster_data
+
+def getNorm(x, tuple_min_max):
+    """
+    returns normalised array
+    """
+    (xmin, xmax) = tuple_min_max
+    return ((x - xmin) / (xmax - xmin))
