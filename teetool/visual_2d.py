@@ -44,6 +44,7 @@ class Visual_2d(object):
                                                  colour)
 
         clusters = self._world.getCluster(list_icluster)
+
         for (i, this_cluster) in enumerate(clusters):
             # pass clusters
             Y = this_cluster["model"].getMean()

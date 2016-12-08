@@ -124,7 +124,7 @@ def test_init():
     # model by resampling
     gp = tt.gaussianprocess.GaussianProcess(norm_cluster_data, mgaus)
 
-    (mu_y, sig_y) = gp.model_by_resampling()
+    (mu_y, sig_y, cc, cA) = gp.model_by_resampling()
 
     # CHECK dimensions
     assert (mu_y.shape == ((mdim*mgaus), 1))  # [ mdim*mgaus x 1 ]
@@ -132,7 +132,7 @@ def test_init():
     assert (sig_y.shape == (mdim*mgaus, mdim*mgaus))
 
     # convert to cells
-    (cc, cA) = new_model._getGMMCells(mu_y, sig_y, mgaus)
+    (cc, cA) = gp._getGMMCells(mu_y, sig_y, mgaus)
 
     # CHECK numbers
     assert (len(cc) == mgaus)

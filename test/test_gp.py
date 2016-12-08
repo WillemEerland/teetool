@@ -61,10 +61,10 @@ def test_mix():
     gp = tt.gaussianprocess.GaussianProcess(cluster_data, ngaus=5)
 
     # method 1 - resampling
-    mu_y_1, sig_y_1 = gp.model_by_resampling()
+    (mu_y_1, sig_y_1, cc, cA) = gp.model_by_resampling()
 
     # method 2 - maximum likelihood
-    mu_y_2, sig_y_2 = gp.model_by_ml(type_basis="rbf", nbasis=30)
+    (mu_y_2, sig_y_2, cc, cA) = gp.model_by_ml(type_basis="rbf", nbasis=30)
 
     #print(mu_y_1)
     #print(mu_y_2)
@@ -88,7 +88,7 @@ def test_resampling():
 
     # no additional settings required
     # uses linear interpolation
-    mu_y, sig_y = gp.model_by_resampling()
+    (mu_y, sig_y, cc, cA) = gp.model_by_resampling()
 
     # expect the average to be a line from (0,0) to (0,1) in 5 steps
     y = np.zeros(shape=(5,))
@@ -123,7 +123,7 @@ def test_maximum_likelihood():
 
     # additional settings required
     # uses basis functions
-    mu_y, sig_y = gp.model_by_ml( type_basis="rbf", nbasis=30 )
+    (mu_y, sig_y, cc, cA) = gp.model_by_ml( type_basis="rbf", nbasis=30 )
 
     # expect the average to be a line from (0,0) to (0,1) in 5 steps
     x = np.linspace(0, 1, 5)
@@ -162,7 +162,7 @@ def test_expectation_maximization():
 
     # no additional settings required
     # uses linear interpolation
-    mu_y, sig_y = gp.model_by_em( type_basis="rbf", nbasis=30 )
+    (mu_y, sig_y, cc, cA) = gp.model_by_em( type_basis="rbf", nbasis=30 )
 
     # expect the average to be a line from (0,0) to (0,1) in 5 steps
     x = np.linspace(0, 1, 5)
@@ -185,7 +185,7 @@ def test_expectation_maximization():
     # TODO: FIX TOLERANCE
     np.testing.assert_allclose(sig_y_diag,
                                sig_y_diag_expected,
-                               atol=1e-3)
+                               atol=1e-4)
 
 def test_subfunctions_EM():
     """test subfunctions that contribute to the EM algorithm
@@ -230,3 +230,22 @@ def test_subfunctions_EM():
 
     # ln( p (Y|w) )
     #loglikelihood_pYw = gp._L_pYw(yc, Hc, Ewc, Ewwc, ndim, Mstar, BETA_EM)
+
+def test_subfunctions():
+    """various
+    """
+
+    # obtain cluster_data test, 2-d
+    cluster_data = tt.helpers.normalise_data(produce_cluster_data())
+
+    # create a gp
+    gp = tt.gaussianprocess.GaussianProcess(cluster_data, ngaus=5)
+
+    # check vectors
+    M, D = gp._outline2vectors()
+
+    assert(M.shape == (10,1))
+    assert(D.shape == (10,1))
+
+    # check real mu_y, sig_y
+    # mu_y, sig_y = gp._norm2real(mu_y, sig_y)

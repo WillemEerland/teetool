@@ -59,27 +59,31 @@ class Model(object):
         # write global settings
         self._ndim = tt.helpers.getDimension(cluster_data)
 
-        # Fit x on a [0, 1] domain
-        norm_cluster_data = tt.helpers.normalise_data(cluster_data)
+
 
         # assume a gaussian stochastic process and model via one of these methods
 
-        gp = tt.gaussianprocess.GaussianProcess(norm_cluster_data, settings["ngaus"])
+        gp = tt.gaussianprocess.GaussianProcess(cluster_data,
+                                                settings["ngaus"])
 
-        # this part is specific for resampling
+        # select method
         if settings["model_type"] == "resampling":
-            (mu_y, sig_y) = gp.model_by_resampling()
-        elif settings["model_type"] == "ML":
-            (mu_y, sig_y) = gp.model_by_ml(settings["basis_type"],
+            (mu_y, sig_y, cc, cA) = gp.model_by_resampling()
+        elif settings["model_type"].lower() == "ml":
+            (mu_y, sig_y, cc, cA) = gp.model_by_ml(settings["basis_type"],
                                            settings["nbasis"])
-        elif settings["model_type"] == "EM":
-            (mu_y, sig_y) = gp.model_by_em(settings["basis_type"],
+        elif settings["model_type"].lower() == "em":
+            (mu_y, sig_y, cc, cA) = gp.model_by_em(settings["basis_type"],
                                               settings["nbasis"])
         else:
             raise NotImplementedError("{0} not available".format(settings["model_type"]))
 
+        # convert output back to normal values
+        # (mu_y, sig_y) = self._norm2real(mu_y, sig_y, outline)
+
+
         # convert to cells
-        (cc, cA) = self._getGMMCells(mu_y, sig_y, settings["ngaus"])
+        # (cc, cA) = self._getGMMCells(mu_y, sig_y, settings["ngaus"])
 
         # store values
         self._mu_y = mu_y
@@ -91,6 +95,14 @@ class Model(object):
         # create a list to store previous calculated values
         self._list_tube = []
         self._list_logp = []
+
+    def _norm2real(self, mu_y, sig_y, outline):
+        """returns the normalised values back to the original"""
+
+        # TODO finish function
+
+        return (mu_y, sig_y)
+
 
     def clear(self):
         """
@@ -105,10 +117,18 @@ class Model(object):
         """
 
         ndim = self._ndim
+        npoints = len(self._cc)
+
+
 
         mu_y = self._mu_y
-
         Y = np.reshape(mu_y, newshape=(-1, ndim), order='F')
+
+        #Y = np.zeros(shape=(npoints, ndim))
+        #for i, c in enumerate(self._cc):
+        #    Y[i, :] = c
+
+
 
         if (ndim == 2):
             x = Y[:, 0]
@@ -560,49 +580,7 @@ class Model(object):
 
         return ss
 
-    def _getGMMCells(self, mu_y, sig_y, ngaus):
-        """
-        return Gaussian Mixture Model (GMM) in cells
-        """
 
-        cc = []
-        cA = []
-
-        for m in range(ngaus):
-            # single cell
-            (c, A) = self._getMuSigma(mu_y, sig_y, m, ngaus)
-
-            # check for singularity
-            A = tt.helpers.nearest_spd(A)
-
-            cc.append(c)
-            cA.append(A)
-
-        return (cc, cA)
-
-
-    def _getMuSigma(self, mu_y, sig_y, npoint, ngaus):
-        """
-        returns (mu, sigma)
-        """
-        # mu_y [DM x 1]
-        # sig_y [DM x DM]
-        D = self._ndim
-
-        # check range
-        if ((npoint < 0) or (npoint >= ngaus)):
-            raise ValueError("{0}, not in [0, {1}]".format(npoint, ngaus))
-
-        c = np.empty(shape=(D, 1))
-        A = np.empty(shape=(D, D))
-
-        # select position
-        for d_row in range(D):
-            c[d_row, 0] = mu_y[(npoint+d_row*ngaus), 0]
-            for d_col in range(D):
-                A[d_row, d_col] = sig_y[(npoint+d_row*ngaus), (npoint+d_col*ngaus)]
-
-        return (c, A)
 
     def getOutline(self, sdwidth=1):
         """

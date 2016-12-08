@@ -127,9 +127,13 @@ class World(object):
         new_cluster = {}
 
         new_cluster["name"] = cluster_name
-        new_cluster["data"] = cluster_data
+
         # obtain the outline of this data
-        new_cluster["outl"] = self._get_outline_cluster(cluster_data)
+        outline = tt.helpers.get_cluster_data_outline(cluster_data)
+        new_cluster["outl"] = outline
+
+        # store trajectories
+        new_cluster["data"] = cluster_data
 
         # add cluster to the list
         self._clusters.append(new_cluster)
@@ -252,6 +256,7 @@ class World(object):
 
         return list_icluster
 
+
     def isInside(self, P, sdwidth=1, list_icluster=None):
         """
         returns list of bools, whether or not the points P are inside any of the models
@@ -263,6 +268,8 @@ class World(object):
         list_icluster = self._check_list_icluster(list_icluster)
 
         list_inside = []
+
+        # TODO finish function?
 
         return list_inside
 
@@ -538,25 +545,3 @@ class World(object):
                     global_outline[d*2+1] = xmax
 
         return global_outline
-
-    def _get_outline_cluster(self, cluster_data):
-        """
-        returns the outline of the cluster_data
-
-        returns an array
-        """
-
-        this_cluster_data_outline = tt.helpers.getMaxOutline(self._ndim)
-
-        for (x, Y) in cluster_data:
-
-            for d in range(self._ndim):
-                x = Y[:, d]
-                xmin = x.min()
-                xmax = x.max()
-                if (this_cluster_data_outline[d*2] > xmin):
-                    this_cluster_data_outline[d*2] = xmin
-                if (this_cluster_data_outline[d*2+1] < xmax):
-                    this_cluster_data_outline[d*2+1] = xmax
-
-        return this_cluster_data_outline

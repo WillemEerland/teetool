@@ -10,9 +10,53 @@ class GaussianProcess(object):
     """
 
     def __init__(self, cluster_data, ngaus):
-        self._cluster_data = cluster_data
+        """
+        initialise Gaussian process
+        """
+
+        # Fit cluster_data in a [0, 1] domain
+        outline = tt.helpers.get_cluster_data_outline(cluster_data)
+        cluster_data_norm = tt.helpers.get_cluster_data_norm(cluster_data,
+                                                             outline)
+
+        self._cluster_data = cluster_data_norm
+        self._outline = outline
         self._ngaus = ngaus
         self._ndim = tt.helpers.getDimension(cluster_data)
+
+    def _outline2vectors(self):
+        """returns vectors for transformation back to normal"""
+
+        # vector with minimum values [M]
+        # vector with difference [D]
+        M_list = []
+        D_list = []
+        for d in range(self._ndim):
+            xmin = self._outline[d*2+0]
+            xmax = self._outline[d*2+1]
+
+            m1 = np.ones(shape=(self._ngaus, 1)) * (xmin)
+            M_list.append(m1)
+
+            d1 = np.ones(shape=(self._ngaus, 1)) * (xmax - xmin)
+            D_list.append(d1)
+
+        M = np.concatenate(M_list, axis=0)
+        D = np.concatenate(D_list, axis=0)
+
+        return (M, D)
+
+    def _norm2real(self, mu_y, sig_y):
+        """returns the mu_y and sig_y from normal to real dimensions"""
+
+        (M, D) = self._outline2vectors()
+
+        D_diag = np.diagflat(D ** 2)
+
+        mu_y_real = np.multiply(mu_y, D)  + M
+        sig_y_real = sig_y * D_diag
+
+        return mu_y_real, sig_y_real
 
     def model_by_resampling(self):
         """
@@ -65,7 +109,13 @@ class GaussianProcess(object):
 
         sig_y = np.mat(sig_y_sum / ntraj)
 
-        return (mu_y, sig_y)
+        # convert to original values
+        mu_y, sig_y = self._norm2real(mu_y, sig_y)
+
+        # convert to cells
+        (cc, cA) = self._getGMMCells(mu_y, sig_y, self._ngaus)
+
+        return (mu_y, sig_y, cc, cA)
 
     def model_by_ml(self, type_basis, nbasis):
         """
@@ -116,7 +166,12 @@ class GaussianProcess(object):
         mu_y = Hp * mu_w
         sig_y = Hp * sig_w * Hp.transpose()
 
-        return (mu_y, sig_y)
+        # convert to original values
+        mu_y, sig_y = self._norm2real(mu_y, sig_y)
+
+        (cc, cA) = self._getGMMCells(mu_y, sig_y, self._ngaus)
+
+        return (mu_y, sig_y, cc, cA)
 
     def model_by_em(self, type_basis, nbasis):
         """
@@ -224,7 +279,12 @@ class GaussianProcess(object):
         mu_y = Hp * mu_w
         sig_y = Hp * sig_w * Hp.transpose()
 
-        return (mu_y, sig_y)
+        # convert to original values
+        mu_y, sig_y = self._norm2real(mu_y, sig_y)
+
+        (cc, cA) = self._getGMMCells(mu_y, sig_y, self._ngaus)
+
+        return (mu_y, sig_y, cc, cA)
 
     def _from_clusterdata2cells(self, cluster_data, basis):
         """converts from cluster_data (xn, Yn) list, to cells
@@ -450,3 +510,47 @@ class GaussianProcess(object):
         loglikelihood_pw = (ntraj*nbasis*ndim/2.)*np.log(2*np.pi) + (ntraj/2.)*np.log(det(sig_w)) + (1./2.)*loglikelihood_pw_sum
 
         return loglikelihood_pw
+
+    def _getGMMCells(self, mu_y, sig_y, ngaus):
+        """
+        return Gaussian Mixture Model (GMM) in cells
+        """
+
+        cc = []
+        cA = []
+
+        for m in range(ngaus):
+            # single cell
+            (c, A) = self._getMuSigma(mu_y, sig_y, m, ngaus)
+
+            # check for singularity
+            A = tt.helpers.nearest_spd(A)
+
+            cc.append(c)
+            cA.append(A)
+
+        return (cc, cA)
+
+
+    def _getMuSigma(self, mu_y, sig_y, npoint, ngaus):
+        """
+        returns (mu, sigma)
+        """
+        # mu_y [DM x 1]
+        # sig_y [DM x DM]
+        D = self._ndim
+
+        # check range
+        if ((npoint < 0) or (npoint >= ngaus)):
+            raise ValueError("{0}, not in [0, {1}]".format(npoint, ngaus))
+
+        c = np.empty(shape=(D, 1))
+        A = np.empty(shape=(D, D))
+
+        # select position
+        for d_row in range(D):
+            c[d_row, 0] = mu_y[(npoint+d_row*ngaus), 0]
+            for d_col in range(D):
+                A[d_row, d_col] = sig_y[(npoint+d_row*ngaus), (npoint+d_col*ngaus)]
+
+        return (c, A)

@@ -5,6 +5,8 @@ import numpy as np
 from numpy.linalg import det, inv, svd, cond, eig
 from scipy.spatial import Delaunay
 
+import teetool as tt
+
 def getDistinctColours(ncolours, colour=None):
     """
     returns N distinct colors using the colourspace.
@@ -325,7 +327,13 @@ def getGridFromResolution(outline, resolution):
 
 def getDimension(cluster_data):
     """
-    returns dimension D of data
+    returns dimension D of cluster_data
+
+    input:
+        cluster_data -
+
+    output:
+        dimension - integer
     """
     (_, Y) = cluster_data[0]
     (_, D) = Y.shape
@@ -371,3 +379,63 @@ def getNorm(x, tuple_min_max):
     """
     (xmin, xmax) = tuple_min_max
     return ((x - xmin) / (xmax - xmin))
+
+def get_cluster_data_outline(cluster_data):
+    """
+    returns the outline of the cluster_data
+
+    returns an array
+    """
+
+    ndim = getDimension(cluster_data)
+
+    this_cluster_data_outline = tt.helpers.getMaxOutline(ndim)
+
+    for (x, Y) in cluster_data:
+
+        for d in range(ndim):
+            x = Y[:, d]
+            xmin = x.min()
+            xmax = x.max()
+            if (this_cluster_data_outline[d*2] > xmin):
+                this_cluster_data_outline[d*2] = xmin
+            if (this_cluster_data_outline[d*2+1] < xmax):
+                this_cluster_data_outline[d*2+1] = xmax
+
+    return this_cluster_data_outline
+
+def get_cluster_data_norm(cluster_data, outline=None):
+    """returns the normalised cluster data
+    """
+
+    ndim = getDimension(cluster_data)
+
+    if outline is None:
+        outline = get_cluster_data_outline(cluster_data)
+
+    cluster_data_norm = []
+
+    for (t, Y) in cluster_data:
+
+        # Y gets normalised globally
+        Y_norm = np.zeros_like(Y)
+
+        for d in range(ndim):
+            # cluster outline
+            xmin = outline[d*2+0]
+            xmax = outline[d*2+1]
+            # extract
+            x = Y[:, d]
+            # normalise
+            x_norm = (x - xmin) / (xmax - xmin)
+            # place
+            Y_norm[:, d] = x_norm
+
+        # t gets normalised locally
+        t = np.array(t)
+        t_norm = (t - t.min()) / (t.max() - t.min())
+
+        # append to cluster
+        cluster_data_norm.append((t_norm, Y_norm))
+
+    return cluster_data_norm
