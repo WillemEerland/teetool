@@ -359,11 +359,11 @@ def normalise_data(cluster_data):
     cluster_data_norm = []
 
     for (i, (x, Y)) in enumerate(cluster_data):
-        x = getNorm(x, tuple_min_max)  # normalise
-        cluster_data[i] = (x, Y)  # overwrite
-        cluster_data_norm.append(x, Y)
+        xnorm = getNorm(x, tuple_min_max)  # normalise
+        # cluster_data[i] = (x, Y)  # overwrite
+        cluster_data_norm.append((xnorm, Y))
 
-    return cluster_data
+    return cluster_data_norm
 
 def getNorm(x, tuple_min_max):
     """

@@ -159,38 +159,8 @@ class GaussianProcess(object):
 
         for i_iter in range(MAX_ITERATIONS):
 
-            Ewc = []
-            Ewwc = []
-
             # Expectation (54) (55)
-            for n  in range(ntraj):
-                # data
-                yn = yc[n]
-                Hn = Hc[n]
-
-                (Ewn, Ewnwn) = self._Ewn_Ewnwn(yn,
-                                               Hn,
-                                               mu_w,
-                                               sig_w_inv,
-                                               BETA_EM)
-                """
-                # calculate S :: (50)
-                Sn_inv = sig_w_inv + np.multiply(BETA_EM,(Hn.transpose()*Hn))
-                Sn = np.mat(inv(Sn_inv))
-
-                Ewn = (Sn *((np.multiply(BETA_EM,(Hn.transpose()*yn))) + ((sig_w_inv*mu_w))))
-
-                Ewn = np.mat(Ewn)
-
-                # BISHOP (2.62)
-                Ewnwn = Sn + Ewn*Ewn.transpose()
-
-                Ewnwn = np.mat(Ewnwn)
-                """
-
-                # store
-                Ewc.append(Ewn);
-                Ewwc.append(Ewnwn);
+            (Ewc, Ewwc) = self._Ewc_Ewwc(yc, Hc, mu_w, sig_w_inv, BETA_EM)
 
             #  Maximization :: (56), (57)
 
@@ -206,21 +176,6 @@ class GaussianProcess(object):
             # E [BETA]
             BETA_EM = self._E_beta(yc, Hc, Ewc, Ewwc, ndim, Mstar)
 
-            """
-            BETA_sum_inv = 0.;
-
-            for n  in range(ntraj):
-                # extract data
-                yn = yc[n]
-                Hn = Hc[n]
-                Ewn = Ewc[n]
-                Ewnwn = Ewwc[n]
-
-                BETA_sum_inv += np.dot(yn.transpose(),yn) - 2.*(np.dot(yn.transpose(),(Hn*Ewn))) + np.trace((Hn.transpose()*Hn)*Ewnwn)
-
-            BETA_EM = np.mat((ndim*Mstar) / BETA_sum_inv)
-            """
-
             # ////  log likelihood ///////////
 
             # // ln( p(Y|w) - likelihood
@@ -232,47 +187,14 @@ class GaussianProcess(object):
                                             Mstar,
                                             BETA_EM)
 
-            """
-            loglikelihood_pYw_sum = 0.;
-
-            for n  in range(ntraj):
-                # extract data
-                yn = yc[n]
-                Hn = Hc[n]
-                Ewn = Ewc[n]
-                Ewnwn = Ewwc[n]
-
-                # loglikelihood_pYw_sum = loglikelihood_pYw_sum + ((yn.')*yn - 2*(yn.')*(Hn*Ewn) + trace(((Hn.')*Hn)*Ewnwn));
-                loglikelihood_pYw_sum += np.dot(yn.transpose(),yn) - 2.*(np.dot(yn.transpose(),(Hn*Ewn))) + np.trace((Hn.transpose()*Hn)*Ewnwn)
-
-            #  loglikelihood_pYw =  + ((Mstar*D) / 2) * log(2*pi) - ((Mstar*D) / 2) * log( BETA_EM ) + (BETA_EM/2) * loglikelihood_pYw_sum;
-            loglikelihood_pYw = (Mstar*ndim / 2.) * np.log(2.*np.pi) - (Mstar*ndim / 2.) * np.log(BETA_EM) + (BETA_EM / 2.) * loglikelihood_pYw_sum
-            """
-
             # // ln( p(w) ) - prior
             loglikelihood_pw = self._L_pw(Ewc,
                                           Ewwc,
                                           mu_w,
                                           sig_w,
                                           sig_w_inv,
-                                          ntraj,
                                           ndim,
                                           nbasis)
-
-            """
-            loglikelihood_pw_sum = 0.;
-
-            for n  in range(ntraj):
-                # extract data
-                Ewn = Ewc[n]
-                Ewnwn = Ewwc[n]
-
-                # loglikelihood_pw_sum = loglikelihood_pw_sum + trace( (LAMBDA_EM)*( Ewnwn - 2*MU_EM*(Ewn.') + (MU_EM*(MU_EM.')) ) );
-                loglikelihood_pw_sum += np.trace(sig_w_inv*(Ewnwn - 2.*mu_w*Ewn.transpose() + mu_w*mu_w.transpose()))
-
-            # loglikelihood_pw = + ((N*J*D) / 2) * log(2*pi) + (N/2) * ln_det_Sigma + (1/2) * loglikelihood_pw_sum;
-            loglikelihood_pw = (ntraj*nbasis*ndim/2.)*np.log(2*np.pi) + (ntraj/2.)*np.log(det(sig_w)) + (1./2.)*loglikelihood_pw_sum
-            """
 
             loglikelihood_pY = loglikelihood_pYw + loglikelihood_pw
 
@@ -329,6 +251,46 @@ class GaussianProcess(object):
             Hc.append(Hn)
 
         return (yc, Hc)
+
+
+    def _Ewc_Ewwc(self, yc, Hc, mu_w, sig_w_inv, BETA_EM):
+        """returns the expected values Ewc and Ewwc
+
+        input:
+            yc          - [points]
+            Hc          - [Gram matrix]
+            mu_w        - E[w]
+            sig_w_inv   - 1 / E[ww]
+            BETA_EM     - 1 / noise
+
+        output:
+            Ewc     - [E[wn]]
+            Ewnwc   - [E[wnwn]]
+        """
+
+        ntraj = len(yc)
+
+        Ewc = []
+        Ewwc = []
+
+        # Expectation (54) (55)
+        for n  in range(ntraj):
+            # data
+            yn = yc[n]
+            Hn = Hc[n]
+
+            (Ewn, Ewnwn) = self._Ewn_Ewnwn(yn,
+                                           Hn,
+                                           mu_w,
+                                           sig_w_inv,
+                                           BETA_EM)
+
+            # store
+            Ewc.append(Ewn);
+            Ewwc.append(Ewnwn);
+
+        return (Ewc, Ewwc)
+
 
     def _Ewn_Ewnwn(self, yn, Hn, mu_w, sig_w_inv, BETA_EM):
         """returns the expected values Ewn and Ewnwn
@@ -468,7 +430,7 @@ class GaussianProcess(object):
 
         return loglikelihood_pYw
 
-    def _L_pw(self, Ewc, Ewwc, mu_w, sig_w, sig_w_inv, ntraj, ndim, nbasis):
+    def _L_pw(self, Ewc, Ewwc, mu_w, sig_w, sig_w_inv, ndim, nbasis):
         """returns ln( p(w) )
         likelihood of parameters, before seeing the data"""
 
