@@ -119,16 +119,12 @@ class Model(object):
         ndim = self._ndim
         npoints = len(self._cc)
 
-
-
         mu_y = self._mu_y
         Y = np.reshape(mu_y, newshape=(-1, ndim), order='F')
 
         #Y = np.zeros(shape=(npoints, ndim))
         #for i, c in enumerate(self._cc):
         #    Y[i, :] = c
-
-
 
         if (ndim == 2):
             x = Y[:, 0]
@@ -228,9 +224,11 @@ class Model(object):
             ap[:, 1] = y.transpose()
             ap[:, 2] = z.transpose()
 
-            ap = np.mat(ap)
+            ap = tt.helpers.unique_rows(ap) # np.mat(ap).unique_rows()
 
             ap = ap * rotation.transpose() + c.transpose()
+
+            # ap = np.concatenate([x, y, z], axis=1)
 
             return np.mat(ap)
 

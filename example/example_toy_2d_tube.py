@@ -59,5 +59,10 @@ for ls in llsettings:
     visual.save('t')
     visual.close()
 
+    visual2 = tt.visual_2d.Visual_2d(new_world)
+    visual.plotTimeSeries()
+    visual.save('timeseries')
+    visual.close()
+
 # show [ wait for user input ]
 #visual.show()

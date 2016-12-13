@@ -43,8 +43,6 @@ class Visual_2d(object):
         colours = tt.helpers.getDistinctColours(len(self._world._clusters),
                                                  colour)
 
-        clusters = self._world.getCluster(list_icluster)
-
         for (i, this_cluster) in enumerate(clusters):
             # pass clusters
             Y = this_cluster["model"].getMean()
@@ -57,8 +55,7 @@ class Visual_2d(object):
 
     def plotTrajectories(self, list_icluster=None, ntraj=50,
                          colour=None, **kwargs):
-        """
-        <description>
+        """plot trajectories
         """
 
         # check validity
@@ -71,7 +68,6 @@ class Visual_2d(object):
         colours = tt.helpers.getDistinctColours(len(self._world._clusters),
                                                  colour)
 
-        clusters = self._world.getCluster(list_icluster)
         for (i, this_cluster) in enumerate(clusters):
             # pass clusters
             for itraj, (x, Y) in enumerate(this_cluster["data"]):
@@ -84,6 +80,32 @@ class Visual_2d(object):
                     break
 
         self._labels.append((a_line, "data"))
+
+    def plotTimeSeries(self, icluster=0, ntraj=50,
+                         colour='k', **kwargs):
+        """plot time-series of a single cluster"""
+
+        # number of subplots, 2 or 3
+        ndim = self._world._ndim
+
+        # subplot
+        f, axarr = plt.subplots(ndim, sharex=True)
+
+        # check validity
+        [icluster] = self._world._check_list_icluster([icluster])
+
+        # extract data
+        clusters = self._world.getCluster([icluster])
+        for (i, this_cluster) in enumerate(clusters):
+            # pass clusters
+            for itraj, (x, Y) in enumerate(this_cluster["data"]):
+
+                for d in range(ndim):
+                    x_norm = (x - x.min()) / (x.max() - x.min())
+                    axarr[d].plot(x_norm, Y[:,d],color=colour, **kwargs)
+
+                if itraj > ntraj:
+                    break
 
     def plotBox(self, coord_lowerleft, coord_upperright, **kwargs):
         """

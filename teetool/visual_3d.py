@@ -31,6 +31,29 @@ class Visual_3d(object):
         """
         mlab.plot3d(*args, **kwargs)
 
+    def plotMean(self, list_icluster=None, colour=None, **kwargs):
+        """
+        plots the mean trajectories
+        """
+
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
+
+        # extract data
+        clusters = self._world.getCluster(list_icluster)
+
+        # unique colours
+        colours = tt.helpers.getDistinctColours(len(self._world._clusters),
+                                                 colour)
+
+        for (i, this_cluster) in enumerate(clusters):
+            # pass clusters
+            Y = this_cluster["model"].getMean()
+
+            mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
+                        tube_radius=None, **kwargs)
+                        
+
     def plotTrajectories(self, list_icluster=None,
                          ntraj=50, colour=None, **kwargs):
         """
@@ -51,12 +74,15 @@ class Visual_3d(object):
         for (i, this_cluster) in enumerate(clusters):
             # pass clusters
             for itraj, (x, Y) in enumerate(this_cluster["data"]):
+
+                # limit number of trajectories printed
+                if itraj > (ntraj-1):
+                    break
+
                 mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
                             tube_radius=None, **kwargs)
 
-                # limit number of trajectories printed
-                if itraj > ntraj:
-                    break
+
 
     def plotLogDifference(self, icluster1, icluster2, pmin=0.0, pmax=1.0, popacity=0.3):
         """
@@ -329,7 +355,7 @@ class Visual_3d(object):
         mlab.title(title)
 
 
-    def save(self, add=None):
+    def save(self, add=None, path="output"):
         """
         saves as file
         """
@@ -340,7 +366,7 @@ class Visual_3d(object):
             saveas = "{0}_{1}".format(self._world.getName(), add)
 
         #
-        mlab.savefig("output/3d_{0}.png".format(saveas), figure=self._mfig)
+        mlab.savefig("{0}/3d_{1}.png".format(path, saveas), figure=self._mfig)
 
 
     def show(self):
