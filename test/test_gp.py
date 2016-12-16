@@ -47,7 +47,7 @@ def test_cluster_data():
 
         assert( Y.shape == (50, 2) )
 
-def test_mix():
+def test_mix_rbf():
     """compare different methods"""
 
     # obtain cluster_data, 3-dimensional
@@ -66,15 +66,54 @@ def test_mix():
     # method 2 - maximum likelihood
     (mu_y_2, sig_y_2, cc, cA) = gp.model_by_ml(type_basis="rbf", nbasis=30)
 
-    #print(mu_y_1)
-    #print(mu_y_2)
+    # method 2 - expectation maximization
+    (mu_y_3, sig_y_3, cc, cA) = gp.model_by_em(type_basis="rbf", nbasis=30,
+                                               maximum_iterations=100)
 
-    # TODO FIX TOLERANCE
+    # not normalised tolerance
     np.testing.assert_allclose(mu_y_1,
                                mu_y_2,
-                               atol=10)
+                               atol=2)
 
+    # not normalised tolerance
+    np.testing.assert_allclose(mu_y_1,
+                              mu_y_3,
+                              atol=2)
 
+def test_mix_bern():
+    """compare different methods"""
+
+    # obtain cluster_data, 3-dimensional
+    cluster_data_temp = tt.helpers.get_trajectories(1, ndim=2, noise_std=.01)
+
+    # normalise it (normally done within modelling method)
+    cluster_data = tt.helpers.normalise_data(cluster_data_temp)
+
+    # create a gp, and produce output in 5 steps
+    # >> 5 multivariate distributions
+    gp = tt.gaussianprocess.GaussianProcess(cluster_data, ngaus=5)
+
+    # method 1 - resampling
+    (mu_y_1, sig_y_1, cc, cA) = gp.model_by_resampling()
+
+    # method 2 - maximum likelihood
+    (mu_y_2, sig_y_2, cc, cA) = gp.model_by_ml(type_basis="bernstein",
+                                               nbasis=3)
+
+    # method 2 - expectation maximization
+    (mu_y_3, sig_y_3, cc, cA) = gp.model_by_em(type_basis="bernstein",
+                                               nbasis=3,
+                                               maximum_iterations=100)
+
+    # not normalised tolerance
+    np.testing.assert_allclose(mu_y_1,
+                             mu_y_2,
+                             atol=1e-2)
+
+    # not normalised tolerance
+    np.testing.assert_allclose(mu_y_1,
+                            mu_y_3,
+                            atol=1e-2)
 
 def test_resampling():
     """check if resampling behaves as expected"""
@@ -185,7 +224,7 @@ def test_expectation_maximization():
     # TODO: FIX TOLERANCE
     np.testing.assert_allclose(sig_y_diag,
                                sig_y_diag_expected,
-                               atol=1e-4)
+                               atol=1e-6)
 
 def test_subfunctions_EM():
     """test subfunctions that contribute to the EM algorithm

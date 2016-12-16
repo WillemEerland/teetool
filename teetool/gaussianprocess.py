@@ -3,7 +3,7 @@
 import teetool as tt
 import numpy as np
 
-from numpy.linalg import det, inv, pinv
+from numpy.linalg import det, inv, pinv, cond
 
 class GaussianProcess(object):
     """class for methods to obtain a Gaussian stochastic process
@@ -173,7 +173,7 @@ class GaussianProcess(object):
 
         return (mu_y, sig_y, cc, cA)
 
-    def model_by_em(self, type_basis, nbasis):
+    def model_by_em(self, type_basis, nbasis, maximum_iterations=2001):
         """
         returns (mu_y, sig_y) by expectation-maximisation
         this allows noise to be modelled due to imperfect model or actual
@@ -200,7 +200,7 @@ class GaussianProcess(object):
         yc, Hc = self._from_clusterdata2cells(cluster_data, basis)
 
         # hardcoded parameters
-        MAX_ITERATIONS = 2001  # maximum number of iterations
+        MAX_ITERATIONS = maximum_iterations  # maximum number of iterations
         CONV_LIKELIHOOD = 1e-3  # stop convergence
         # min_eig = 10**-6  # minimum eigenvalue (numerical trick)
 
@@ -493,6 +493,10 @@ class GaussianProcess(object):
     def _L_pw(self, Ewc, Ewwc, mu_w, sig_w, sig_w_inv, ndim, nbasis):
         """returns ln( p(w) )
         likelihood of parameters, before seeing the data"""
+
+        # test conditioning sig_w
+        if cond(sig_w) > 0:
+            return 1e4
 
         ntraj = len(Ewc)
 
