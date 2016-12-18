@@ -1,5 +1,7 @@
-# functions to visualise the information
-# (trajectories / probability) in 3 dimensions
+## @package teetool
+#  This module contains the Visual_3d class
+#
+#  See Visual_3d class for more details
 
 import numpy as np
 from scipy.interpolate import griddata
@@ -8,34 +10,34 @@ import time
 
 import teetool as tt
 
+## Visual_3d class generates the 3d output using Mayavi
 class Visual_3d(object):
-    """
-    <description>
-    """
 
+    ## Constructor for Visual_3d
+    # @param self object pointer
+    # @param thisWorld World object, filled with trajectory data and models
+    # @param kwargs additional parameters for mlab.figure()
     def __init__(self, thisWorld, **kwargs):
-        """
-        <description>
-        """
-
-        # start figure
+        ## Mayavi figure
         self._mfig = mlab.figure(bgcolor=(1.0, 1.0, 1.0),
                                  fgcolor=(0.0, 0.0, 0.0),
                                  **kwargs);
-
+        ## World object
         self._world = thisWorld
 
+    ## standard plotting function for Mayavi, plot3d
+    # @param self object pointer
+    # @param args additional arguments for plotting
+    # @param kwargs additional labeled parameters for plotting
     def plot(self, *args, **kwargs):
-        """
-        plotting function - standard mayavi plot3d
-        """
         mlab.plot3d(*args, **kwargs)
 
+    ## Plot mean of trajectories
+    # @param self object pointer
+    # @param list_icluster list of clusters to plot
+    # @param colour if specified, overwrites distinct colours
+    # @param kwargs additional parameters for plotting
     def plotMean(self, list_icluster=None, colour=None, **kwargs):
-        """
-        plots the mean trajectories
-        """
-
         # check validity
         list_icluster = self._world._check_list_icluster(list_icluster)
 
@@ -52,16 +54,15 @@ class Visual_3d(object):
 
             mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
                         tube_radius=None, **kwargs)
-                        
 
+    ## Plot trajectories of cluster
+    # @param self object pointer
+    # @param list_icluster list of clusters to plot
+    # @param ntraj maximum number of trajectories
+    # @param colour if specified, overwrites distinct colours
+    # @param kwargs additional parameters for plotting
     def plotTrajectories(self, list_icluster=None,
                          ntraj=50, colour=None, **kwargs):
-        """
-        plot trajectories
-
-        list_icluster should be a list of clusters, integers only
-        """
-
         # check validity
         list_icluster = self._world._check_list_icluster(list_icluster)
 
@@ -84,12 +85,10 @@ class Visual_3d(object):
 
 
 
-    def plotLogDifference(self, icluster1, icluster2, pmin=0.0, pmax=1.0, popacity=0.3):
-        """
-        plots difference
-
-        icluster1, and icluster2 should be both integers
-        """
+    def plotLogDifference(self,
+                          icluster1,
+                          icluster2,
+                          pmin=0.0, pmax=1.0):
 
         (ss_list, [xx, yy, zz]) = self._world.getLogLikelihood([icluster1, icluster2])
 

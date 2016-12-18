@@ -1,38 +1,23 @@
-#  "main" source file for trajectory analysis in this package.
-# Clusters of trajectories are added here, modelled accordingly
-# (whatever settings desired), and visualised in whatever is
-# desired (single / multiple clusters)
+## @package teetool
+#  This module contains the main class used in the teetool package
+#
+#  "main" source file for trajectory analysis in this package. Clusters of trajectories are added here, modelled accordingly (whatever settings desired), and visualised in whatever is desired (single / multiple clusters)
 
 import numpy as np
 import teetool as tt
 
 
+## World class handles all trajectory data
+#
+# This class provides the direct interface to the trajectory data and produce models
 class World(object):
-    """
-    This class provides the interface for the trajectory analysis tool.
 
-    <description>
-
-    Initialisation arguments:
-     - name
-     - dimension
-
-    Properties:
-     -
-     -
-    """
-
+    ## initialise World
+    # @param self object pointer
+    # @param name world name, used in title and saving image
+    # @param ndim number of dimensions in trajectory data
+    # @param resolution specify resolution of grid
     def __init__(self, name="", ndim=3, resolution=[10, 10, 10]):
-        """
-        initialises a World
-
-        input parameters:
-            - name: name of World
-            - ndim: dimension of world (2d or 3d)
-            - nres: sets the resolution of the grid
-        <description>
-        """
-
         # validate name
         if type(name) is not str:
             raise TypeError("expected string, not {0}".format(type(name)))
@@ -46,34 +31,29 @@ class World(object):
             raise ValueError(
                 "expected dimensionality 2 or 3, not {0}".format(ndim))
 
-        # set values
+        ## name of world
         self._name = name
+        ## number of dimensions trajectory data
         self._ndim = ndim
-
-        # initial parameters
-        self._clusters = []  # list holding clusters
-
-        # these parameters define the grid
+        ## list holding clusters
+        self._clusters = []
+        ## resolution of grid
         self._resolution = resolution
-
-        # default value
+        ## fraction on edges, default 0.1
         self.fraction_to_expand = 0.1
 
+    ## clear previously stored calculations
+    # @param self object pointer
     def clear(self):
-        """
-        clear stored calculations from models
-        """
         for (i, this_cluster) in enumerate(self._clusters):
 
             if ("model" in this_cluster):
                 # clears stored information
                 this_cluster["model"].clear()
 
+    ## prints an overview (text)
+    # @param self object pointer
     def overview(self):
-        """
-        prints overview in console
-        """
-
         print("*** overview [{0}] ***".format(self._name))
 
         for (i, this_cluster) in enumerate(self._clusters):
@@ -86,15 +66,11 @@ class World(object):
             print("{0} [{1}] [{2}]".format(
                         i, this_cluster["name"], has_model))
 
+    ## add a cluster to the world
+    # @param self object pointer
+    # @param cluster_data list of (x, Y) trajectory data
+    # @param cluster_name name of added cluster
     def addCluster(self, cluster_data, cluster_name=""):
-        """
-        <description>
-
-        Input arguments:
-            - aCluster: list with tuples (x, Y) representing trajectory data
-            - name: a string with the name of the cluster
-        """
-
         # validate cluster_name
         if type(cluster_name) is not str:
             raise TypeError(
@@ -138,21 +114,20 @@ class World(object):
         # add cluster to the list
         self._clusters.append(new_cluster)
 
+    ## returns the name of the world
+    # @param self object pointer
+    # @return name of the world
     def getName(self):
-        """
-        returns name, if any, otherwise returns None
-        """
-
         if self._name == "":
             return None
         else:
             return self._name
 
+    ## obtain cluster data
+    # @param self object pointer
+    # @param list_icluster list of clusters to return
     def getCluster(self, list_icluster=None):
-        """
-        returns a single cluster
-        """
-
+        # check validity list
         list_icluster = self._check_list_icluster(list_icluster)
 
         # return clusters in list
@@ -161,16 +136,12 @@ class World(object):
             clusters.append(self._clusters[i])
         return clusters
 
+    ## obtain statistics of confidence region in scenarios
+    # @param self object pointer
+    # @param list_icluster list of clusters to analyse
+    # @param sdwidth variance to evaluate
+    # @param resolution resolution of grid
     def getTubeStats(self, list_icluster=None, sdwidth=1., resolution=None):
-        """
-        return statistics on difference found in scenarios
-
-        input:
-        - list_icluster
-        - sdwidth
-        - resolution
-        """
-
         # check validity
         list_icluster = self._check_list_icluster(list_icluster)
 
@@ -224,11 +195,10 @@ class World(object):
 
             print(str_output)
 
+    ## checks the validity of icluster
+    # @param self object pointer
+    # @param icluster value to test
     def _check_icluster(self, icluster):
-        """
-        check validity int icluster input
-        """
-
         if type(icluster) is not int:
             raise TypeError("expected integer, not {0}".format(type(icluster)))
 
@@ -237,11 +207,10 @@ class World(object):
             raise ValueError(
                 "{0} not in range [0,{1}]".format(icluster, nclusters))
 
+    ## checks the validity of a list of icluster
+    # @param self object pointer
+    # @param list_icluster list of icluster to test
     def _check_list_icluster(self, list_icluster):
-        """
-        check validity of list of integers
-        """
-
         # default
         if (list_icluster == None):
             # all
@@ -273,11 +242,11 @@ class World(object):
 
         return list_inside
 
+    ## returns samples in a list of (x, Y) data
+    # @param self object pointer
+    # @param icluster specify from which cluster to sample
+    # @param nsamples number of samples to generate
     def getSamples(self, icluster, nsamples=50):
-        """
-        returns samples (x, Y) list
-        """
-
         # check validity
         self._check_icluster(icluster)
 
@@ -288,15 +257,13 @@ class World(object):
 
         return generated_samples
 
+    ## generates a model from the trajectory data
+    # @param self object pointer
+    # @param settings specify settings in dictionary
+    # model_type is resampling, ML, or EM
+    # ngaus is number of Gaussians
+    # @param list_icluster
     def buildModel(self, settings, list_icluster=None):
-        """
-        creates a model
-
-        settings are
-        model_type: [resample]
-        mgaus: number of Gaussians (e.g. 50-100)
-        """
-
         # check validity
         list_icluster = self._check_list_icluster(list_icluster)
 
@@ -311,11 +278,11 @@ class World(object):
             this_cluster["model"] = new_model
             self._clusters[icluster] = this_cluster
 
+    ## returns the mean trajectory [x, y, z] for list_icluster
+    # @param self object pointer
+    # @param list_icluster specify clusters
+    # @return mean_list a list of means
     def getMean(self, list_icluster=None):
-        """
-        returns the mean trajectory [x, y, z] for list_icluster
-        """
-
         # check validity
         list_icluster = self._check_list_icluster(list_icluster)
 
@@ -331,16 +298,21 @@ class World(object):
 
         return Y_list
 
-    def getTube(self, list_icluster=None, sdwidth=1, resolution=None, z=None):
-        """
-        return (ss_list, [xx, yy, zz]) of models that fall within sdwidth
-
-        Input parameters:
-            - list_icluster
-            - sdwidth
-            - z
-        """
-
+    ## returns a grid with bools to specify whether a point falls within the confidence region or not
+    # @param self object pointer
+    # @param list_icluster which clusters to return
+    # @param sdwidth variance to test
+    # @param resolution the resolution to produce the grid on
+    # @param z (optional) height parameter to produce 2d grids for 3d trajectories
+    # @return ss_list a list with ss, representing the bools for each cluster
+    # @return xx grid in x-domain
+    # @return yy grid in y-domain
+    # @return zz grid in z-domain
+    def getTube(self,
+                list_icluster=None,
+                sdwidth=1,
+                resolution=None,
+                z=None):
         # check validity
         list_icluster = self._check_list_icluster(list_icluster)
 
@@ -382,14 +354,19 @@ class World(object):
 
         return (ss_list, [xx, yy, zz])
 
-    def getLogLikelihood(self, list_icluster=None, resolution=None, z=None):
-        """
-        return (ss_list, [xx, yy, zz]) of models and corresponding log-likelihood
-
-        Input parameters:
-            - list_icluster
-        """
-
+    ## returns a grid with the maximum log-likelihood
+    # @param self object pointer
+    # @param list_icluster which clusters to return
+    # @param resolution the resolution to produce the grid on
+    # @param z (optional) height parameter to produce 2d grids for 3d trajectories
+    # @return ss_list a list with ss, representing the bools for each cluster
+    # @return xx grid in x-domain
+    # @return yy grid in y-domain
+    # @return zz grid in z-domain
+    def getLogLikelihood(self,
+                         list_icluster=None,
+                         resolution=None,
+                         z=None):
         # check validity
         list_icluster = self._check_list_icluster(list_icluster)
 
@@ -431,13 +408,14 @@ class World(object):
 
         return (ss_list, [xx, yy, zz])
 
+    ## returns a grid based on outline and resolution
+    # @param self object pointer
+    # @param outline outline to generate grid from
+    # @param resolution resolution to generate grid from
+    # @return xx grid in x-domain
+    # @return yy grid in y-domain
+    # @return zz grid in z-domain
     def _getGrid(self, outline, resolution=None):
-        """
-        returns the grid
-
-        based on outline and resolution
-        """
-
         # default resolution
         if resolution is None:
             resolution = self._resolution
@@ -449,11 +427,14 @@ class World(object):
 
         return [xx, yy, zz]
 
+    ## returns an expanded grid based on the outline of trajectory data in list_icluster
+    # @param self object pointer
+    # @param list_icluster list of clusters to take into account
+    # @param fraction_to_expand fraction to expand the outline with
+    # @return xx grid in x-domain
+    # @return yy grid in y-domain
+    # @return zz grid in z-domain
     def _get_outline_expanded(self, list_icluster=None, fraction_to_expand=0.1):
-        """
-        returns expanded outline of data (via fraction_to_expand)
-        """
-
         # check validity
         list_icluster = self._check_list_icluster(list_icluster)
 
@@ -481,6 +462,12 @@ class World(object):
 
         return expanded_outline
 
+    ## returns a grid based on the outline of trajectory data in list_icluster
+    # @param self object pointer
+    # @param list_icluster list of clusters to take into account
+    # @return xx grid in x-domain
+    # @return yy grid in y-domain
+    # @return zz grid in z-domain
     def _get_outline(self, list_icluster=None):
         """
         returns the outline of specified clusters
@@ -514,13 +501,11 @@ class World(object):
 
         return global_outline
 
+    ## returns the outline of a tube of specified clusters
+    # @param self object pointer
+    # @param sdwidth variance to evaluate confidence region on
+    # @param list_icluster clusters to evaluate confidence on. None shows all
     def _get_outline_tube(self, sdwidth=1, list_icluster=None):
-        """
-        returns the outline of specified clusters for the tube
-
-        list_icluster is list of clusters, if None, show all
-        """
-
         # check validity
         list_icluster = self._check_list_icluster(list_icluster)
 
