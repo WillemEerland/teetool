@@ -1,36 +1,44 @@
-
+## @package teetool
+#  This module contains the GaussianProcess class
+#
+#  See GaussianProcess class for more details
 
 import teetool as tt
 import numpy as np
 
 from numpy.linalg import det, inv, pinv, cond
 
+## GaussianProcess class evaluates an ensemble of trajectories as a Gaussian process
+#
+#  Such a Gaussian process has a mean and covariance, and expresses itself as an ellipse (2d) or ellipsoid (3d) at a constant variance
 class GaussianProcess(object):
-    """class for methods to obtain a Gaussian stochastic process
-    """
 
+    ## The constructor of GaussianProcess
+    #   @param self             object pointer
+    #   @param cluster_data     trajectory data in specific format: a list of (x, Y), where x [npoints x 1] and Y [npoints x ndim]
+    #   @param ngaus            number of Gaussians desired
     def __init__(self, cluster_data, ngaus):
-        """
-        initialise Gaussian process
-        """
-
         # Fit cluster_data in a [0, 1] domain
         outline = tt.helpers.get_cluster_data_outline(cluster_data)
         cluster_data_norm = tt.helpers.get_cluster_data_norm(cluster_data,
                                                              outline)
 
+        ## normalised cluster_data
         self._cluster_data = cluster_data_norm
+        ## original outline
         self._outline = outline
+        ## number of Gaussians after modelling
         self._ngaus = ngaus
+        ## dimensionality of trajectory data
         self._ndim = tt.helpers.getDimension(cluster_data)
 
+    ## obtain vectors to multiply normalised values with, allows for a transformation back to the actual values from the normalised ones.
+    #  @param self  The object pointer.
+    #  @return      M, vector with minimum values [ngaus*ndim x 1]
+    #  @return      D, vector with difference values [ngaus*ndim x 1]
     def _outline2vectors(self):
-        """returns vectors for transformation back to normal"""
-
-        # vector with minimum values [M]
-        # vector with difference [D]
-        M_list = []
-        D_list = []
+        M_list = [] # list with minimum values [M]
+        D_list = [] # list with difference [D]
         for d in range(self._ndim):
             xmin = self._outline[d*2+0]
             xmax = self._outline[d*2+1]
@@ -41,14 +49,16 @@ class GaussianProcess(object):
             d1 = np.ones(shape=(self._ngaus, 1)) * (xmax - xmin)
             D_list.append(d1)
 
-        M = np.concatenate(M_list, axis=0)
-        D = np.concatenate(D_list, axis=0)
+        M = np.concatenate(M_list, axis=0) # vector
+        D = np.concatenate(D_list, axis=0) # vector
 
         return (M, D)
 
+    ## returns the mu_y, sig_y vector to the original dimensions using the outline
+    #  @param self  The object pointer.
+    #  @param mu_y   mean vector [ngaus*ndim x 1]
+    #  @param sig_y  covariance matrix [ngaus*ndim x ngaus*ndim]
     def _norm2real(self, mu_y, sig_y):
-        """returns the mu_y and sig_y from normal to real dimensions"""
-
         (M, D) = self._outline2vectors()
 
         D_diag = np.diagflat(D ** 2)
@@ -58,16 +68,16 @@ class GaussianProcess(object):
 
         return mu_y_real, sig_y_real
 
+    ## models the trajectory data via re-sampling, ignoring noise, missing data, trends, etc. Quick method only suitable for high-quality data
+    #  @param self  The object pointer.
+    #  @return mu_y mean vector [ngaus*ndim x 1]
+    #  @return sig_y covariance matrix [ngaus*ndim x ngaus*ndim]
+    #  @return cc mean [ndim x 1] in ngaus cells
+    #  @return cA covariance [ndim x ndim] in ngaus cells
     def model_by_resampling(self):
-        """
-        returns (mu_y, sig_y) by resampling
-        <description>
-        """
-
         # extract
         cluster_data = self._cluster_data
         ngaus = self._ngaus
-
         mdim = self._ndim
 
         # predict these values
@@ -76,7 +86,6 @@ class GaussianProcess(object):
         yc = []  # list to put trajectories
 
         for (xn, Yn) in cluster_data:
-
             # array to fill
             yp = np.empty(shape=(ngaus, mdim))
 
@@ -90,7 +99,6 @@ class GaussianProcess(object):
             yc.append(yp1)
 
         # compute values
-
         ntraj = len(yc)  # number of trajectories
 
         # obtain average [mu]
@@ -117,13 +125,15 @@ class GaussianProcess(object):
 
         return (mu_y, sig_y, cc, cA)
 
+    ## models the trajectory data via maximum likelihood. It uses the basis function as specified to handle missing data, however, noise per trajectory has no influence on the parameter estimation. A suitable method in the absence of noise and known shape of trajectories.
+    #  @param self  The object pointer.
+    #  @param type_basis see Basis class for input
+    #  @param nbasis see Basis class for input
+    #  @return mu_y mean vector [ngaus*ndim x 1]
+    #  @return sig_y covariance matrix [ngaus*ndim x ngaus*ndim]
+    #  @return cc mean [ndim x 1] in ngaus cells
+    #  @return cA covariance [ndim x ndim] in ngaus cells
     def model_by_ml(self, type_basis, nbasis):
-        """
-        returns (mu_y, sig_y) by maximum likelihood (no noise assumed)
-
-        <description>
-        """
-
         # extract
         cluster_data = self._cluster_data
         ngaus = self._ngaus
@@ -173,15 +183,16 @@ class GaussianProcess(object):
 
         return (mu_y, sig_y, cc, cA)
 
+    ## models the trajectory data via expectation maximization. It uses the basis function as specified to handle missing data, and, when noisy data is detected within a trajectory, the global trend, as learned, takes over. A suitable method in the presence of noise or an unknown shape of trajectories -- the latter as different models can be compared via likelihood
+    #  @param self  The object pointer.
+    #  @param type_basis see Basis class for input
+    #  @param nbasis see Basis class for input
+    #  @param maximum_iterations maximum allowed number of evaluations till convergence
+    #  @return mu_y mean vector [ngaus*ndim x 1]
+    #  @return sig_y covariance matrix [ngaus*ndim x ngaus*ndim]
+    #  @return cc mean [ndim x 1] in ngaus cells
+    #  @return cA covariance [ndim x ndim] in ngaus cells
     def model_by_em(self, type_basis, nbasis, maximum_iterations=2001):
-        """
-        returns (mu_y, sig_y) by expectation-maximisation
-        this allows noise to be modelled due to imperfect model or actual
-        measurement noise
-
-        <description>
-        """
-
         # extract
         cluster_data = self._cluster_data
         ngaus = self._ngaus

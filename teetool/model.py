@@ -1,4 +1,7 @@
-# models the trajectory data
+## @package teetool
+#  This module contains the Model class
+#
+#  See Model class for more details
 
 from __future__ import print_function
 import numpy as np
@@ -12,26 +15,21 @@ import teetool as tt
 import multiprocessing as mp
 from functools import partial
 
-
+## Model class provides the interface to the probabilistic modelling of trajectories
+#
+#  These trajectories are a single ensemble
 class Model(object):
-    """
-    This class provides the interface to the probabilistic
-    modelling of trajectories
 
-    <description>
-    """
-
+    ## Initialise a model
+    # @param self object pointer
+    # @param cluster_data list of (x, Y) trajectory data
+    # @param settings a dictionary with
+    # "model_type" = resampling, ML, or EM
+    # "ngaus": number of Gaussians to create for output,
+    # REQUIRED for ML and EM,
+    # "basis_type" = gaussian, bernstein,
+    # "nbasis": number of basis functions
     def __init__(self, cluster_data, settings):
-        """
-        cluster_data is a list of (x, Y)
-
-        settings
-        "model_type" = resampling, ML, or EM
-        "ngaus": number of Gaussians to create for output
-        REQUIRED for ML and EM
-        "basis_type" = gaussian, bernstein
-        "nbasis": number of basis functions
-        """
 
         if "model_type" not in settings:
             raise ValueError("settings has no model_type")
@@ -56,13 +54,12 @@ class Model(object):
             if settings["nbasis"] < 2:
                 raise ValueError("nbasis should be larger than 2")
 
-        # write global settings
+        ## dimension of cluster_data
         self._ndim = tt.helpers.getDimension(cluster_data)
 
 
 
         # assume a gaussian stochastic process and model via one of these methods
-
         gp = tt.gaussianprocess.GaussianProcess(cluster_data,
                                                 settings["ngaus"])
 
@@ -85,15 +82,19 @@ class Model(object):
         # convert to cells
         # (cc, cA) = self._getGMMCells(mu_y, sig_y, settings["ngaus"])
 
-        # store values
+        ## mean vector [ngaus*ndim x 1]
         self._mu_y = mu_y
+        ## covariance matrix [ngaus*ndim x ngaus*ndim]
         self._sig_y = sig_y
-        # identical values as cells
+        ## mean vector [ndim x 1] in ngaus cells
         self._cc = cc
+        ## covariance matrix [ndim x ndim] in ngaus cells
         self._cA = cA
 
         # create a list to store previous calculated values
+        ## previously calculated values confidence region
         self._list_tube = []
+        ## previously calculated values log-likelihood
         self._list_logp = []
 
     def _norm2real(self, mu_y, sig_y, outline):
@@ -172,7 +173,65 @@ class Model(object):
 
         return cluster_data
 
-    def _getEllipse(self, c, A, sdwidth=1, npoints=10):
+
+    def _clusterdata2points(self, cluster_data):
+        """returns the points Y [npoints x ndim]
+        """
+
+        Y_list = []
+
+        for (x, Y) in cluster_data:
+            Y_list.append(Y)
+
+        return np.concatenate(Y_list, axis=0)
+
+    def getKS(self, cluster_data, sigma_arr, nsamples=100):
+        """calculated the ks value
+
+        input:
+            cluster_data    - data to evaluate against
+            nsamples        - number of samples to use
+            sigma_arr       - array which standard deviation to evalute
+        """
+
+        # only accept non-zero candidates
+        sigma_arr = sigma_arr[sigma_arr > 0]
+
+        if len(sigma_arr) == 0:
+            raise ValueError("no positive values found")
+
+        # in points
+        Y = self._clusterdata2points(cluster_data)
+
+        # obtain sampled data
+        sampled_data = self.getSamples(nsamples=nsamples)
+
+        # in points
+        S = self._clusterdata2points(sampled_data)
+
+        # test percentage inside
+        lY = []
+        lS = []
+        for sigma in sigma_arr:
+            # numbers true
+            nY = self.isInside_pnts(Y, sdwidth=sigma, nellipse=30)
+            # percentage
+            pY = float(np.sum(nY)) / len(nY)
+            # add
+            lY.append(pY)
+            # same
+            nS = self.isInside_pnts(S, sdwidth=sigma, nellipse=30)
+            pS = float(np.sum(nS)) / len(nS)
+            lS.append(pS)
+
+        lY = np.array(lY)
+        lS = np.array(lS)
+
+        ks = np.max(np.abs(lY - lS))
+
+        return ks, lY, lS, sigma_arr
+
+    def _getEllipse(self, c, A, sdwidth=1, nellipse=10):
         """
         evaluates the ellipse
         """
@@ -189,24 +248,24 @@ class Model(object):
 
         if ndim == 2:
             # 2d
-            u = np.linspace(0.0, 2.0 * np.pi, npoints)
+            u = np.linspace(0.0, 2.0 * np.pi, nellipse)
             x = radii[0] * np.cos(u)
             y = radii[1] * np.sin(u)
 
-            ellipse = np.empty(shape=(npoints, ndim))
+            ellipse = np.empty(shape=(nellipse, ndim))
             ellipse[:,0] = x
             ellipse[:,1] = y
             ellipse = np.mat(ellipse)
 
-            ellipse = ellipse * rotation.transpose() + c.transpose()
+            ap = ellipse * rotation.transpose() + c.transpose()
 
-            return np.mat(ellipse)
+            # return np.mat(ellipse)
 
         if ndim == 3:
             # 3d
             # obtain sphere
-            u = np.linspace(0.0, 2.0 * np.pi, npoints)
-            v = np.linspace(0.0, np.pi, npoints)
+            u = np.linspace(0.0, 2.0 * np.pi, nellipse)
+            v = np.linspace(0.0, np.pi, nellipse)
 
             x = radii[0] * np.outer(np.cos(u), np.sin(v))
             y = radii[1] * np.outer(np.sin(u), np.sin(v))
@@ -230,7 +289,11 @@ class Model(object):
 
             # ap = np.concatenate([x, y, z], axis=1)
 
-            return np.mat(ap)
+            # return np.mat(ap)
+
+        ap = tt.helpers.unique_rows(ap)
+
+        return np.mat(ap)
 
 
     def _getSample(self, c, A, nsamples=1, std=1):
@@ -257,11 +320,11 @@ class Model(object):
 
         return np.mat(Y)
 
-    def _getCoordsEllipse(self, nsamples=20, sdwidth=5):
+    def _getCoordsEllipse(self, nellipse=20, sdwidth=5):
         """
         returns an array of xy(z) coordinates
 
-        nsamples is number of points in ellipsoid and sdwidth is the variance
+        nellipse is number of points in ellipsoid and sdwidth is the variance
         """
 
         ndim = self._ndim
@@ -274,7 +337,7 @@ class Model(object):
             c = self._cc[i]
             A = self._cA[i]
 
-            Yi = self._getEllipse(c, A, sdwidth, nsamples)
+            Yi = self._getEllipse(c, A, sdwidth, nellipse)
 
             Y_list.append(Yi)
 
@@ -448,7 +511,7 @@ class Model(object):
             (Y_pos, Y_idx) = self._grid2points(xx, yy, zz)
 
             # evaluate points
-            s = self.isInside_pnts(Y_pos, sdwidth, nsamples=12)
+            s = self.isInside_pnts(Y_pos, sdwidth)
 
             # points2grid
             ss = self._points2grid(s, Y_idx)
@@ -460,7 +523,7 @@ class Model(object):
         # return values
         return ss
 
-    def isInside_pnts(self, P, sdwidth=1, nsamples=10):
+    def isInside_pnts(self, P, sdwidth=1, nellipse=50):
         """
         tests if points P NxD 'points' x 'dimensions' are inside the tube
         """
@@ -468,7 +531,7 @@ class Model(object):
         ndim = self._ndim
 
         # obtain a list of points, representing the Gaussian and area between
-        list_Y = self._get_point_cloud(sdwidth, nsamples)
+        list_Y = self._get_point_cloud(sdwidth, nellipse)
 
         # P is an array
         P = np.array(P)
@@ -498,7 +561,7 @@ class Model(object):
         return P_inside
 
 
-    def _get_point_cloud(self, sdwidth=1, nsamples=10):
+    def _get_point_cloud(self, sdwidth=1, nellipse=50):
         """
         returns a list with point clouds, representing the transition between Gaussians
 
@@ -513,14 +576,14 @@ class Model(object):
         # points of first Gaussian
         c = self._cc[0]
         A = self._cA[0]
-        Yi = self._getEllipse(c, A, sdwidth, nsamples)
+        Yi = self._getEllipse(c, A, sdwidth, nellipse)
 
         for i in range(ngaus-1):
 
             # points of next Gaussian
             c = self._cc[i+1]
             A = self._cA[i+1]
-            Yi1 = self._getEllipse(c, A, sdwidth, nsamples)
+            Yi1 = self._getEllipse(c, A, sdwidth, nellipse)
 
             # this is the 'cloud' to test
             Y = np.concatenate((Yi, Yi1), axis=0)
@@ -595,7 +658,7 @@ class Model(object):
         sdwidth += 0.1
 
         # obtain a list of points
-        list_points_cloud = self._get_point_cloud(sdwidth, nsamples=10)
+        list_points_cloud = self._get_point_cloud(sdwidth, nellipse=20)
 
         for Y in list_points_cloud:
 

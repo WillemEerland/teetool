@@ -1,39 +1,44 @@
-# does things with basis functions
+## @package teetool
+#  This module contains the Basis class
+#
+#  See Basis class for more details
 
 import numpy as np
 from scipy.linalg import block_diag
 
-
+## Basis class supports the evaluation of a basis function
+#
+#  These Basis functions function on the domain [0,1], however produce these on multiple dimensions by returning a block-diagonal matrix. Hence an identical basis function gets returned on each dimension.
 class Basis(object):
-    """This class provides the interface between models
 
-    <description>
-    """
-
+    ## The constructor of Basis
+    #   @param self         object pointer
+    #   @param basisType    'rbf' or 'bernstein' basis-type where
+    #                       'rbf' = uniformly distributed basis functions and
+    #                       'bernstein' = Bernstein polynomials
+    #   @param nbasis       number of basis functions used
+    #   @param ndim         number of dimensions trajectories
     def __init__(self, basisType, nbasis, ndim):
-        """
-        initialises a basis type
-
-        - 'rbf' uniformly distributed radial basis functions
-        - 'bernstein' Bernstein polynomials
-        """
-
         SUPPORTED_FUNCTIONS = ["rbf", "bernstein"]
 
         if basisType not in SUPPORTED_FUNCTIONS:
             raise NotImplementedError("{0} type not supported, only {1}".format(basisType, SUPPORTED_FUNCTIONS))
 
+        ## 'rbf' or 'bernstein' basis type
         self._basisType = basisType
-        self._nbasis = nbasis  # number of basis functions
-        self._ndim = ndim  # number of dimensions
+        ## number of basis functions
+        self._nbasis = nbasis
+        ## number of dimensions
+        self._ndim = ndim
         margin = 1/(2*nbasis)
+        ## defines range of basis function
         self._range = [0+margin, 1-margin]
 
+    ## obtain basis functions at specific points, block-diagonal
+    #  @param self  The object pointer.
+    #  @param x     points to evaluate [npoints x 1]
+    #  @return      values of basis functions [ndim*npoints x ndim*nbasis]
     def get(self, x):
-        """
-        return values of basis
-        """
-
         # check input x
         x_vec = np.array(x)
 
@@ -54,12 +59,11 @@ class Basis(object):
 
         return np.mat(BASIS)
 
-
+    ## obtain basis functions at specific points
+    #  @param self  The object pointer.
+    #  @param x     points to evaluate [npoints x 1]
+    #  @return      values of basis functions [npoints x nbasis]
     def _get_1d(self, x):
-        """
-        returns values of basis, single dimension
-        """
-
         # check input x
         x_vec = np.array(x)
 
@@ -91,14 +95,12 @@ class Basis(object):
 
         return BASIS_norm
 
-
+    ## evaluates the rbf basis function
+    #  @param self      The object pointer.
+    #  @param x_vec     points to evaluate [npoints x 1]
+    #  @param nbasis    number of basis functions
+    #  @return          values of rbf basis functions [npoints x nbasis]
     def _getBasisRbf(self, x_vec, nbasis):
-        """
-        returns a matrix, with K columns, and size(x) rows
-        x: input vector
-        K: number of basis functions
-        """
-
         x_vec = np.array(x_vec)
 
         mbasis = nbasis
@@ -111,14 +113,12 @@ class Basis(object):
 
         return np.mat(GAUS)
 
+    ## evaluates the rbf basis function for a single x
+    #  @param self      The object pointer.
+    #  @param x_sca     point to evaluate [1 x 1]
+    #  @param nbasis    number of basis functions
+    #  @return          values of rbf basis functions [1 x nbasis]
     def _getBasisRbfVector(self, x_sca, nbasis):
-        """
-        gaussian -- vector
-
-        x_sca : scalar value
-        nbasis : number of rbf's
-        """
-
         gaus = np.empty(nbasis)
 
         gaus_loc_vec = np.linspace(0, 1, nbasis)
@@ -131,24 +131,21 @@ class Basis(object):
 
         return np.mat(gaus)
 
+    ## evaluates a single rbf basis function for a single x
+    #  @param self      The object pointer.
+    #  @param x         point to evaluate [1 x 1]
+    #  @param mu1       centre of rbf
+    #  @param sig1      standard deviation of rbf
+    #  @return          values of rbf basis functions [1 x nbasis]
     def _funcRbf(self, x, mu1, sig1):
-        """
-        radial basis -- function
-        """
-
         return np.exp(-(np.power((x-mu1), 2))/(2*sig1*sig1))
 
+    ## evaluates the Bernstein basis function in [0, 1] using the formula \f$B(N,I)(X) = [N!/(I!*(N-I)!)] * (1-X)^(N-I) * X^I\f$
+    #  @param self      The object pointer.
+    #  @param x_vec     points to evaluate [npoints x 1]
+    #  @param nbasis    number of basis functions (= polynomial degree + 1)
+    #  @return          values of Bernstein basis functions [npoints x nbasis]
     def _getBasisBernstein(self, x_vec, nbasis):
-        """
-        evaluates the Bernstein polynomials in [0, 1]
-        The formula it uses is:
-        B(N,I)(X) = [N!/(I!*(N-I)!)] * (1-X)^(N-I) * X^I
-        ---
-        returns a matrix, with n + 1 columns, and size(x) rows
-        x_vec: input vector
-        K: number of basis functions
-        """
-
         x_vec = np.array(x_vec)
 
         mbasis = nbasis
@@ -161,11 +158,12 @@ class Basis(object):
 
         return np.mat(BERN)
 
+    ## evaluates the Bernstein basis function in [0, 1] using the formula \f$B(N,I)(X) = [N!/(I!*(N-I)!)] * (1-X)^(N-I) * X^I\f$ for a single x
+    #  @param self      The object pointer.
+    #  @param x_sca     point to evaluate [1 x 1]
+    #  @param nbasis    number of basis functions (= polynomial degree + 1)
+    #  @return          values of Bernstein basis functions [npoints x nbasis]
     def _getBasisBernsteinVector(self, x_sca, nbasis):
-        """
-        bernstein -- vector
-        """
-
         bern = np.empty(nbasis)
         n = nbasis - 1  # number of polynomials
 

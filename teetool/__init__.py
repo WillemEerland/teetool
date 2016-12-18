@@ -1,3 +1,4 @@
+## namespaces within teetool
 __all__ = ['world', 'model', 'gaussianprocess', 'basis', 'helpers', 'visual_2d', 'visual_3d']
 
 from teetool.world import World
@@ -9,3 +10,5 @@ from teetool import gaussianprocess
 
 from teetool import visual_2d
 from teetool import visual_3d
+
+from teetool.helpers import getDistinctColours

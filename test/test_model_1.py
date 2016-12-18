@@ -79,10 +79,8 @@ def test_help_func():
         assert(Y.shape == (3, mdim))
 
         # generating coordinates
-        msamples = 10
-        Y = new_model._getCoordsEllipse(nsamples=msamples)
-
-        #assert(Y.shape == (mgaus*msamples, mdim))
+        # note that the size will vary, due to non-uniqueness
+        Y = new_model._getCoordsEllipse(nellipse=10)
 
         # all finite
         assert(np.isfinite(Y).all())

@@ -1,9 +1,14 @@
+all: clean install clean test doc
+
 clean:
-	rm -r build
-	rm */*.pyc
+	rm -rf build
+	rm -f */*.pyc
 
 install:
 	python setup.py install
 
 test:
 	py.test -v -s
+
+doc:
+	doxygen Doxyfile

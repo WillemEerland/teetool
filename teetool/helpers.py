@@ -1,4 +1,7 @@
-# support functions
+## @package teetool
+#  This module contains the support functions used in the teetool package
+#
+#  All these functions are used in multiple classes, hence it was better to create a single point for all these 'general' functions -- some of these are also used for examples
 
 import colorsys
 import numpy as np
@@ -7,11 +10,11 @@ from scipy.spatial import Delaunay
 
 import teetool as tt
 
+## a function to obtain n distinct colours (based on the colourspace spread into hue space), inspired by https://stackoverflow.com/questions/470690/how-to-automatically-generate-n-distinct-colors
+# @param ncolours integer with number of distinct colours
+# @param colour when colour is specified, this overrides any distinct colour
+# @return rgb_tuples a list of tuples with (R, G, B) in the [0,1] domain
 def getDistinctColours(ncolours, colour=None):
-    """
-    returns N distinct colors using the colourspace.
-    spreads equally in hue space, then converts to RGB
-    """
     # check
     if type(ncolours) is not int:
         raise TypeError("expected integer, not {0}".format(type(ncolours)))
@@ -25,57 +28,55 @@ def getDistinctColours(ncolours, colour=None):
         # convert to RGB
         RGB_tuples = map(lambda x: colorsys.hsv_to_rgb(*x), HSV_tuples)
         # convert to list
-        list_to_return = list(RGB_tuples)
+        return list(RGB_tuples)
     else:
         # return this colour only
         list_to_return = []
         for i in range(ncolours):
             list_to_return.append( colour )
+        return list_to_return
 
-
-
-    return list_to_return
-
-def find_nearest(target_array, target_values):
-    """
-    function to find nearest values in an array, perfect for
-    reducing the number of datapoints
-    """
-
+## function to find nearest values in an array, perfect for reducing the number of datapoints
+# @param original_values an array of original values
+# @param target_values an array of desired values
+# @return idx returns a list of indices of points that hold the nearest values
+def find_nearest(original_values, target_values):
     # all array
-    target_array = np.array(target_array)
+    original_values = np.array(original_values)
     target_values = np.array(target_values)
 
     idx = []
 
     for (i, target_value) in enumerate(target_values):
         # find index
-        idx.append((np.abs(target_array-target_value)).argmin())
+        idx.append((np.abs(original_values-target_value)).argmin())
 
     return idx
 
+
+## nearestSPD - the nearest (in Frobenius norm) Symmetric Positive Definite matrix to A
+# @param A input matrix
+# @return Ahat nearest SPD matrix to A
+#
+# nearestSPD - the nearest (in Frobenius norm) Symmetric Positive Definite matrix to A
+# usage: Ahat = nearestSPD(A)
+#
+# From Higham: "The nearest symmetric positive semidefinite matrix in the
+# Frobenius norm to an arbitrary real matrix A is shown to be (B + H)/2,
+# where H is the symmetric polar factor of B=(A + A')/2."
+#
+# http://www.sciencedirect.com/science/article/pii/0024379588902236
+#
+# arguments: (input)
+# A - square matrix, which will be converted to the nearest Symmetric
+# Positive Definite Matrix.
+#
+# Arguments: (output)
+# Ahat - The matrix chosen as the nearest SPD matrix to A.
+#
+# RE-CODED FROM MATLAB nearestSPD
+# http://uk.mathworks.com/matlabcentral/fileexchange/42885-nearestspd
 def nearest_spd(A):
-    """
-    nearestSPD - the nearest (in Frobenius norm) Symmetric Positive Definite matrix to A
-    usage: Ahat = nearestSPD(A)
-
-    From Higham: "The nearest symmetric positive semidefinite matrix in the
-    Frobenius norm to an arbitrary real matrix A is shown to be (B + H)/2,
-    where H is the symmetric polar factor of B=(A + A')/2."
-
-    http://www.sciencedirect.com/science/article/pii/0024379588902236
-
-    arguments: (input)
-    A - square matrix, which will be converted to the nearest Symmetric
-    Positive Definite Matrix.
-
-    Arguments: (output)
-    Ahat - The matrix chosen as the nearest SPD matrix to A.
-
-
-    RE-CODED FROM MATLAB nearestSPD
-    """
-
     A = np.mat(A)
 
     # symmetrize A into B
@@ -119,15 +120,14 @@ def nearest_spd(A):
 
     return Ahat
 
-
+## function to generate some distributed trajectories
+# @param ntype type of trajectory (0 or 1)
+# @param ndim dimensionality of trajectories (2 or 3)
+# @param ntraj number of trajectories desired
+# @param npoints how many points each trajectory has
+# @param noise_std includes normal distributed (Gaussian) noise to the trajectory data-points
+# return cluster_data a list of (x, Y) trajectory data
 def get_trajectories(ntype=0, ndim=3, ntraj=50, npoints=100, noise_std=.5):
-    """
-    ntype: different output
-    ndim: number of dimensions (2d or 3d)
-    ntraj: number of trajectories
-    npoints: number of datapoints
-    returns a list of trajectories (x, Y)
-    """
     # remove random effect
     np.random.seed(seed=10)
 
@@ -165,18 +165,15 @@ def get_trajectories(ntype=0, ndim=3, ntraj=50, npoints=100, noise_std=.5):
 
     return toy_trajectories
 
+## Test if points in `p` are in `hull`
+# @param p an array of points
+# @param hull points for hull, if not hull, make a hull from points
+# @return p_bool an array with bools whether or not the points are inside the hull
+#
+# `p` should be a `NxK` coordinates of `N` points in `K` dimensions `hull` is either a scipy.spatial.Delaunay object or the `MxK` array of the coordinates of `M` points in `K`dimensions for which Delaunay triangulation will be computed
+#
+# https://stackoverflow.com/questions/16750618/whats-an-efficient-way-to-find-if-a-point-lies-in-the-convex-hull-of-a-point-cl
 def in_hull(p, hull):
-    """
-    Test if points in `p` are in `hull`
-
-    `p` should be a `NxK` coordinates of `N` points in `K` dimensions
-    `hull` is either a scipy.spatial.Delaunay object or the `MxK` array of the
-    coordinates of `M` points in `K`dimensions for which Delaunay triangulation
-    will be computed
-    """
-
-    #print("{0} {1}".format(np.min(hull), np.max(hull)))
-
     # if not Delaunay, create
     if not isinstance(hull, Delaunay):
         hull = Delaunay(hull, qhull_options='QJ')
@@ -187,16 +184,23 @@ def in_hull(p, hull):
 
     return res_bool
 
+## function to find unique rows
+# @param A matrix
+# @return unique_A the matrix A with only unique rows
+#
+# https://stackoverflow.com/questions/16970982/find-unique-rows-in-numpy-array
 def unique_rows(a):
     a = np.ascontiguousarray(a)
     unique_a = np.unique(a.view([('', a.dtype)]*a.shape[1]))
     return unique_a.view(a.dtype).reshape((unique_a.shape[0], a.shape[1]))
 
+## function to evaluate the Gaussian log likelihood
+# @param y data-point
+# @param ndim dimensionality of y
+# @param c mean vector
+# @param A convariance matrix
+# @returns loglikelihood log likelihood of Gaussian
 def gauss_logp(y, ndim, c, A):
-    """
-    returns value Gaussian log likelihood
-    """
-
     y = np.mat(y)
     c = np.mat(c)
     A = np.mat(A)
@@ -209,11 +213,13 @@ def gauss_logp(y, ndim, c, A):
 
     return pL
 
+## function to evaluate the Gaussian (normal distribution)
+# @param y data-point
+# @param ndim dimensionality of y
+# @param c mean vector
+# @param A convariance matrix
+# @returns value value of Gaussian at point y
 def gauss(y, ndim, c, A):
-    """
-    returns value Gaussian
-    """
-
     y = np.mat(y)
     c = np.mat(c)
     A = np.mat(A)
@@ -223,6 +229,12 @@ def gauss(y, ndim, c, A):
 
     return (p1*p2)
 
+## function to evaluate the Gaussian log likelihood in cell-form
+# @param y data-point
+# @param ndim dimensionality of y
+# @param cc mean vector cells
+# @param cA convariance matrix cells
+# @returns loglikelihood maximum log likelihood of Gaussian, based on models found in cells
 def gauss_logLc(y, ndim, cc, cA):
     """
     returns the log likelihood of a position based on model (in cells)
@@ -248,22 +260,12 @@ def gauss_logLc(y, ndim, cc, cA):
             pyL = pyLm
         # py += gauss(y, ndim, c, A)  # addition of each Gaussian
 
-    # if zero, return nan, otherwise return log likelihood
-    """
-    if py == 0.0:
-        pyL = np.nan
-    else:
-        pyL = np.log(py) - np.log(M)  # division by number of Gaussians
-        pyL = float(pyL)  # output is a float
-    """
-
-
     return pyL
 
+## simple function to obtain infinite outline based on dimensionality
+# @param ndim number of dimensions
+# @return outline [ndim x 2], for minimum and maximum
 def getMaxOutline(ndim):
-    """
-    returns default outline based on dimensionality
-    """
     defaultOutline = []
 
     for d in range(ndim):
@@ -272,11 +274,13 @@ def getMaxOutline(ndim):
 
     return defaultOutline
 
+## function to generate a grid based on outline and resolution
+# @param outline [ndim x 2], minimum and maximum values
+# @param resolution can be a scalar [1x1] or specified per dimension [ndim x 1]
+# @return xx x grid
+# @return yy y grid
+# @return zz (optional) z grid
 def getGridFromResolution(outline, resolution):
-    """
-    return xx, yy, (zz), based on outline and resolution
-    """
-
     if type(resolution) is not list:
         # create an equal sized grid
 
@@ -325,24 +329,19 @@ def getGridFromResolution(outline, resolution):
 
     return [xx, yy, zz]
 
+## finds dimension D based on cluster_data
+# @param cluster_data list of (x, Y) format
+# @return D dimensionality of trajectory data
 def getDimension(cluster_data):
-    """
-    returns dimension D of cluster_data
-
-    input:
-        cluster_data -
-
-    output:
-        dimension - integer
-    """
     (_, Y) = cluster_data[0]
     (_, D) = Y.shape
     return D
 
+## find minimum/maximum of the cluster data (x, Y), x-component. The tuple is used to normalise the data
+# @param cluster_data list of (x, Y)
+# @returns xmin minimum value of x
+# @returns xmax maximum value of x
 def getMinMax(cluster_data):
-    """
-    returns tuple (xmin, xmax), to normalise data
-    """
     xmin = np.inf
     xmax = -np.inf
     for (x, Y) in cluster_data:
@@ -356,11 +355,10 @@ def getMinMax(cluster_data):
 
     return (xmin, xmax)
 
+## normalise the cluster_data in x-domain
+# @param cluster_data list of (x, Y) data
+# @return cluster_data_norm list of (x, Y) data with normalised x
 def normalise_data(cluster_data):
-    """
-    normalises the x dimension
-    """
-
     # determine minimum maximum
     tuple_min_max = getMinMax(cluster_data)
 
@@ -373,20 +371,18 @@ def normalise_data(cluster_data):
 
     return cluster_data_norm
 
+## returns a normalised array based on a specified minimum/maximum
+# @param x input array
+# @param tuple_min_max a tuple with minimum and maximum specified
+# @return x_norm a normalised array x
 def getNorm(x, tuple_min_max):
-    """
-    returns normalised array
-    """
     (xmin, xmax) = tuple_min_max
     return ((x - xmin) / (xmax - xmin))
 
+## returns the outline based on cluster_data
+# @param cluster_data list of (x, Y) trajectory data
+# @return outline [min, max]*ndim for outline
 def get_cluster_data_outline(cluster_data):
-    """
-    returns the outline of the cluster_data
-
-    returns an array
-    """
-
     ndim = getDimension(cluster_data)
 
     this_cluster_data_outline = tt.helpers.getMaxOutline(ndim)
@@ -404,10 +400,13 @@ def get_cluster_data_outline(cluster_data):
 
     return this_cluster_data_outline
 
+## returns a normalised cluster_data based on outline
+# @param cluster_data list of (x, Y) trajectory data
+# @param outline array specifying an pre-set outline, otherwise the outline is calculated from the cluster_data
+# @return cluster_data_norm list of (x, Y), where all Y and x fit in [0, 1] domain
+#
+# specifying an outline is useful when wanting to normalise based on multiple clusters
 def get_cluster_data_norm(cluster_data, outline=None):
-    """returns the normalised cluster data
-    """
-
     ndim = getDimension(cluster_data)
 
     if outline is None:
