@@ -209,24 +209,18 @@ class Visual_3d(object):
             #nblocks_total = np.prod(ss1.shape)
             #print("{0} > {1} of {2}".format(label, nblocks_used, nblocks_total))
 
-
+    ## passes arguments to view
+    # @param self object pointer
+    # @param kwargs optional keyword parmeters
+    # azimuth float, optional. The azimuthal angle (in degrees, 0-360), i.e. the angle subtended by the position vector on a sphere projected on to the x-y plane with the x-axis.
+    # elevation float, optional. The zenith angle (in degrees, 0-180), i.e. the angle subtended by the position vector and the z-axis.
+    # distance float or auto, optional. A positive floating point number representing the distance from the focal point to place the camera. New in Mayavi 3.4.0: if auto is passed, the distance is computed to have a best fit of objects in the frame.
+    # focalpoint array_like or auto, optional. An array of 3 floating point numbers representing the focal point of the camera. New in Mayavi 3.4.0: if auto is passed, the focal point is positioned at the center of all objects in the scene.
+    # roll float, optional Controls the roll, ie the rotation of the camera around its axis.
+    # reset_roll boolean, optional. If True, and roll is not specified, the roll orientation of the camera is reset.
+    # figure The Mayavi figure to operate on. If None is passed, the current one is used.
     def setView(self, **kwargs):
-        """
-        passes arguments to view
-
-        mayavi.mlab.view(azimuth=None, elevation=None, distance=None, focalpoint=None, roll=None, reset_roll=True, figure=None)
-
-        azimuth:	float, optional. The azimuthal angle (in degrees, 0-360), i.e. the angle subtended by the position vector on a sphere projected on to the x-y plane with the x-axis.
-        elevation:	float, optional. The zenith angle (in degrees, 0-180), i.e. the angle subtended by the position vector and the z-axis.
-        distance:	float or ‘auto’, optional. A positive floating point number representing the distance from the focal point to place the camera. New in Mayavi 3.4.0: if ‘auto’ is passed, the distance is computed to have a best fit of objects in the frame.
-        focalpoint:	array_like or ‘auto’, optional. An array of 3 floating point numbers representing the focal point of the camera. New in Mayavi 3.4.0: if ‘auto’ is passed, the focal point is positioned at the center of all objects in the scene.
-        roll:	float, optional Controls the roll, ie the rotation of the camera around its axis.
-        reset_roll:	boolean, optional. If True, and ‘roll’ is not specified, the roll orientation of the camera is reset.
-        figure:	The Mayavi figure to operate on. If None is passed, the current one is used.
-        """
-
         view = mlab.view(**kwargs)
-
 
         return view
 

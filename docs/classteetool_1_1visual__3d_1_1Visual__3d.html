@@ -104,6 +104,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4b53d875d998ce2a392671d58da60a7d"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1visual__3d_1_1Visual__3d.html#a4b53d875d998ce2a392671d58da60a7d">plotTubeDifference</a> (self, list_icluster=None, sdwidth=1, alpha=1.0, resolution=None, kwargs)</td></tr>
 <tr class="separator:a4b53d875d998ce2a392671d58da60a7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a573b05848fd145f8b01bf09746d58668"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1visual__3d_1_1Visual__3d.html#a573b05848fd145f8b01bf09746d58668">setView</a> (self, kwargs)</td></tr>
+<tr class="memdesc:a573b05848fd145f8b01bf09746d58668"><td class="mdescLeft">&#160;</td><td class="mdescRight">passes arguments to view  <a href="#a573b05848fd145f8b01bf09746d58668">More...</a><br /></td></tr>
 <tr class="separator:a573b05848fd145f8b01bf09746d58668"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f5662eb7cbbda6a2f4eaa7e3f8d7882"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1visual__3d_1_1Visual__3d.html#a5f5662eb7cbbda6a2f4eaa7e3f8d7882">setLabels</a> (self, xlabel=&quot;&quot;, ylabel=&quot;&quot;, zlabel=&quot;&quot;)</td></tr>
 <tr class="separator:a5f5662eb7cbbda6a2f4eaa7e3f8d7882"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -823,18 +824,16 @@ input:
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">passes arguments to view
 
-mayavi.mlab.view(azimuth=None, elevation=None, distance=None, focalpoint=None, roll=None, reset_roll=True, figure=None)
+<p>passes arguments to view </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">self</td><td>object pointer </td></tr>
+    <tr><td class="paramname">kwargs</td><td>optional keyword parmeters azimuth float, optional. The azimuthal angle (in degrees, 0-360), i.e. the angle subtended by the position vector on a sphere projected on to the x-y plane with the x-axis. elevation float, optional. The zenith angle (in degrees, 0-180), i.e. the angle subtended by the position vector and the z-axis. distance float or auto, optional. A positive floating point number representing the distance from the focal point to place the camera. New in Mayavi 3.4.0: if auto is passed, the distance is computed to have a best fit of objects in the frame. focalpoint array_like or auto, optional. An array of 3 floating point numbers representing the focal point of the camera. New in Mayavi 3.4.0: if auto is passed, the focal point is positioned at the center of all objects in the scene. roll float, optional Controls the roll, ie the rotation of the camera around its axis. reset_roll boolean, optional. If True, and roll is not specified, the roll orientation of the camera is reset. figure The Mayavi figure to operate on. If None is passed, the current one is used. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-azimuth:    float, optional. The azimuthal angle (in degrees, 0-360), i.e. the angle subtended by the position vector on a sphere projected on to the x-y plane with the x-axis.
-elevation:  float, optional. The zenith angle (in degrees, 0-180), i.e. the angle subtended by the position vector and the z-axis.
-distance:   float or ‘auto’, optional. A positive floating point number representing the distance from the focal point to place the camera. New in Mayavi 3.4.0: if ‘auto’ is passed, the distance is computed to have a best fit of objects in the frame.
-focalpoint: array_like or ‘auto’, optional. An array of 3 floating point numbers representing the focal point of the camera. New in Mayavi 3.4.0: if ‘auto’ is passed, the focal point is positioned at the center of all objects in the scene.
-roll:   float, optional Controls the roll, ie the rotation of the camera around its axis.
-reset_roll: boolean, optional. If True, and ‘roll’ is not specified, the roll orientation of the camera is reset.
-figure: The Mayavi figure to operate on. If None is passed, the current one is used.
-</pre> 
 </div>
 </div>
 <a id="a22a39b4b7c1702da38193901696647bd"></a>

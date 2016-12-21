@@ -13,7 +13,7 @@ conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy
 
 source activate teetool
 
-pip install matplotlib
+pip install matplotlib nbval
 
 python setup.py install
 

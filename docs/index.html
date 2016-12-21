@@ -67,10 +67,11 @@ $(function() {
 <h1>teetool</h1>
 <p>a package to support with the statistical analysis of trajectory data &ndash; helpful at determining the probability of clusters (collection) of trajectories colliding</p>
 <p>purely spatial, ignores temporal effects</p>
+<p>documentation is available at <a href="https://willemeerland.github.io/teetool/">https://willemeerland.github.io/teetool/</a></p>
 <h1>setup the environment in Linux</h1>
 <p>conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy</p>
 <p>source activate teetool</p>
-<p>pip install matplotlib</p>
+<p>pip install matplotlib nbval</p>
 <p>python setup.py install</p>
 <h1>run tests (including coverage report)</h1>
 <p>(cd test ; py.test -v &ndash;cov-report html &ndash;cov=teetool)</p>
