@@ -5,6 +5,8 @@ a package to support with the statistical analysis of trajectory data -- helpful
 
 purely spatial, ignores temporal effects
 
+documentation is available at https://willemeerland.github.io/teetool/
+
 # setup the environment in Linux
 
 conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy
