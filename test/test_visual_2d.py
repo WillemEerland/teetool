@@ -61,6 +61,8 @@ def test_visual_2d():
     visual = tt.visual_2d.Visual_2d(world_1)
     # visualise trajectories
     visual.plotTrajectories(list_iclusters)
+    # visualise points
+    visual.plotTrajectoriesPoints(x1=0.0, list_icluster=None)
     # mean
     visual.plotMean()
     #

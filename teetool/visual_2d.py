@@ -93,6 +93,41 @@ class Visual_2d(object):
 
         self._labels.append((a_line, "data"))
 
+    ## Plot trajectories of cluster
+    # @param self object pointer
+    # @param list_icluster list of clusters to plot
+    # @param ntraj maximum number of trajectories
+    # @param colour if specified, overwrites distinct colours
+    # @param kwargs additional parameters for plotting
+    def plotTrajectoriesPoints(self,
+                               x1,
+                               list_icluster=None,
+                               ntraj=50,
+                               colour=None,
+                               **kwargs):
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
+
+        # obtain points
+        clustersP = self._world.getClusterPoints(x1, list_icluster)
+
+        # unique colours
+        colours = tt.helpers.getDistinctColours(len(self._world._clusters),
+                                                colour)
+
+        for (i, A) in enumerate(clustersP):
+            # pass clusters
+            for itraj, a in enumerate(A):
+                a_line, = self._ax.plot(a[0],
+                                        a[1],
+                                        color=colours[i],
+                                        **kwargs)
+                # limit number of trajectories
+                if itraj > ntraj:
+                    break
+
+        self._labels.append((a_line, "data"))
+
     ## Plot time-series of trajectories
     # @param self object pointer
     # @param icluster select cluster to plot

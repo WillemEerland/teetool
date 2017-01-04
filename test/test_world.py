@@ -136,3 +136,59 @@ def test_model():
 
     # clear world
     world_1.clear()
+
+def test_data_point():
+    """obtain a point cloud based on the data
+    """
+
+    # build world
+    world = tt.World(name="model test", ndim=3)
+
+    # test (x, Y)
+    x = np.linspace(0,1,100)
+    Y = np.zeros((100, 3)) # << dimension
+    Y[:,0] = x
+    Y[:,1] = x
+    Y[:,2] = x
+
+    a = world._get_point_from_xY(x, Y, x1=0.0)
+    a_expected = np.array([0.0, 0.0, 0.0])
+    np.testing.assert_array_almost_equal_nulp(a, a_expected)
+
+    a = world._get_point_from_xY(x, Y, x1=1.0)
+    a_expected = np.array([1.0, 1.0, 1.0])
+    np.testing.assert_array_almost_equal_nulp(a, a_expected)
+
+
+    # test cluster_data
+    cluster_data = []
+    cluster_data.append ( (x, Y) ) # 1
+    cluster_data.append ( (x, Y) ) # 2
+    cluster_data.append ( (x, Y) ) # 3
+    cluster_data.append ( (x, Y) ) # 4
+
+    A = world._get_point_from_cluster_data(cluster_data, x1=0.0)
+    A_expected = np.zeros((4,3))
+    np.testing.assert_array_almost_equal_nulp(A, A_expected)
+
+    A = world._get_point_from_cluster_data(cluster_data, x1=1.0)
+    A_expected = np.ones((4,3))
+    np.testing.assert_array_almost_equal_nulp(A, A_expected)
+
+    # add trajectories
+    world.addCluster(cluster_data, "1")
+    world.addCluster(cluster_data, "2")
+
+    # obtain list of points
+    clusterP = world.getClusterPoints( x1 = 0.0 )
+
+    # check values inside clusters
+    for i in [0, 1]:
+        np.testing.assert_array_almost_equal_nulp(clusterP[i], np.zeros((4,3)))
+
+    # obtain list of points
+    clusterP = world.getClusterPoints( x1 = 1.0 )
+
+    # check values
+    for i in [0, 1]:
+        np.testing.assert_array_almost_equal_nulp(clusterP[i], np.ones((4,3)))

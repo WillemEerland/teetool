@@ -108,8 +108,8 @@ class World(object):
         outline = tt.helpers.get_cluster_data_outline(cluster_data)
         new_cluster["outl"] = outline
 
-        # store trajectories
-        new_cluster["data"] = cluster_data
+        # store trajectories + time-warping
+        new_cluster["data"] = tt.helpers.normalise_data(cluster_data)
 
         # add cluster to the list
         self._clusters.append(new_cluster)
@@ -126,6 +126,7 @@ class World(object):
     ## obtain cluster data
     # @param self object pointer
     # @param list_icluster list of clusters to return
+    # @return clusters a list of clusters as specified, holds (x, Y)
     def getCluster(self, list_icluster=None):
         # check validity list
         list_icluster = self._check_list_icluster(list_icluster)
@@ -134,6 +135,24 @@ class World(object):
         clusters = []
         for i in list_icluster:
             clusters.append(self._clusters[i])
+        return clusters
+
+
+    ## obtain cluster data at specific points [0, 1]
+    # @param self object pointer
+    # @param x1 point to return, from 0 to 1
+    # @param list_icluster list of clusters to return
+    # @return clusters a list of points A, with points
+    def getClusterPoints(self, x1, list_icluster=None):
+        # check validity list
+        list_icluster = self._check_list_icluster(list_icluster)
+
+        # return clusters in list
+        clusters = []
+        for i in list_icluster:
+            cluster_data = self._clusters[i]["data"]
+            A = self._get_point_from_cluster_data(cluster_data, x1)
+            clusters.append(A)
         return clusters
 
     ## obtain statistics of confidence region in scenarios
@@ -505,6 +524,7 @@ class World(object):
     # @param self object pointer
     # @param sdwidth variance to evaluate confidence region on
     # @param list_icluster clusters to evaluate confidence on. None shows all
+    # @return global_outline global outline of the tube (maximum dimensions)
     def _get_outline_tube(self, sdwidth=1, list_icluster=None):
         # check validity
         list_icluster = self._check_list_icluster(list_icluster)
@@ -530,3 +550,35 @@ class World(object):
                     global_outline[d*2+1] = xmax
 
         return global_outline
+
+
+    def _get_point_from_cluster_data(self, cluster_data, x1):
+
+        # obtain values
+        A = []
+
+        for (x, Y) in cluster_data:
+
+            # obtain point
+            a = self._get_point_from_xY(x, Y, x1)
+
+            A.append(a)
+
+        # from list to array
+        A = np.array(A).squeeze()
+
+        return A
+
+    ## returns the points nearest to x1
+    # @param self object pointer
+    # @param x x from (x, Y), to find the relevant index
+    # @param Y Y from (x, Y), one of these values gets returned
+    # @return a a point in space, along the position x, value Y
+    def _get_point_from_xY(self, x, Y, x1):
+
+        # obtain index
+        idx = np.argmin( np.abs(x-x1) )
+
+        a = Y[idx,:]
+
+        return a

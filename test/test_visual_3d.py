@@ -40,6 +40,9 @@ def test_visual_3d():
     visual = tt.visual_3d.Visual_3d(world_1)
     # visualise trajectories
     visual.plotTrajectories(list_icluster, ntraj=3)
+    # visualise points
+    # visualise trajectories
+    visual.plotTrajectoriesPoints(x1=0.0,list_icluster=None, ntraj=3)
     # visualise intersection
     visual.plotLogLikelihood()
     # visualise tube

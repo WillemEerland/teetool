@@ -70,7 +70,8 @@ class Visual_3d(object):
         clusters = self._world.getCluster(list_icluster)
 
         # unique colours
-        colours = tt.helpers.getDistinctColours(len(clusters), colour)
+        colours = tt.helpers.getDistinctColours(len(self._world._clusters),
+                                                colour)
 
         for (i, this_cluster) in enumerate(clusters):
             # pass clusters
@@ -82,6 +83,34 @@ class Visual_3d(object):
 
                 mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
                             tube_radius=None, **kwargs)
+
+    ## Plot points in trajectories of cluster
+    # @param self object pointer
+    # @param list_icluster list of clusters to plot
+    # @param ntraj maximum number of trajectories
+    # @param colour if specified, overwrites distinct colours
+    # @param kwargs additional parameters for plotting
+    def plotTrajectoriesPoints(self, x1, list_icluster=None,
+                         ntraj=50, colour=None, **kwargs):
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
+
+        # obtain points
+        clustersP = self._world.getClusterPoints(x1, list_icluster)
+
+        # unique colours
+        colours = tt.helpers.getDistinctColours(len(self._world._clusters),
+                                                colour)
+
+        for (i, A) in enumerate(clustersP):
+            # pass clusters
+            for itraj, a in enumerate(A):
+
+                # limit number of trajectories printed
+                if itraj > (ntraj-1):
+                    break
+
+                mlab.points3d(a[0], a[1], a[2], color=colours[i],**kwargs)
 
 
 
