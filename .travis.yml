@@ -29,4 +29,4 @@ install:
 # Run test
 script:
   - py.test -v -s
-  - py.test --nbval example/example_toy_2d.ipynb
+#  - py.test --nbval example/example_toy_2d.ipynb
