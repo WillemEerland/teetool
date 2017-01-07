@@ -10,6 +10,7 @@ var searchData=
   ['get_5fcluster_5fdata_5foutline',['get_cluster_data_outline',['../namespaceteetool_1_1helpers.html#a971b5f4869d86e51a0de325bf17e6e5d',1,'teetool::helpers']]],
   ['get_5ftrajectories',['get_trajectories',['../namespaceteetool_1_1helpers.html#ab4b367e606b9596593efcc2e38080006',1,'teetool::helpers']]],
   ['getcluster',['getCluster',['../classteetool_1_1world_1_1World.html#a83885fb0c395496fe9bbfd513dd020a3',1,'teetool::world::World']]],
+  ['getclusterpoints',['getClusterPoints',['../classteetool_1_1world_1_1World.html#ac1341bbb419acce142bbfa4fc754fea3',1,'teetool::world::World']]],
   ['getdimension',['getDimension',['../namespaceteetool_1_1helpers.html#a1731b1f3ae4b64fe77dca28b4d5e9ccc',1,'teetool::helpers']]],
   ['getdistinctcolours',['getDistinctColours',['../namespaceteetool_1_1helpers.html#a2b1b4b0da2f6f72ead0e4b32f9b36fb9',1,'teetool::helpers']]],
   ['getgridfromresolution',['getGridFromResolution',['../namespaceteetool_1_1helpers.html#ad939685b1e1e549537c6104897fefbaa',1,'teetool::helpers']]],

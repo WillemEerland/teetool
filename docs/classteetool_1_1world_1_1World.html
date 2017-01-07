@@ -105,6 +105,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a83885fb0c395496fe9bbfd513dd020a3"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1world_1_1World.html#a83885fb0c395496fe9bbfd513dd020a3">getCluster</a> (self, list_icluster=None)</td></tr>
 <tr class="memdesc:a83885fb0c395496fe9bbfd513dd020a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">obtain cluster data  <a href="#a83885fb0c395496fe9bbfd513dd020a3">More...</a><br /></td></tr>
 <tr class="separator:a83885fb0c395496fe9bbfd513dd020a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1341bbb419acce142bbfa4fc754fea3"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1world_1_1World.html#ac1341bbb419acce142bbfa4fc754fea3">getClusterPoints</a> (self, x1, list_icluster=None)</td></tr>
+<tr class="memdesc:ac1341bbb419acce142bbfa4fc754fea3"><td class="mdescLeft">&#160;</td><td class="mdescRight">obtain cluster data at specific points [0, 1]  <a href="#ac1341bbb419acce142bbfa4fc754fea3">More...</a><br /></td></tr>
+<tr class="separator:ac1341bbb419acce142bbfa4fc754fea3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93e39cc021c7644092f64693dc551c51"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1world_1_1World.html#a93e39cc021c7644092f64693dc551c51">getTubeStats</a> (self, list_icluster=None, sdwidth=1., resolution=None)</td></tr>
 <tr class="memdesc:a93e39cc021c7644092f64693dc551c51"><td class="mdescLeft">&#160;</td><td class="mdescRight">obtain statistics of confidence region in scenarios  <a href="#a93e39cc021c7644092f64693dc551c51">More...</a><br /></td></tr>
 <tr class="separator:a93e39cc021c7644092f64693dc551c51"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -152,6 +155,11 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:a60d5b211f683c8585e37eebb075f4e23"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1world_1_1World.html#a60d5b211f683c8585e37eebb075f4e23">_get_outline_tube</a> (self, sdwidth=1, list_icluster=None)</td></tr>
 <tr class="memdesc:a60d5b211f683c8585e37eebb075f4e23"><td class="mdescLeft">&#160;</td><td class="mdescRight">returns the outline of a tube of specified clusters  <a href="#a60d5b211f683c8585e37eebb075f4e23">More...</a><br /></td></tr>
 <tr class="separator:a60d5b211f683c8585e37eebb075f4e23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e08fd6d520d7ff4d0055a831ba723ba"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1world_1_1World.html#a4e08fd6d520d7ff4d0055a831ba723ba">_get_point_from_cluster_data</a> (self, cluster_data, x1)</td></tr>
+<tr class="separator:a4e08fd6d520d7ff4d0055a831ba723ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50e98b6878e1ac8c6fab2e679d743aa4"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1world_1_1World.html#a50e98b6878e1ac8c6fab2e679d743aa4">_get_point_from_xY</a> (self, x, Y, x1)</td></tr>
+<tr class="memdesc:a50e98b6878e1ac8c6fab2e679d743aa4"><td class="mdescLeft">&#160;</td><td class="mdescRight">returns the points nearest to x1  <a href="#a50e98b6878e1ac8c6fab2e679d743aa4">More...</a><br /></td></tr>
+<tr class="separator:a50e98b6878e1ac8c6fab2e679d743aa4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -473,6 +481,109 @@ zz grid in z-domain </dd></dl>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>global_outline global outline of the tube (maximum dimensions) </dd></dl>
+
+</div>
+</div>
+<a id="a4e08fd6d520d7ff4d0055a831ba723ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e08fd6d520d7ff4d0055a831ba723ba">&sect;&nbsp;</a></span>_get_point_from_cluster_data()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">def teetool.world.World._get_point_from_cluster_data </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>cluster_data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>x1</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a50e98b6878e1ac8c6fab2e679d743aa4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50e98b6878e1ac8c6fab2e679d743aa4">&sect;&nbsp;</a></span>_get_point_from_xY()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">def teetool.world.World._get_point_from_xY </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>Y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>x1</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>returns the points nearest to x1 </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">self</td><td>object pointer </td></tr>
+    <tr><td class="paramname">x</td><td>x from (x, Y), to find the relevant index </td></tr>
+    <tr><td class="paramname">Y</td><td>Y from (x, Y), one of these values gets returned </td></tr>
+    <tr><td class="paramname">x1</td><td>timing [0, 1] to visualise points </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a a point in space, along the position x, value Y </dd></dl>
 
 </div>
 </div>
@@ -681,6 +792,52 @@ zz grid in z-domain </dd></dl>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>clusters a list of clusters as specified, holds (x, Y) </dd></dl>
+
+</div>
+</div>
+<a id="ac1341bbb419acce142bbfa4fc754fea3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1341bbb419acce142bbfa4fc754fea3">&sect;&nbsp;</a></span>getClusterPoints()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def teetool.world.World.getClusterPoints </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>x1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>list_icluster</em> = <code>None</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>obtain cluster data at specific points [0, 1] </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">self</td><td>object pointer </td></tr>
+    <tr><td class="paramname">x1</td><td>timing [0, 1] to visualise points </td></tr>
+    <tr><td class="paramname">list_icluster</td><td>list of clusters to return </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>clusters a list of points A, with points </dd></dl>
 
 </div>
 </div>

@@ -95,6 +95,7 @@ class Visual_2d(object):
 
     ## Plot trajectories of cluster
     # @param self object pointer
+    # @param x1 point from [0,1] to visualise
     # @param list_icluster list of clusters to plot
     # @param ntraj maximum number of trajectories
     # @param colour if specified, overwrites distinct colours
@@ -132,7 +133,7 @@ class Visual_2d(object):
     # @param self object pointer
     # @param icluster select cluster to plot
     # @param ntraj maximum number of trajectories
-    # @param specificy colour of trajectories
+    # @param colour specificy colour of trajectories
     # @param kwargs additional parameters for plotting
     def plotTimeSeries(self, icluster=0, ntraj=50,
                          colour='k', **kwargs):
@@ -194,7 +195,7 @@ class Visual_2d(object):
     # @param ntraj number of trajectories
     # @param colour if specified, overwrites distinct colours
     # @param kwargs additional parameters for plotting
-    def plotSamples(self, list_icluster=None, ntraj=50, colour=None):
+    def plotSamples(self, list_icluster=None, ntraj=50, colour=None, **kwargs):
 
         # check validity
         list_icluster = self._world._check_list_icluster(list_icluster)
@@ -210,7 +211,8 @@ class Visual_2d(object):
                 a_line, = self._ax.plot(Y[:, 0],
                                        Y[:, 1],
                                        color=colours[i],
-                                       linestyle=":")
+                                       linestyle=":",
+                                       **kwargs)
 
         self._labels.append((a_line, "samples"))
 
@@ -231,6 +233,7 @@ class Visual_2d(object):
     # @param list_icluster list of clusters to plot
     # @param sdwidth variance to evaluate
     # @param z if specified, it evaluates the confidence region at a constant altitude for 3D trajectories
+    # @param resolution sets resolution for which to calculate the tube, can be a single integer, or an actual measurement [dim1 dim2] (2d) [dim1 dim2 dim3] (3d)
     # @param colour if specified, overwrites distinct colours
     # @param alpha opacity for the confidence region
     # @param kwargs additional parameters for plotting

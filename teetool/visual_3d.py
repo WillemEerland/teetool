@@ -86,6 +86,7 @@ class Visual_3d(object):
 
     ## Plot points in trajectories of cluster
     # @param self object pointer
+    # @param x1 timing [0, 1] to visualise points
     # @param list_icluster list of clusters to plot
     # @param ntraj maximum number of trajectories
     # @param colour if specified, overwrites distinct colours

@@ -97,6 +97,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4b9779b0305403adacca1c5e40ecbfca"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1visual__3d_1_1Visual__3d.html#a4b9779b0305403adacca1c5e40ecbfca">plotTrajectories</a> (self, list_icluster=None, ntraj=50, colour=None, kwargs)</td></tr>
 <tr class="memdesc:a4b9779b0305403adacca1c5e40ecbfca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Plot trajectories of cluster.  <a href="#a4b9779b0305403adacca1c5e40ecbfca">More...</a><br /></td></tr>
 <tr class="separator:a4b9779b0305403adacca1c5e40ecbfca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54d5056b7a3e0d4459ba41b6ff5b285d"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1visual__3d_1_1Visual__3d.html#a54d5056b7a3e0d4459ba41b6ff5b285d">plotTrajectoriesPoints</a> (self, x1, list_icluster=None, ntraj=50, colour=None, kwargs)</td></tr>
+<tr class="memdesc:a54d5056b7a3e0d4459ba41b6ff5b285d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Plot points in trajectories of cluster.  <a href="#a54d5056b7a3e0d4459ba41b6ff5b285d">More...</a><br /></td></tr>
+<tr class="separator:a54d5056b7a3e0d4459ba41b6ff5b285d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a147ef0145ee6897c1c77fa58c0698b1e"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1visual__3d_1_1Visual__3d.html#a147ef0145ee6897c1c77fa58c0698b1e">plotLogDifference</a> (self, icluster1, icluster2, pmin=0.0, pmax=1.0)</td></tr>
 <tr class="separator:a147ef0145ee6897c1c77fa58c0698b1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d7d555597da81ec5cb26405805018be"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classteetool_1_1visual__3d_1_1Visual__3d.html#a1d7d555597da81ec5cb26405805018be">plotTube</a> (self, list_icluster=None, sdwidth=1, alpha=1.0, resolution=None, colour=None, kwargs)</td></tr>
@@ -554,6 +557,71 @@ input parameters:
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">self</td><td>object pointer </td></tr>
+    <tr><td class="paramname">list_icluster</td><td>list of clusters to plot </td></tr>
+    <tr><td class="paramname">ntraj</td><td>maximum number of trajectories </td></tr>
+    <tr><td class="paramname">colour</td><td>if specified, overwrites distinct colours </td></tr>
+    <tr><td class="paramname">kwargs</td><td>additional parameters for plotting </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a54d5056b7a3e0d4459ba41b6ff5b285d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a54d5056b7a3e0d4459ba41b6ff5b285d">&sect;&nbsp;</a></span>plotTrajectoriesPoints()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def teetool.visual_3d.Visual_3d.plotTrajectoriesPoints </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>x1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>list_icluster</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>ntraj</em> = <code>50</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>colour</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>kwargs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Plot points in trajectories of cluster. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">self</td><td>object pointer </td></tr>
+    <tr><td class="paramname">x1</td><td>timing [0, 1] to visualise points </td></tr>
     <tr><td class="paramname">list_icluster</td><td>list of clusters to plot </td></tr>
     <tr><td class="paramname">ntraj</td><td>maximum number of trajectories </td></tr>
     <tr><td class="paramname">colour</td><td>if specified, overwrites distinct colours </td></tr>

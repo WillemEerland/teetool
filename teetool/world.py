@@ -140,7 +140,7 @@ class World(object):
 
     ## obtain cluster data at specific points [0, 1]
     # @param self object pointer
-    # @param x1 point to return, from 0 to 1
+    # @param x1 timing [0, 1] to visualise points
     # @param list_icluster list of clusters to return
     # @return clusters a list of points A, with points
     def getClusterPoints(self, x1, list_icluster=None):
@@ -573,6 +573,7 @@ class World(object):
     # @param self object pointer
     # @param x x from (x, Y), to find the relevant index
     # @param Y Y from (x, Y), one of these values gets returned
+    # @param x1 timing [0, 1] to visualise points
     # @return a a point in space, along the position x, value Y
     def _get_point_from_xY(self, x, Y, x1):
 

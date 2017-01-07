@@ -26,6 +26,8 @@ var searchData=
   ['_5fget_5foutline_5fexpanded',['_get_outline_expanded',['../classteetool_1_1world_1_1World.html#a0d053538fca56c8e6ded13e897a875fc',1,'teetool::world::World']]],
   ['_5fget_5foutline_5ftube',['_get_outline_tube',['../classteetool_1_1world_1_1World.html#a60d5b211f683c8585e37eebb075f4e23',1,'teetool::world::World']]],
   ['_5fget_5fpoint_5fcloud',['_get_point_cloud',['../classteetool_1_1model_1_1Model.html#a98c70559d8e69c6463224211be6f8ca8',1,'teetool::model::Model']]],
+  ['_5fget_5fpoint_5ffrom_5fcluster_5fdata',['_get_point_from_cluster_data',['../classteetool_1_1world_1_1World.html#a4e08fd6d520d7ff4d0055a831ba723ba',1,'teetool::world::World']]],
+  ['_5fget_5fpoint_5ffrom_5fxy',['_get_point_from_xY',['../classteetool_1_1world_1_1World.html#a50e98b6878e1ac8c6fab2e679d743aa4',1,'teetool::world::World']]],
   ['_5fgetbasisbernstein',['_getBasisBernstein',['../classteetool_1_1basis_1_1Basis.html#a0cd958ecbf256e763717fced5f7e41d2',1,'teetool::basis::Basis']]],
   ['_5fgetbasisbernsteinvector',['_getBasisBernsteinVector',['../classteetool_1_1basis_1_1Basis.html#a859fd8372dc3fb8fb225f6fa343c1684',1,'teetool::basis::Basis']]],
   ['_5fgetbasisrbf',['_getBasisRbf',['../classteetool_1_1basis_1_1Basis.html#a78083237cea3db91f4738d2bdc4adc46',1,'teetool::basis::Basis']]],

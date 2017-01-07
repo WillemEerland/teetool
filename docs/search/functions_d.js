@@ -3,6 +3,7 @@ var searchData=
   ['test_5faddcluster',['test_addCluster',['../namespacetest__world.html#ab7c72dcb199334214f58567cd7ece6b1',1,'test_world']]],
   ['test_5fbasis',['test_basis',['../namespacetest__basis.html#ad1e26f7b6e90c73bdf6757ef6c47d4f0',1,'test_basis']]],
   ['test_5fcluster_5fdata',['test_cluster_data',['../namespacetest__gp.html#af278cf8fc96fc556000aae1f6f1f7f1a',1,'test_gp']]],
+  ['test_5fdata_5fpoint',['test_data_point',['../namespacetest__world.html#a24c6a9c6e5da67160a4b717ace39e56e',1,'test_world']]],
   ['test_5feval',['test_eval',['../namespacetest__model__2.html#aab1acabe43a08e08f8f800c648e6bb64',1,'test_model_2']]],
   ['test_5fexpectation_5fmaximization',['test_expectation_maximization',['../namespacetest__gp.html#abaab938c2f98951589892bfebf38006a',1,'test_gp']]],
   ['test_5ffind_5fnearest',['test_find_nearest',['../namespacetest__helpers.html#a616bb301077e556b36a75478a3e63673',1,'test_helpers']]],

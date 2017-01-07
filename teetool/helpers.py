@@ -185,8 +185,8 @@ def in_hull(p, hull):
     return res_bool
 
 ## function to find unique rows
-# @param A matrix
-# @return unique_A the matrix A with only unique rows
+# @param a matrix
+# @return unique_A the matrix a with only unique rows
 #
 # https://stackoverflow.com/questions/16970982/find-unique-rows-in-numpy-array
 def unique_rows(a):
