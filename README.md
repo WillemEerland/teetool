@@ -21,27 +21,9 @@ python setup.py install
 
 (cd test ; py.test -v --cov-report html --cov=teetool)
 
-# example/example_toy_2d.py
-
-![2d intersection](https://www.southampton.ac.uk/~wje1n13/teetool/2d_intersection.png)
-
-shows log-probability of intersecting clusters
-
-# example/example_toy_3d.py
-
-![3d toy 0](https://www.southampton.ac.uk/~wje1n13/teetool/3d_input.png)
-
-shows input trajectory data
-
-![3d toy 1](https://www.southampton.ac.uk/~wje1n13/teetool/3d_toy.png)
-
-shows log-probability of a single cluster
-
-![3d inter](https://www.southampton.ac.uk/~wje1n13/teetool/3d_intersection.png)
-
-shows log-probability of two clusters intersecting
-
 # jupyter notebook
+
+Examples included in example/ folder
 
 * requires jupyter notebook
 
@@ -49,4 +31,4 @@ conda install jupyter
 
 jupyter notebook
 
-* find notebook/ in browser and run files in order
+* find example/ in browser and run files in order
