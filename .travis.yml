@@ -23,10 +23,9 @@ before_install:
 # Install packages
 install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION pytest pytest-cov mayavi numpy scipy
-  - pip install matplotlib nbval
+  - pip install matplotlib
   - python setup.py install
 
 # Run test
 script:
-  - py.test -v -s
-#  - py.test --nbval example/example_toy_2d.ipynb
+  - make test
