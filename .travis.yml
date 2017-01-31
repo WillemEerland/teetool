@@ -28,4 +28,4 @@ install:
 
 # Run test
 script:
-  - make test
+  - make -B test
