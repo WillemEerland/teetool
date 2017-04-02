@@ -5,10 +5,10 @@ clean:
 	rm -f */*.pyc
 
 install:
-	python setup.py install
+	pip install -e .
 
 test: test/*.py teetool/*.py
 	py.test -v -s
 
-doc:
+doc: test/*.py teetool/*.py
 	doxygen Doxyfile
