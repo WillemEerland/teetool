@@ -310,15 +310,16 @@ class Visual_3d(object):
 
 
 
-    def plotLogLikelihood(self, list_icluster=None, pmin=0.0, pmax=1.0,
-                          popacity=0.3, resolution=None):
+    def plotLogLikelihood(self, list_icluster=None, complexity=1,
+                            pmin=0.0, pmax=1.0,
+                            alpha=0.3,
+                            resolution=None):
         """
         plots log-likelihood
 
         input parameters:
             - list_icluster
-            - pmin
-            - pmax
+            - complexity
         """
 
         # check validity
@@ -328,11 +329,53 @@ class Visual_3d(object):
         (ss_list, [xx, yy, zz]) = self._world.getLogLikelihood(list_icluster,
                                                                resolution)
 
-        ss = np.zeros_like(xx)
 
-        for ss1 in ss_list:
-            # sum
-            ss += ss1
+        ## TODO place this in a function
+
+        # initialise, flatten
+        ss_flat = np.zeros_like(xx, dtype=object).flatten()
+
+        # create empty lists
+        for i, _ in enumerate(ss_flat):
+            # empty list
+            ss_flat[i] = []
+
+        # loop over clusters
+        for ss_cluster in ss_list:
+            # flatten
+            ss_cluster_flat = ss_cluster.flatten()
+
+            # append to list
+            for i, _ in enumerate(ss_flat):
+                ss_flat[i].append(ss_cluster_flat[i])
+
+        # now have an array with lists
+        for i, _ in enumerate(ss_flat):
+            # convert to array
+            ss_array = np.array(ss_flat[i])
+
+            # obtain indices sorted
+            indices = np.argsort(ss_array)
+
+            # reverse, maximum first
+            indices = indices[::-1]
+
+            sum_logp = 0
+
+            # complexity 1, only first value,
+            # complexity 2, first two values, etc. etc.
+            for c in np.arange(complexity):
+                # extract index
+                idx = indices[c]
+                # product probability =
+                # sum log probability
+                sum_logp += ss_array[idx]
+
+            # store value
+            ss_flat[i] = sum_logp
+
+        # convert ss_flat to original structure
+        ss = ss_flat.reshape(xx.shape).astype(float)
 
         # normalise
         ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
@@ -341,7 +384,7 @@ class Visual_3d(object):
         src = mlab.pipeline.scalar_field(xx, yy, zz, ss_norm)
 
         # show peak areas
-        mlab.pipeline.iso_surface(src, contours=[pmin, pmax], opacity=0.1)
+        mlab.pipeline.iso_surface(src, contours=[pmin, pmax], opacity=alpha)
         # plot a volume
         #mlab.pipeline.volume(src, vmin=pmin, vmax=pmax)
         # slice it

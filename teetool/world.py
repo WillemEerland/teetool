@@ -76,28 +76,9 @@ class World(object):
             raise TypeError(
                 "expected string, not {0}".format(type(cluster_name)))
 
-        # validate cluster_data
-        if type(cluster_data) is not list:
-            raise TypeError(
-                "expected list, not {0}".format(type(cluster_data)))
 
-        # validate trajectory_data
-        for (i, trajectory_data) in enumerate(cluster_data):
-            # check type
-            if type(trajectory_data) is not tuple:
-                raise TypeError(
-                    "expected tuple, item {0} is a {1}".format(
-                        i, type(trajectory_data)))
-            # check values x [M x 1], Y [M x D]
-            (x, Y) = trajectory_data
-            (M, D) = Y.shape
-            if (D != self._ndim):
-                raise ValueError("dimension not correct")
-            if (M != np.size(x, 0)):
-                raise ValueError("number of data-points do not match")
-            # check if all finite
-            if not np.isfinite(x).all():
-                raise ValueError("x holds non-finite values")
+        # validate cluster_data
+        cluster_data = self._validate_cluster_data(cluster_data)
 
         # add new cluster [ holds "name" and "data" ]
         new_cluster = {}
@@ -113,6 +94,48 @@ class World(object):
 
         # add cluster to the list
         self._clusters.append(new_cluster)
+
+    ## validates cluster_data
+    def _validate_cluster_data(self, cluster_data):
+
+        # validate cluster_data
+        if type(cluster_data) is not list:
+            raise TypeError(
+                "expected list, not {0}".format(type(cluster_data)))
+
+        # validate trajectory_data
+        for (i, trajectory_data) in enumerate(cluster_data):
+
+
+            # check type
+            if type(trajectory_data) is not tuple:
+                raise TypeError(
+                    "expected tuple, item {0} is a {1}".format(
+                        i, type(trajectory_data)))
+            # check values x [M x 1], Y [M x D]
+            (x, Y) = trajectory_data
+
+            x = np.array(x, dtype=float)
+            Y = np.array(Y, dtype=float)
+
+            (M, D) = Y.shape
+            if (D != self._ndim):
+                raise ValueError("dimension not correct")
+            if (M != np.size(x, 0)):
+                raise ValueError("number of data-points do not match")
+            # check if all finite
+            if not np.isfinite(x).all():
+                raise ValueError("x holds non-finite values")
+
+            # (over-)write, incase type is not float but int
+            trajectory_data = (x, Y)
+            cluster_data[i] = trajectory_data
+
+        return cluster_data
+
+
+
+
 
     ## returns the name of the world
     # @param self object pointer

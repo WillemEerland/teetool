@@ -295,7 +295,7 @@ def getGridFromResolution(outline, resolution):
         if ynsteps < 2:
             ynsteps = 2
 
-        if len(outline) is 4:
+        if (len(outline) == 4):
             # 2d
             [xx, yy] = np.mgrid[xmin:xmax:np.complex(0, xnsteps+1),
                            ymin:ymax:np.complex(0, ynsteps+1)]
@@ -315,7 +315,7 @@ def getGridFromResolution(outline, resolution):
 
         [xmin, xmax, ymin, ymax] = outline[:4]
 
-        if len(outline) is 4:
+        if (len(outline) == 4):
             # 2d
             [xx, yy] = np.mgrid[xmin:xmax:np.complex(0, resolution[0]),
                            ymin:ymax:np.complex(0, resolution[1])]
