@@ -128,6 +128,10 @@ def test_model():
     for i in range(2):
         (ss_list, [xx, yy, zz]) = world_1.getTube([0, 1])
 
+
+    # complexity map
+    ss, xx, yy, zz = world_1.getComplexityMap([0, 1])
+
     # overview
     world_1.overview()
 

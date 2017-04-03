@@ -45,6 +45,8 @@ def test_visual_3d():
     visual.plotTrajectoriesPoints(x1=0.0,list_icluster=None, ntraj=3)
     # visualise intersection
     visual.plotLogLikelihood()
+    #
+    visual.plotComplexityMap()
     # visualise tube
     visual.plotTube()
     # visualise difference

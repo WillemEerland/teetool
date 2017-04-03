@@ -5,7 +5,7 @@
 
 import numpy as np
 import teetool as tt
-
+import itertools
 
 ## World class handles all trajectory data
 #
@@ -449,6 +449,96 @@ class World(object):
             zz = None
 
         return (ss_list, [xx, yy, zz])
+
+    def getComplexityMap(self, list_icluster=None, complexity=1, resolution=None, z=None):
+
+        # check validity
+        list_icluster = self._check_list_icluster(list_icluster)
+
+        nclusters = len(list_icluster)
+
+        # obtain log-likelihood
+        (ss_list, [xx, yy, zz]) = self.getLogLikelihood(list_icluster,
+                                                        resolution,
+                                                        z)
+
+        # initialise, flatten
+        ss_flat = np.zeros_like(xx, dtype=object).flatten()
+
+        # create empty lists
+        for i, _ in enumerate(ss_flat):
+            # empty list
+            ss_flat[i] = []
+
+        # loop over clusters
+        for ss_cluster in ss_list:
+            # flatten
+            ss_cluster_flat = ss_cluster.flatten()
+
+            # append to list
+            for i, _ in enumerate(ss_flat):
+                ss_flat[i].append(ss_cluster_flat[i])
+
+        # ### ### ### ### ###
+        # ss_flat is now an array that holds a list of logp related to each cluster at every element
+        # ### ### ### ### ###
+
+        # now have an array with lists
+        for i, _ in enumerate(ss_flat):
+            # convert to array
+            ss_array_logp = np.array(ss_flat[i])
+
+            # from [logp]robability to [prob]ability
+            ss_array_prob = np.exp(ss_array_logp)
+
+            total_prob = 0.0
+
+            for c in np.arange(complexity, nclusters):
+
+                # find combinations
+                gen = itertools.combinations(np.arange(nclusters), c)
+
+                for these_combinations in gen:
+
+                    prob1 = 1.0
+
+                    for this_combination in these_combinations:
+
+                        prob1 *= ss_array_prob[this_combination]
+
+                    total_prob += prob1
+
+            # store value
+            ss_flat[i] = np.log(total_prob)
+
+            """
+            # obtain indices sorted
+            indices = np.argsort(ss_array_logp)
+
+            # reverse, most likely first
+            indices = indices[::-1]
+
+            sum_logp = 0
+
+            # complexity 1, only first value,
+            # complexity 2, first two values, etc. etc.
+            for c in np.arange(complexity, nclusters):
+                # extract index
+                idx = indices[c]
+                # product probability =
+                # sum log probability
+                sum_logp += ss_array[idx]
+
+            # store value
+            ss_flat[i] = sum_logp
+            """
+
+        # convert ss_flat to original structure
+        ss = ss_flat.reshape(xx.shape).astype(float)
+
+        return (ss, xx, yy, zz)
+
+
 
     ## returns a grid based on outline and resolution
     # @param self object pointer

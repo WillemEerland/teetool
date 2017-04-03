@@ -345,61 +345,26 @@ class Visual_2d(object):
     # @param resolution specify resolution of region
     def plotLogLikelihood(self,
                           list_icluster=None,
-                          complexity=1,
                           pmin=0, pmax=1,
                           z=None,
                           resolution=None):
         # check validity
         list_icluster = self._world._check_list_icluster(list_icluster)
 
+
+
+
         (ss_list, [xx, yy, zz]) = self._world.getLogLikelihood(list_icluster,
                                                                resolution,
                                                                z)
 
-        # initialise, flatten
-        ss_flat = np.zeros_like(xx, dtype=object).flatten()
+        ss = ss_list[0] # initialise
 
-        # create empty lists
-        for i, _ in enumerate(ss_flat):
-            # empty list
-            ss_flat[i] = []
-
-        # loop over clusters
-        for ss_cluster in ss_list:
-            # flatten
-            ss_cluster_flat = ss_cluster.flatten()
-
-            # append to list
-            for i, _ in enumerate(ss_flat):
-                ss_flat[i].append(ss_cluster_flat[i])
-
-        # now have an array with lists
-        for i, _ in enumerate(ss_flat):
-            # convert to array
-            ss_array = np.array(ss_flat[i])
-
-            # obtain indices sorted
-            indices = np.argsort(ss_array)
-
-            # reverse, maximum first
-            indices = indices[::-1]
-
-            sum_logp = 0
-
-            # complexity 1, only first value,
-            # complexity 2, first two values, etc. etc.
-            for c in np.arange(complexity):
-                # extract index
-                idx = indices[c]
-                # product probability =
-                # sum log probability
-                sum_logp += ss_array[idx]
-
-            # store value
-            ss_flat[i] = sum_logp
-
-        # convert ss_flat to original structure
-        ss = ss_flat.reshape(xx.shape).astype(float)
+        for ss1 in ss_list:
+            # find those greater
+            mask = np.greater(ss1, ss)
+            # replace
+            ss[mask] = ss1[mask]
 
         # normalise
         ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
@@ -412,11 +377,28 @@ class Visual_2d(object):
                         vmin=pmin,
                         vmax=pmax)
 
-    ## Plots an outline of the trajectories
-    # @param self object pointer
-    #def plotOutline(self):
-    #    # TODO draw a box
+    def plotComplexityMap(self,
+                          list_icluster=None,
+                          complexity=1,
+                          pmin=0, pmax=1,
+                          z=None,
+                          resolution=None):
 
+        ss, xx, yy, zz = self._world.getComplexityMap(list_icluster,
+                                                      complexity,
+                                                      resolution,
+                                                      z)
+
+        # normalise
+        ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
+
+        # plot contours
+        self._ax.pcolor(xx,
+                        yy,
+                        ss_norm,
+                        cmap="viridis",
+                        vmin=pmin,
+                        vmax=pmax)
 
     ## Plots the title or worldname
     # @param self object pointer

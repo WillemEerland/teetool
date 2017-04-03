@@ -46,6 +46,13 @@ def test_visual_2d():
     # visuals by
     visual = tt.visual_2d.Visual_2d(world_1)
     # visualise intersection
+    visual.plotComplexityMap()
+    # close
+    visual.close()
+
+    # visuals by
+    visual = tt.visual_2d.Visual_2d(world_1)
+    # visualise intersection
     visual.plotTube()
     # close
     visual.close()
