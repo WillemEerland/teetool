@@ -29,7 +29,7 @@ class Visual_2d(object):
         self._ax = self._fig.gca()
         # set colour of axis
         #self._ax.set_axis_bgcolor('white')
-        self._ax.set_facecolor('white')
+        #self._ax.set_facecolor('white')
         ## World object
         self._world = thisWorld
         ## Labels of plots
