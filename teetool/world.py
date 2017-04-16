@@ -509,7 +509,8 @@ class World(object):
                     total_prob += prob1
 
             # store value
-            ss_flat[i] = np.log(total_prob)
+            # ss_flat[i] = np.log(total_prob)
+            ss_flat[i] = total_prob
 
             """
             # obtain indices sorted
