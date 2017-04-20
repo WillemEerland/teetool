@@ -463,7 +463,7 @@ class Model(object):
         for i, y_idx in enumerate(Y_idx):
             # pass all positions (passes rows)
 
-            if self._ndim is 2:
+            if (self._ndim == 2):
                 # 2d
                 [ix, iy] = y_idx
                 ss[ix, iy] = s[i]
