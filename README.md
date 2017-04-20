@@ -9,15 +9,17 @@ documentation is available at https://willemeerland.github.io/teetool/
 
 # setup the environment in Linux
 
-> conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy
+- download & install Anaconda from https://www.continuum.io/download
+- open terminal
+- navigate to Teetool directory
+
+> conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy matplotlib pyside
 
 > source activate teetool
 
-> pip install matplotlib
-
 > pip install .
 
-# notes for setting up in OSX
+# setup the environment in macOS
 
 as matplotlib requires a backend, it is easiest to replace
 
@@ -27,18 +29,32 @@ with
 
 > conda install matplotlib
 
+# setup the environment in Windows
+
+- download & install Anaconda from https://www.continuum.io/download
+- open 'Anaconda prompt'
+- navigate to Teetool directory
+
+> conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy matplotlib pyside
+
+> activate teetool
+
+> set QT_API=pyside
+
+> pip install .
+
+# run tests
+
+> py.test
+
 # run tests (including coverage report)
 
 > (cd test ; py.test -v --cov-report html --cov=teetool)
 
-# jupyter notebook
-
-Examples included in example/ folder
-
-* requires jupyter notebook
+# run examples via Jupyter notebook
 
 > pip install .[example]
 
 > jupyter notebook
 
-find example/ in browser and run files in order
+- find example/ in browser and run files in order
