@@ -500,12 +500,15 @@ class World(object):
 
                 for these_combinations in gen:
 
-                    prob1 = 1.0
-
+                    # multiply combinations (sum of logp)
+                    logp1 = 0.0
                     for this_combination in these_combinations:
+                        logp1 += ss_array_logp[this_combination]
 
-                        prob1 *= ss_array_prob[this_combination]
+                    # convert from [logp]rob to [prob]
+                    prob1 = np.exp(logp1)
 
+                    # sum individual probabilities OR
                     total_prob += prob1
 
             # store value
