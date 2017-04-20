@@ -9,17 +9,27 @@ documentation is available at https://willemeerland.github.io/teetool/
 
 # setup the environment in Linux
 
-conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy
+> conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy
 
-source activate teetool
+> source activate teetool
 
-pip install matplotlib nbval
+> pip install matplotlib
 
-python setup.py install
+> pip install .
+
+# notes for setting up in OSX
+
+as matplotlib requires a backend, it is easiest to replace
+
+> pip install matplotlib
+
+with
+
+> conda install matplotlib
 
 # run tests (including coverage report)
 
-(cd test ; py.test -v --cov-report html --cov=teetool)
+> (cd test ; py.test -v --cov-report html --cov=teetool)
 
 # jupyter notebook
 
@@ -27,8 +37,8 @@ Examples included in example/ folder
 
 * requires jupyter notebook
 
-conda install jupyter
+> pip install .[example]
 
-jupyter notebook
+> jupyter notebook
 
-* find example/ in browser and run files in order
+find example/ in browser and run files in order

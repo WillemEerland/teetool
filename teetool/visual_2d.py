@@ -29,7 +29,7 @@ class Visual_2d(object):
         self._ax = self._fig.gca()
         # set colour of axis
         #self._ax.set_axis_bgcolor('white')
-        self._ax.set_facecolor('white')
+        #self._ax.set_facecolor('white')
         ## World object
         self._world = thisWorld
         ## Labels of plots
@@ -382,7 +382,7 @@ class Visual_2d(object):
                           complexity=1,
                           pmin=0, pmax=1,
                           z=None,
-                          resolution=None):
+                          resolution=None, cmap1="Reds"):
 
         ss, xx, yy, zz = self._world.getComplexityMap(list_icluster,
                                                       complexity,
@@ -393,12 +393,25 @@ class Visual_2d(object):
         ss_norm = (ss - np.min(ss)) / (np.max(ss) - np.min(ss))
 
         # plot contours
-        self._ax.pcolor(xx,
-                        yy,
-                        ss_norm,
-                        cmap="viridis",
-                        vmin=pmin,
-                        vmax=pmax)
+        cax = self._ax.pcolor(xx,
+                              yy,
+                              ss_norm,
+                              cmap=cmap1,
+                              vmin=pmin,
+                              vmax=pmax)
+
+        return cax
+
+    ## add colorbar
+    def plotColourBar(self, *args, **kwargs):
+
+        cbar = self._fig.colorbar(*args, **kwargs)
+
+        # horizontal colorbar
+        # cbar.ax.set_xticklabels(['Low', 'Medium', 'High'])
+
+        return cbar
+
 
     ## Plots the title or worldname
     # @param self object pointer
