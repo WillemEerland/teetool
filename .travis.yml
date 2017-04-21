@@ -19,13 +19,13 @@ before_install:
   # configure a headless display to test plot generation
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
+  # give xvfb some time to start
+  - sleep 3
 # Install packages
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION pytest pytest-cov mayavi numpy scipy
-  - pip install matplotlib
-  - python setup.py install
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION pytest pytest-cov mayavi numpy scipy matplotlib pyside
+  - pip install .
 
 # Run test
 script:
-  - make -B test
+  - py.test -s -v
