@@ -21,13 +21,15 @@ documentation is available at https://willemeerland.github.io/teetool/
 
 # setup the environment in macOS
 
-as matplotlib requires a backend, it is easiest to replace
+- download & install Anaconda from https://www.continuum.io/download
+- open terminal
+- navigate to Teetool directory
 
-> pip install matplotlib
+> conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy matplotlib
 
-with
+> source activate teetool
 
-> conda install matplotlib
+> pip install .
 
 # setup the environment in Windows
 
@@ -47,7 +49,7 @@ with
 
 > py.test
 
-# run tests (including coverage report)
+# run tests, including coverage report
 
 > (cd test ; py.test -v --cov-report html --cov=teetool)
 
