@@ -84,6 +84,29 @@ class Visual_3d(object):
                 mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
                             tube_radius=None, **kwargs)
 
+    ## Plot samples of model
+    # @param self object pointer
+    # @param list_icluster list of clusters to plot
+    # @param ntraj number of trajectories
+    # @param colour if specified, overwrites distinct colours
+    # @param kwargs additional parameters for plotting
+    def plotSamples(self, list_icluster=None, ntraj=50, colour=None, **kwargs):
+
+        # check validity
+        list_icluster = self._world._check_list_icluster(list_icluster)
+
+        # unique colours
+        colours = tt.helpers.getDistinctColours(len(self._world._clusters),
+                                                 colour)
+
+        for (i, icluster) in enumerate(list_icluster):
+            these_samples = self._world.getSamples(icluster,
+                                                   nsamples=ntraj)
+            for (x, Y) in these_samples:
+
+                mlab.plot3d(Y[:, 0], Y[:, 1], Y[:, 2], color=colours[i],
+                            tube_radius=None, **kwargs)
+
     ## Plot points in trajectories of cluster
     # @param self object pointer
     # @param x1 timing [0, 1] to visualise points

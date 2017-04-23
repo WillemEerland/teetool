@@ -153,11 +153,7 @@ class Model(object):
 
         npoints = np.size(mu_y, axis=0) / ndim
 
-        [U, S_diag, V] = svd(sig_y)
-
-        S = np.diag(S_diag)
-
-        var_y = np.mat(np.real(U*np.sqrt(S)))
+        mu_y = np.reshape(mu_y, newshape=(-1,))
 
         xp = np.linspace(0, 1, npoints)
 
@@ -166,9 +162,11 @@ class Model(object):
         np.random.seed(seed=10) # always same results
 
         for n in range(nsamples):
-            vecRandom = np.random.normal(size=(mu_y.shape))
-            yp = mu_y + var_y * vecRandom
-            Yp = np.reshape(yp, (-1, ndim), order='F')
+
+            yp = np.random.multivariate_normal(mu_y, sig_y, 1).T
+
+            Yp = np.reshape(yp, newshape=(-1, ndim), order='F')
+
             cluster_data.append((xp, Yp))
 
         return cluster_data
