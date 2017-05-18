@@ -5,6 +5,8 @@ a package to support with the statistical analysis of trajectory data -- helpful
 
 purely spatial, ignores temporal effects
 
+publication is available at http://doi.org/10.5334/jors.163
+
 documentation is available at https://willemeerland.github.io/teetool/
 
 # setup the environment in Linux
