@@ -493,7 +493,7 @@ class World(object):
 
             total_prob = 0.0
 
-            for c in np.arange(complexity, nclusters):
+            for c in np.arange(complexity-1, nclusters)+1:
 
                 # find combinations
                 gen = itertools.combinations(np.arange(nclusters), c)

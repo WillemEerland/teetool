@@ -133,32 +133,38 @@ class Visual_2d(object):
     ## Plot time-series of trajectories
     # @param self object pointer
     # @param icluster select cluster to plot
+    # @param idim select dimension to plot
     # @param ntraj maximum number of trajectories
     # @param colour specificy colour of trajectories
     # @param kwargs additional parameters for plotting
-    def plotTimeSeries(self, icluster=0, ntraj=50,
+    def plotTimeSeries(self, icluster=0, idim=0, ntraj=50,
                          colour='k', **kwargs):
         # number of subplots, 2 or 3
         ndim = self._world._ndim
 
         # subplot
-        f, axarr = plt.subplots(ndim, sharex=True)
+        #f, axarr = plt.subplots(ndim, sharex=True)
 
         # check validity
         [icluster] = self._world._check_list_icluster([icluster])
 
         # extract data
         clusters = self._world.getCluster([icluster])
+
         for (i, this_cluster) in enumerate(clusters):
             # pass clusters
             for itraj, (x, Y) in enumerate(this_cluster["data"]):
 
-                for d in range(ndim):
-                    x_norm = (x - x.min()) / (x.max() - x.min())
-                    axarr[d].plot(x_norm, Y[:,d],color=colour, **kwargs)
+                #for d in range(ndim):
+                x_norm = (x - x.min()) / (x.max() - x.min())
+                a_line, = self._ax.plot(x_norm,
+                                        Y[:,idim],
+                                        color=colour, **kwargs)
 
                 if itraj > ntraj:
                     break
+
+        self._labels.append((a_line, "data"))
 
     ## Plot a box based on two coordinates
     # @param self object pointer

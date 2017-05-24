@@ -78,6 +78,9 @@ class Model(object):
         # convert output back to normal values
         # (mu_y, sig_y) = self._norm2real(mu_y, sig_y, outline)
 
+        # 'fix' to prevent the ellipsoids to collapse and cause numerical errors
+        # sometimes referred to as a 'nudge'
+        sig_y = sig_y + np.eye(sig_y.shape[0])*1e-12
 
         # convert to cells
         # (cc, cA) = self._getGMMCells(mu_y, sig_y, settings["ngaus"])
