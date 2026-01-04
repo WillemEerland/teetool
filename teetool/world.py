@@ -256,7 +256,7 @@ class World(object):
         # default
         if (list_icluster == None):
             # all
-            list_icluster = range(len(self._clusters))
+            list_icluster = list(range(len(self._clusters)))
 
         if type(list_icluster) is not list:
             raise TypeError("expected list, not {0}".format(type(list_icluster)))
@@ -370,8 +370,8 @@ class World(object):
 
         # temporary adjust arrays
         if z is not None:
-            xx = np.reshape(xx, newshape=(xx.shape[0], xx.shape[1], 1))
-            yy = np.reshape(yy, newshape=(yy.shape[0], yy.shape[1], 1))
+            xx = np.reshape(xx, shape=(xx.shape[0], xx.shape[1], 1))
+            yy = np.reshape(yy, shape=(yy.shape[0], xx.shape[1], 1))
             zz = np.ones_like(xx)*1.0*z;
 
         # values returned
@@ -384,14 +384,14 @@ class World(object):
             ss = this_cluster["model"].isInside_grid(sdwidth, xx, yy, zz)
 
             if z is not None:
-                ss = np.reshape(ss, newshape=(xx.shape[0], xx.shape[1]))
+                ss = np.reshape(ss, shape=(xx.shape[0], xx.shape[1]))
 
             ss_list.append(ss)
 
         # re-adjust
         if z is not None:
-            xx = np.reshape(xx, newshape=(xx.shape[0], xx.shape[1]))
-            yy = np.reshape(yy, newshape=(yy.shape[0], yy.shape[1]))
+            xx = np.reshape(xx, shape=(xx.shape[0], xx.shape[1]))
+            yy = np.reshape(yy, shape=(yy.shape[0], yy.shape[1]))
             zz = None
 
         return (ss_list, [xx, yy, zz])
@@ -424,8 +424,8 @@ class World(object):
 
         # temporary adjust arrays
         if z is not None:
-            xx = np.reshape(xx, newshape=(xx.shape[0], xx.shape[1], 1))
-            yy = np.reshape(yy, newshape=(yy.shape[0], yy.shape[1], 1))
+            xx = np.reshape(xx, shape=(xx.shape[0], xx.shape[1], 1))
+            yy = np.reshape(yy, shape=(yy.shape[0], yy.shape[1], 1))
             zz = np.ones_like(xx)*1.0*z;
 
         # values returned
@@ -438,14 +438,14 @@ class World(object):
             ss = this_cluster["model"].evalLogLikelihood(xx, yy, zz)
 
             if z is not None:
-                ss = np.reshape(ss, newshape=(xx.shape[0], xx.shape[1]))
+                ss = np.reshape(ss, shape=(xx.shape[0], xx.shape[1]))
 
             ss_list.append(ss)
 
         # re-adjust
         if z is not None:
-            xx = np.reshape(xx, newshape=(xx.shape[0], xx.shape[1]))
-            yy = np.reshape(yy, newshape=(yy.shape[0], yy.shape[1]))
+            xx = np.reshape(xx, shape=(xx.shape[0], xx.shape[1]))
+            yy = np.reshape(yy, shape=(yy.shape[0], yy.shape[1]))
             zz = None
 
         return (ss_list, [xx, yy, zz])

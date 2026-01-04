@@ -3,7 +3,6 @@
 #
 #  See Model class for more details
 
-from __future__ import print_function
 import numpy as np
 
 from numpy.linalg import svd
@@ -124,7 +123,7 @@ class Model(object):
         npoints = len(self._cc)
 
         mu_y = self._mu_y
-        Y = np.reshape(mu_y, newshape=(-1, ndim), order='F')
+        Y = np.reshape(mu_y, shape=(-1, ndim), order='F')
 
         #Y = np.zeros(shape=(npoints, ndim))
         #for i, c in enumerate(self._cc):
@@ -154,9 +153,9 @@ class Model(object):
         mu_y = self._mu_y
         sig_y = self._sig_y
 
-        npoints = np.size(mu_y, axis=0) / ndim
+        npoints = int(np.size(mu_y, axis=0) // ndim)
 
-        mu_y = np.reshape(mu_y, newshape=(-1,))
+        mu_y = np.reshape(mu_y, shape=(-1,))
 
         xp = np.linspace(0, 1, npoints)
 
@@ -168,7 +167,7 @@ class Model(object):
 
             yp = np.random.multivariate_normal(mu_y, sig_y, 1).T
 
-            Yp = np.reshape(yp, newshape=(-1, ndim), order='F')
+            Yp = np.reshape(yp, shape=(-1, ndim), order='F')
 
             cluster_data.append((xp, Yp))
 
@@ -240,7 +239,7 @@ class Model(object):
         ndim = self._ndim
 
         c = np.array(c)
-        A = np.mat(A)
+        A = np.asmatrix(A)
 
         # find the rotation matrix and radii of the axes
         [_, s, rotation] = svd(A)
@@ -256,11 +255,9 @@ class Model(object):
             ellipse = np.empty(shape=(nellipse, ndim))
             ellipse[:,0] = x
             ellipse[:,1] = y
-            ellipse = np.mat(ellipse)
+            ellipse = np.asmatrix(ellipse)
 
             ap = ellipse * rotation.transpose() + c.transpose()
-
-            # return np.mat(ellipse)
 
         if ndim == 3:
             # 3d
@@ -284,17 +281,14 @@ class Model(object):
             ap[:, 1] = y.transpose()
             ap[:, 2] = z.transpose()
 
-            ap = tt.helpers.unique_rows(ap) # np.mat(ap).unique_rows()
+            ap = tt.helpers.unique_rows(ap) # 
 
             ap = ap * rotation.transpose() + c.transpose()
 
-            # ap = np.concatenate([x, y, z], axis=1)
-
-            # return np.mat(ap)
 
         ap = tt.helpers.unique_rows(ap)
 
-        return np.mat(ap)
+        return np.asmatrix(ap)
 
 
     def _getSample(self, c, A, nsamples=1, std=1):
@@ -306,7 +300,7 @@ class Model(object):
 
         S = np.diag(S_diag)
 
-        var_y = np.mat(np.real(U*np.sqrt(S)))
+        var_y = np.asmatrix(np.real(U*np.sqrt(S)))
 
         ndim = self._ndim
 
@@ -319,7 +313,7 @@ class Model(object):
 
             Y[i,:] = Yi.transpose()
 
-        return np.mat(Y)
+        return np.asmatrix(Y)
 
     def _getCoordsEllipse(self, nellipse=20, sdwidth=5):
         """
@@ -344,7 +338,7 @@ class Model(object):
 
         Y = np.concatenate(Y_list, axis=0)
 
-        return np.mat(Y)
+        return np.asmatrix(Y)
 
     def _eval_logp(self, Y_pos):
         """
@@ -421,7 +415,7 @@ class Model(object):
                 for iy in range(ny):
                     x1 = xx[ix, 0]
                     y1 = yy[0, iy]
-                    pos = np.mat([x1, y1])
+                    pos = np.asmatrix([x1, y1])
                     Y_pos.append(pos)
                     Y_idx.append([ix, iy])
         elif (self._ndim == 3):
@@ -432,7 +426,7 @@ class Model(object):
                         x1 = xx[ix, 0, 0]
                         y1 = yy[0, iy, 0]
                         z1 = zz[0, 0, iz]
-                        pos = np.mat([x1, y1, z1])
+                        pos = np.asmatrix([x1, y1, z1])
                         Y_pos.append(pos)
                         Y_idx.append([ix, iy, iz])
         else:

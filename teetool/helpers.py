@@ -77,7 +77,7 @@ def find_nearest(original_values, target_values):
 # RE-CODED FROM MATLAB nearestSPD
 # http://uk.mathworks.com/matlabcentral/fileexchange/42885-nearestspd
 def nearest_spd(A):
-    A = np.mat(A)
+    A = np.asmatrix(A)
 
     # symmetrize A into B
     B = (A + A.transpose()) / 2.
@@ -115,7 +115,7 @@ def nearest_spd(A):
             # tweak by adding a tiny multiple of an identity matrix.
             [aneig, _] = eig(Ahat)
             mineig = np.min(aneig)
-            addition = np.abs(-mineig*(k**2) + np.finfo(np.float).eps)
+            addition = np.abs(-mineig*(k**2) + np.finfo(np.float64).eps)
             Ahat = Ahat + addition*np.eye(np.size(Ahat,axis=0))
 
     return Ahat
@@ -201,9 +201,9 @@ def unique_rows(a):
 # @param A convariance matrix
 # @returns loglikelihood log likelihood of Gaussian
 def gauss_logp(y, ndim, c, A):
-    y = np.mat(y)
-    c = np.mat(c)
-    A = np.mat(A)
+    y = np.asmatrix(y)
+    c = np.asmatrix(c)
+    A = np.asmatrix(A)
 
     pL1 = 1. * ndim * np.log(2.*np.pi)
     pL2 = 1. * np.log( det(A) )
@@ -220,9 +220,9 @@ def gauss_logp(y, ndim, c, A):
 # @param A convariance matrix
 # @returns value value of Gaussian at point y
 def gauss(y, ndim, c, A):
-    y = np.mat(y)
-    c = np.mat(c)
-    A = np.mat(A)
+    y = np.asmatrix(y)
+    c = np.asmatrix(c)
+    A = np.asmatrix(A)
 
     p1 = 1 / np.sqrt(((2*np.pi)**ndim)*det(A))
     p2 = np.exp(-1/2*(y-c).transpose()*inv(A)*(y-c))
@@ -297,8 +297,8 @@ def getGridFromResolution(outline, resolution):
 
         if (len(outline) == 4):
             # 2d
-            [xx, yy] = np.mgrid[xmin:xmax:np.complex(0, xnsteps+1),
-                           ymin:ymax:np.complex(0, ynsteps+1)]
+            [xx, yy] = np.mgrid[xmin:xmax:complex(0, xnsteps+1),
+                           ymin:ymax:complex(0, ynsteps+1)]
             zz = None
         else:
             # 3d
@@ -306,9 +306,9 @@ def getGridFromResolution(outline, resolution):
             znsteps = int( np.around( (zmax-zmin) / (1.*resolution) ) )
             if znsteps < 2:
                 znsteps = 2
-            [xx, yy, zz] = np.mgrid[xmin:xmax:np.complex(0, xnsteps+1),
-                           ymin:ymax:np.complex(0, ynsteps+1),
-                           zmin:zmax:np.complex(0, znsteps+1)]
+            [xx, yy, zz] = np.mgrid[xmin:xmax:complex(0, xnsteps+1),
+                           ymin:ymax:complex(0, ynsteps+1),
+                           zmin:zmax:complex(0, znsteps+1)]
 
     else:
         # create a grid based on resolution
@@ -317,15 +317,15 @@ def getGridFromResolution(outline, resolution):
 
         if (len(outline) == 4):
             # 2d
-            [xx, yy] = np.mgrid[xmin:xmax:np.complex(0, resolution[0]),
-                           ymin:ymax:np.complex(0, resolution[1])]
+            [xx, yy] = np.mgrid[xmin:xmax:complex(0, resolution[0]),
+                           ymin:ymax:complex(0, resolution[1])]
             zz = None
         else:
             # 3d
             [zmin, zmax] = outline[4:6]
-            [xx, yy, zz] = np.mgrid[xmin:xmax:np.complex(0, resolution[0]),
-                           ymin:ymax:np.complex(0, resolution[1]),
-                           zmin:zmax:np.complex(0, resolution[2])]
+            [xx, yy, zz] = np.mgrid[xmin:xmax:complex(0, resolution[0]),
+                           ymin:ymax:complex(0, resolution[1]),
+                           zmin:zmax:complex(0, resolution[2])]
 
     return [xx, yy, zz]
 

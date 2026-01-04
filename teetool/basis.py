@@ -57,7 +57,7 @@ class Basis(object):
 
         BASIS = block_diag(*BASIS_list)
 
-        return np.mat(BASIS)
+        return np.asmatrix(BASIS)
 
     ## obtain basis functions at specific points
     #  @param self  The object pointer.
@@ -75,7 +75,7 @@ class Basis(object):
         mpoints = len(x_vec)
         mbasis = self._nbasis
 
-        BASIS = np.mat(np.empty((mpoints, mbasis)))
+        BASIS = np.asmatrix(np.empty((mpoints, mbasis)))
 
         # first row is bias, always
         BASIS[:,0] = np.ones(shape=(mpoints,1))
@@ -111,7 +111,7 @@ class Basis(object):
         for (i, x_sca) in enumerate(x_vec):
             GAUS[i,:] = self._getBasisRbfVector(x_sca, mbasis)
 
-        return np.mat(GAUS)
+        return np.asmatrix(GAUS)
 
     ## evaluates the rbf basis function for a single x
     #  @param self      The object pointer.
@@ -129,7 +129,7 @@ class Basis(object):
         for i, gaus_loc in enumerate(gaus_loc_vec):
             gaus[i] = self._funcRbf(x_sca, gaus_loc, gaus_width)
 
-        return np.mat(gaus)
+        return np.asmatrix(gaus)
 
     ## evaluates a single rbf basis function for a single x
     #  @param self      The object pointer.
@@ -156,7 +156,7 @@ class Basis(object):
         for (i, x_sca) in enumerate(x_vec):
             BERN[i,:] = self._getBasisBernsteinVector(x_sca, mbasis)
 
-        return np.mat(BERN)
+        return np.asmatrix(BERN)
 
     ## evaluates the Bernstein basis function in [0, 1] using the formula \f$B(N,I)(X) = [N!/(I!*(N-I)!)] * (1-X)^(N-I) * X^I\f$ for a single x
     #  @param self      The object pointer.
@@ -181,4 +181,4 @@ class Basis(object):
 
                 bern[0] = (1 - x_sca)*bern[0]
 
-        return np.mat(bern)
+        return np.asmatrix(bern)

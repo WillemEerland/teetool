@@ -66,11 +66,11 @@ def test_help_func():
         # generating samples
 
         if (mdim == 2):
-            c = np.mat([[0], [0]])
-            A = np.mat([[1,0],[0,1]])
+            c = np.asmatrix([[0], [0]])
+            A = np.asmatrix([[1,0],[0,1]])
         else:
-            c = np.mat([[0], [0], [0]])
-            A = np.mat([[1,0,0],[0,1,0],[0,0,1]])
+            c = np.asmatrix([[0], [0], [0]])
+            A = np.asmatrix([[1,0,0],[0,1,0],[0,0,1]])
 
         Y = new_model._getSample(c, A, 1)
         assert(Y.shape == (1, mdim))
