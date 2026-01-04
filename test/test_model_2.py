@@ -34,7 +34,7 @@ def test_eval():
 
         # test subfunctions
         y = np.zeros((mdim, 1))
-        y = np.mat(y)
+        y = np.asmatrix(y)
 
         pL = tt.helpers.gauss_logLc(y, mdim, model._cc, model._cA)
 

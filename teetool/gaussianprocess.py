@@ -115,7 +115,7 @@ class GaussianProcess(object):
         for yn in yc:
             sig_y_sum += (yn - mu_y) * (yn - mu_y).transpose()
 
-        sig_y = np.mat(sig_y_sum / ntraj)
+        sig_y = np.asmatrix(sig_y_sum / ntraj)
 
         # convert to original values
         mu_y, sig_y = self._norm2real(mu_y, sig_y)
@@ -147,10 +147,10 @@ class GaussianProcess(object):
         wc = []
 
         for i, (xn, Y) in enumerate(cluster_data):
-            yn = np.reshape(Y, newshape=(-1,1), order='F')
+            yn = np.reshape(Y, shape=(-1,1), order='F')
             Hn = basis.get(xn)
             wn = pinv(Hn) * yn
-            wn = np.mat(wn)
+            wn = np.asmatrix(wn)
             wc.append(wn)
 
         # obtain average [mu]
@@ -159,7 +159,7 @@ class GaussianProcess(object):
         for wn in wc:
             mu_w += wn
 
-        mu_w = np.mat(mu_w / ntraj)
+        mu_w = np.asmatrix(mu_w / ntraj)
 
         # obtain standard deviation [sig]
         sig_w_sum = np.zeros(shape=(ndim*nbasis, ndim*nbasis))
@@ -167,7 +167,7 @@ class GaussianProcess(object):
         for wn in wc:
             sig_w_sum += (wn - mu_w)*(wn - mu_w).transpose()
 
-        sig_w = np.mat(sig_w_sum / ntraj)
+        sig_w = np.asmatrix(sig_w_sum / ntraj)
 
         # predict these values
         xp = np.linspace(0, 1, ngaus)
@@ -218,7 +218,7 @@ class GaussianProcess(object):
         # initial variables
         BETA_EM = 1000.
         mu_w = np.zeros(shape=(nbasis*ndim, 1))
-        sig_w = np.mat(np.eye(nbasis*ndim))
+        sig_w = np.asmatrix(np.eye(nbasis*ndim))
         sig_w_inv = inv(sig_w)
 
         loglikelihood_previous = np.inf
@@ -315,7 +315,7 @@ class GaussianProcess(object):
 
         for (xn, Yn)  in cluster_data:
             # data
-            yn = np.reshape(Yn, newshape=(-1,1), order='F')
+            yn = np.reshape(Yn, shape=(-1,1), order='F')
             Hn = basis.get(xn)
             # add to list
             yc.append(yn)
@@ -380,18 +380,18 @@ class GaussianProcess(object):
 
         # calculate S :: (50)
         Sn_inv = sig_w_inv + np.multiply(BETA_EM,(Hn.transpose()*Hn))
-        Sn = np.mat(inv(Sn_inv))
+        Sn = np.asmatrix(inv(Sn_inv))
 
         Ewn = (Sn *((np.multiply(BETA_EM,(Hn.transpose()*yn))) + ((sig_w_inv*mu_w))))
 
         # assure matrix
-        Ewn = np.mat(Ewn)
+        Ewn = np.asmatrix(Ewn)
 
         # BISHOP (2.62)
         Ewnwn = Sn + Ewn*Ewn.transpose()
 
         # assure matrix
-        Ewnwn = np.mat(Ewnwn)
+        Ewnwn = np.asmatrix(Ewnwn)
 
         return (Ewn, Ewnwn)
 
@@ -414,7 +414,7 @@ class GaussianProcess(object):
             # sum
             mu_w_sum += Ewn
 
-        mu_w = np.mat(mu_w_sum / ntraj)
+        mu_w = np.asmatrix(mu_w_sum / ntraj)
 
         return mu_w
 
@@ -453,7 +453,7 @@ class GaussianProcess(object):
             SIGMA_n = Ewnwn - 2.*(mu_w*Ewn.transpose()) + mu_w*mu_w.transpose()
             sig_w_sum += SIGMA_n
 
-        sig_w = np.mat(sig_w_sum / ntraj)
+        sig_w = np.asmatrix(sig_w_sum / ntraj)
 
         return sig_w
 
@@ -474,7 +474,7 @@ class GaussianProcess(object):
 
             BETA_sum_inv += np.dot(yn.transpose(),yn) - 2.*(np.dot(yn.transpose(),(Hn*Ewn))) + np.trace((Hn.transpose()*Hn)*Ewnwn)
 
-        BETA_EM = np.mat( (ndim*Mstar) / BETA_sum_inv )
+        BETA_EM = np.asmatrix( (ndim*Mstar) / BETA_sum_inv )
 
         return BETA_EM
 

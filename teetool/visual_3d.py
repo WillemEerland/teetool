@@ -254,7 +254,7 @@ class Visual_3d(object):
             src = mlab.pipeline.scalar_field(xx, yy, zz, ss1)
             # plot an iso surface
             mlab.pipeline.iso_surface(src,
-                                   contours=[0.5],
+                                   contours=1,
                                    opacity=alpha,
                                    color=color, **kwargs)
             # some stats

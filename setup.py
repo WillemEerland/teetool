@@ -1,6 +1,6 @@
 #
 
-from distutils.core import setup
+from setuptools import setup
 
 setup(name='teetool',
       version='1.0',
@@ -12,5 +12,6 @@ setup(name='teetool',
                         'scipy',
                         'matplotlib',
                         'mayavi'],
-      extras_require={'example': ['notebook', ]}
+      extras_require={'example': ['notebook']},
+      python_requires='>=3.6'
       )
