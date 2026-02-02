@@ -15,7 +15,7 @@ documentation is available at https://willemeerland.github.io/teetool/
 - open terminal
 - navigate to Teetool directory
 
-> conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy matplotlib
+> conda create -n teetool python=3 pytest pytest-cov mayavi numpy scipy matplotlib
 
 > source activate teetool
 
@@ -27,7 +27,7 @@ documentation is available at https://willemeerland.github.io/teetool/
 - open terminal
 - navigate to Teetool directory
 
-> conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy matplotlib
+> conda create -n teetool python=3 pytest pytest-cov mayavi numpy scipy matplotlib
 
 > source activate teetool
 
@@ -39,7 +39,7 @@ documentation is available at https://willemeerland.github.io/teetool/
 - open 'Anaconda prompt'
 - navigate to Teetool directory
 
-> conda create -n teetool python=2.7 pytest pytest-cov mayavi numpy scipy matplotlib
+> conda create -n teetool python=3 pytest pytest-cov mayavi numpy scipy matplotlib
 
 > activate teetool
 
